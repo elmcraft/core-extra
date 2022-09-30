@@ -425,7 +425,7 @@ has access to the key.
         --> Dict.fromList [ ( 1, "123" ), ( 2, "2abcdef" ), ( 3, "xyz" ) ]
 
 Note that, like `Dict.union`, it is more efficient to have the larger `Dict` as
-the second argument, i.e. when possible, you should use `unionWith f new old`,
+the second argument, i.e. when possible, you should use `unionWithKey f new old`,
 if `old` has more keys than `new`.
 
 -}
