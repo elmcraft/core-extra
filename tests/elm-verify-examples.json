@@ -1,0 +1,12 @@
+{
+  "root": "../src",
+  "tests": [
+    "Array.Extra",
+    "Basics.Extra",
+    "Dict.Extra",
+    "List.Extra",
+    "Maybe.Extra",
+    "Result.Extra",
+    "String.Extra"
+  ]
+}
