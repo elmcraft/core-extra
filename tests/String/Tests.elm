@@ -82,7 +82,7 @@ decapitalizeTest =
 toTitleCaseTest : Test
 toTitleCaseTest =
     describe "toTitleCase"
-        [ fuzz (list asciiString) "It converts the first letter of each word to uppercase" <|
+        [ fuzz (list string) "It converts the first letter of each word to uppercase" <|
             \strings ->
                 let
                     result =
@@ -98,7 +98,7 @@ toTitleCaseTest =
                             |> List.map toSentenceCase
                 in
                 Expect.equal expected result
-        , fuzz (list asciiString) "It does not change the length of the string" <|
+        , fuzz (list string) "It does not change the length of the string" <|
             \strings ->
                 let
                     result =

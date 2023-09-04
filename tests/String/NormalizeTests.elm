@@ -35,7 +35,7 @@ removeDiacriticsTests =
             \_ ->
                 removeDiacritics "こんにちは"
                     |> equal "こんにちは"
-        , fuzz Fuzz.string "don't touch ASCII" <|
+        , fuzz Fuzz.asciiString "don't touch ASCII" <|
             \randomAscii ->
                 removeDiacritics randomAscii
                     |> equal randomAscii

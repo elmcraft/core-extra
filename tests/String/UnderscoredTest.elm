@@ -17,7 +17,7 @@ underscoredTest =
                 underscored s
                     |> String.toLower
                     |> Expect.equal (underscored s |> String.toLower)
-        , fuzz asciiString "It replaces spaces and dashes with an underscore" <|
+        , fuzz string "It replaces spaces and dashes with an underscore" <|
             \s ->
                 let
                     expected =

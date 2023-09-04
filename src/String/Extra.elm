@@ -873,6 +873,8 @@ nonBlank string =
 -}
 removeAccents : String -> String
 removeAccents string =
+    -- TODO: I think the better implementation is in the String.Normalize.Diacritics module.
+    -- TODO: We should verify this is true and merge the implementations.
     if String.isEmpty string then
         string
 

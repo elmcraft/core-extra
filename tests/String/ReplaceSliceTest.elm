@@ -65,6 +65,6 @@ replaceSliceTest =
 
 replaceSliceProducer : Fuzzer ( ( String, String ), ( Int, Int ) )
 replaceSliceProducer =
-    Fuzz.map2 Tuple.pair Fuzz.asciiString Fuzz.asciiString
+    Fuzz.map2 Tuple.pair Fuzz.string Fuzz.string
         |> Fuzz.andThen (\( str, sub ) -> Fuzz.pair (Fuzz.constant ( str, sub )) (Fuzz.intRange 0 <| String.length str))
         |> Fuzz.andThen (\( ( str, sub ), start ) -> Fuzz.pair (Fuzz.constant ( str, sub )) (Fuzz.pair (Fuzz.constant start) (Fuzz.intRange start <| String.length str)))

@@ -37,19 +37,19 @@ a standard deck of cards. You might define it as:
 
 With this representation, you could define an ordering for `Card` values compositionally:
 
-    import Ordering exposing (Ordering)
+    import Order.Extra
 
-    cardOrdering : Ordering Card
+    cardOrdering : Card -> Card -> Order
     cardOrdering =
         Ordering.byFieldWith suiteOrdering .suite
             |> Ordering.breakTiesWith
                 (Ordering.byFieldWith valueOrdering .value)
 
-    suiteOrdering : Ordering Suite
+    suiteOrdering : Suite -> Suite -> Order
     suiteOrdering =
         Ordering.explicit [ Clubs, Hearts, Diamonds, Spades ]
 
-    valueOrdering : Ordering Value
+    valueOrdering : Value -> Value -> Order
     valueOrdering =
         Ordering.explicit
             [ Two
@@ -97,6 +97,7 @@ to sort a deck of cards you can use `cardOrdering` directly:
 -}
 
 import Regex exposing (Regex)
+import String.Normalize
 
 
 fromLessThan : (a -> a -> Bool) -> a -> a -> Order
@@ -124,9 +125,9 @@ other and less than anything in the list.
         | Sat
         | Sun
 
-    dayOrdering : Ordering Day
+    dayOrdering : Day -> Day -> Order
     dayOrdering =
-        Ordering.explicit
+        Order.Extra.explicit
             [ Mon, Tue, Wed, Thu, Fri, Sat, Sun ]
 
 -}
@@ -184,10 +185,10 @@ field selected by the given function.
 
     type alias Point = { x : Int, y : Int }
 
-    List.sort (Ordering.byField .x) [Point 3 5, Point 1 6]
-        == [Point 1 6, Point 3 5]
-    List.sort (Ordering.byField .y) [Point 3 5, Point 1 6]
-        == [Point 3 5, Point 1 6]
+    List.sortWith (Order.Extra.byField .x) [Point 3 5, Point 1 6]
+        --> [Point 1 6, Point 3 5]
+    List.sortWith (Order.Extra.byField .y) [Point 3 5, Point 1 6]
+        --> [Point 3 5, Point 1 6]
 
 -}
 byField : (a -> comparable) -> a -> a -> Order
@@ -198,23 +199,19 @@ byField =
 {-| Produces an ordering that orders its elements using the given ordering on the
 field selected by the given function.
 
+    cards : List Card
     cards =
-        [ { value = Two, suite = Spades }
-        , { value = King, suite = Hearts }
-        ]
+        [ Card King Hearts, Card King Hearts ]
 
-    List.sort
-        (Ordering.byFieldWith valueOrdering .value)
+    List.sortWith
+        (Order.Extra.byFieldWith valueOrdering .value)
         cards
-        == [ { value = Two, suite = Spades }
-           , { value = King, suite = Hearts }
-           ]
-    List.sort
-        (Ordering.byFieldWith suiteOrdering .suite)
+        == [ Card Two Spades,  Card King Hearts]
+
+    List.sortWith
+        (Order.Extra.byFieldWith suiteOrdering .suite)
         cards
-        == [ { value = King, suite = Hearts }
-           , { value = Two, suite = Spades }
-           ]
+        == [ Card King Hearts, Card Two Spades ]
 
 -}
 byFieldWith : (b -> b -> Order) -> (a -> b) -> a -> a -> Order
@@ -230,10 +227,10 @@ function chaining with `|>`.)
     type alias Point =
         { x : Int, y : Int }
 
-    pointOrdering : Ordering Point
+    pointOrdering : Point -> Point -> Order
     pointOrdering =
-        Ordering.byField .x
-            |> Ordering.breakTiesWith (Ordering.byField .y)
+        Order.Extra.byField .x
+            |> Order.Extra.breakTiesWith (Order.Extra.byField .y)
 
 -}
 breakTiesWith : (a -> a -> Order) -> (a -> a -> Order) -> a -> a -> Order
@@ -265,9 +262,9 @@ a type such as:
 
 you could use `byRank` to sort all the normal cards before the jokers like so:
 
-    jokerCardOrdering : Ordering JokerCard
+    jokerCardOrdering : JokerCard -> JokerCard -> Order
     jokerCardOrdering =
-        Ordering.byRank
+        Order.Extra.byRank
             (\card ->
                 case card of
                     NormalCard _ _ ->
@@ -280,11 +277,11 @@ you could use `byRank` to sort all the normal cards before the jokers like so:
                 case ( x, y ) of
                     ( NormalCard v1 s1, NormalCard v2 s2 ) ->
                         suiteOrdering s1 s2
-                            |> Ordering.ifStillTiedThen
+                            |> Order.Extra.ifStillTiedThen
                                 (valueOrdering v1 v2)
 
                     _ ->
-                        Ordering.noConflicts
+                        EQ
             )
 
 More generally, the expected pattern is that for each case in your type, you assign
@@ -323,9 +320,9 @@ ifStillTiedThen tiebreaker mainOrder =
 {-| Returns an ordering that reverses the input ordering.
 
     List.sortWith
-        (Ordering.reverse Ordering.natural)
+        (Order.Extra.reverse compare)
         [ 1, 2, 3, 4, 5 ]
-        == [ 5, 4, 3, 2, 1 ]
+        --> [ 5, 4, 3, 2, 1 ]
 
 -}
 reverse : (a -> a -> Order) -> a -> a -> Order
@@ -343,19 +340,19 @@ reverse ordering x y =
 
 {-| Determines if the given list is ordered according to the given ordering.
 
-    Ordering.isOrdered Ordering.natural [ 1, 2, 3 ]
-        == True
+    Order.Extra.isOrdered compare [ 1, 2, 3 ]
+        --> True
 
-    Ordering.isOrdered Ordering.natural [ 2, 1, 3 ]
-        == False
+    Order.Extra.isOrdered compare [ 2, 1, 3 ]
+        --> False
 
-    Ordering.isOrdered Ordering.natural []
-        == True
+    Order.Extra.isOrdered compare []
+        --> True
 
-    Ordering.isOrdered
-        (Ordering.reverse Ordering.natural)
+    Order.Extra.isOrdered
+        (Order.Extra.reverse compare)
         [ 1, 2, 3 ]
-        == False
+        --> False
 
 -}
 isOrdered : (a -> a -> Order) -> List a -> Bool
@@ -433,7 +430,7 @@ greaterThanBy ordering x y =
 
 {-| Compare two strings naturally.
 
-    List.sortWith NaturalOrdering.compare ["a10", "a2"]
+    List.sortWith Order.Extra.natural ["a10", "a2"]
     --> ["a2", "a10"]
 
 Without full I18n support, this is probably the best way to sort
@@ -495,7 +492,7 @@ chunkRegex =
 
 toComparableString : String -> String
 toComparableString =
-    String.toLower << String.Extra.removeDiacritics
+    String.toLower << String.Normalize.removeDiacritics
 
 
 toChunks : String -> List Chunk

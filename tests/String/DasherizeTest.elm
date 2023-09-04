@@ -17,7 +17,7 @@ dasherizeTest =
                 dasherize s
                     |> String.toLower
                     |> Expect.equal (dasherize s)
-        , fuzz asciiString "It replaces spaces and underscores with a dash" <|
+        , fuzz string "It replaces spaces and underscores with a dash" <|
             \s ->
                 let
                     expected =

@@ -67,18 +67,14 @@ If the index is out of bounds, nothing is changed.
     --> fromList [ 1, 2, 3 ]
 
 -}
-update :
-    Int
-    -> (element -> element)
-    -> (Array element -> Array element)
-update index alter =
-    \array ->
-        case array |> Array.get index of
-            Nothing ->
-                array
+update : Int -> (a -> a) -> Array a -> Array a
+update index alter array =
+    case array |> Array.get index of
+        Nothing ->
+            array
 
-            Just element ->
-                array |> Array.set index (alter element)
+        Just element ->
+            array |> Array.set index (alter element)
 
 
 {-| Drop a given number of elements from the start.
@@ -94,10 +90,9 @@ Given a negative argument, count the end of the slice from the end.
     --> fromList [ 4, 5, 6 ]
 
 -}
-sliceFrom : Int -> (Array element -> Array element)
-sliceFrom lengthDropped =
-    \array ->
-        array |> slice lengthDropped (array |> length)
+sliceFrom : Int -> Array a -> Array a
+sliceFrom lengthDropped array =
+    array |> slice lengthDropped (array |> length)
 
 
 {-| Take a number of elements from the start.
@@ -113,7 +108,7 @@ Given a negative argument, count the beginning of the slice from the end.
     --> fromList [ 0, 1, 2, 3 ]
 
 -}
-sliceUntil : Int -> (Array element -> Array element)
+sliceUntil : Int -> Array a -> Array a
 sliceUntil =
     slice 0
 
@@ -129,9 +124,9 @@ sliceUntil =
     --> empty
 
 -}
-pop : Array element -> Array element
+pop : Array a -> Array a
 pop =
-    \array -> array |> slice 0 -1
+    slice 0 -1
 
 
 {-| Place a value between all elements.
@@ -146,13 +141,12 @@ pop =
 To interlace an `Array`, [`interweave`](#interweave).
 
 -}
-intersperse : element -> (Array element -> Array element)
-intersperse separator =
-    \array ->
-        array
-            |> Array.toList
-            |> List.intersperse separator
-            |> Array.fromList
+intersperse : a -> Array a -> Array a
+intersperse separator array =
+    array
+        |> Array.toList
+        |> List.intersperse separator
+        |> Array.fromList
 
 
 {-| Try transforming all elements but only keep the successes.
@@ -164,27 +158,23 @@ intersperse separator =
     --> fromList [ 3, 5 ]
 
 -}
-filterMap :
-    (element -> Maybe narrowElement)
-    -> (Array element -> Array narrowElement)
-filterMap tryMap =
-    \array ->
-        array
-            |> Array.foldr
-                (\el soFar -> soFar |> consTry (el |> tryMap))
-                []
-            |> Array.fromList
+filterMap : (a -> Maybe b) -> Array a -> Array b
+filterMap tryMap array =
+    array
+        |> Array.foldr
+            (\el soFar -> consTry (tryMap el) soFar)
+            []
+        |> Array.fromList
 
 
 consTry : Maybe a -> List a -> List a
-consTry maybeNewHead =
-    \list ->
-        case maybeNewHead of
-            Just newHead ->
-                newHead :: list
+consTry maybeNewHead list =
+    case maybeNewHead of
+        Just newHead ->
+            newHead :: list
 
-            Nothing ->
-                list
+        Nothing ->
+            list
 
 
 {-| Apply a given `Array` of changes to all elements.
@@ -200,12 +190,9 @@ If one `Array` is longer, its extra elements are not used.
     --> fromList [ -100, 100, 110 ]
 
 -}
-apply :
-    Array (element -> mappedElement)
-    -> (Array element -> Array mappedElement)
-apply changes =
-    \array ->
-        array |> map2 (\map element -> map element) changes
+apply : Array (a -> b) -> Array a -> Array b
+apply changes array =
+    array |> map2 (\map element -> map element) changes
 
 
 {-| Apply a function to the elements in the array and collect the result in a List.
@@ -218,17 +205,9 @@ apply changes =
     --> [ Html.text "a", Html.text "b", Html.text "c" ]
 
 -}
-mapToList :
-    (element -> mappedElement)
-    -> (Array element -> List mappedElement)
-mapToList elementChange =
-    \array ->
-        array
-            |> Array.foldr
-                (\element soFar ->
-                    soFar |> (::) (element |> elementChange)
-                )
-                []
+mapToList : (a -> b) -> Array a -> List b
+mapToList fn array =
+    Array.foldr (\element soFar -> fn element :: soFar) [] array
 
 
 {-| Transform all elements with their indexes as the first argument

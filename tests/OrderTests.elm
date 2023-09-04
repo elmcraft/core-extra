@@ -3,7 +3,7 @@ module OrderTests exposing (..)
 import Dict exposing (Dict)
 import Expect
 import Fuzz exposing (Fuzzer)
-import Order.Extra exposing (Ordering)
+import Order.Extra
 import Test exposing (..)
 
 
@@ -39,17 +39,17 @@ type JokerCard
     | Joker
 
 
-suiteOrdering : Ordering Suite
+suiteOrdering : Suite -> Suite -> Order
 suiteOrdering =
     Order.Extra.explicit [ Clubs, Hearts, Diamonds, Spades ]
 
 
-valueOrdering : Ordering Value
+valueOrdering : Value -> Value -> Order
 valueOrdering =
     Order.Extra.explicit [ Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace ]
 
 
-cardOrdering : Ordering Card
+cardOrdering : Card -> Card -> Order
 cardOrdering =
     Order.Extra.byFieldWith suiteOrdering .suite
         |> Order.Extra.breakTiesWith (Order.Extra.byFieldWith valueOrdering .value)
@@ -94,22 +94,24 @@ point =
     Fuzz.map2 Point Fuzz.int Fuzz.int
 
 
-pointOrdering : Ordering Point
+pointOrdering : Point -> Point -> Order
 pointOrdering =
     Order.Extra.byField .x
         |> Order.Extra.breakTiesWith (Order.Extra.byField .y)
 
 
-expectOrdered : Ordering a -> List a -> Expect.Expectation
+expectOrdered : (a -> a -> Order) -> List a -> Expect.Expectation
 expectOrdered ordering list =
     Order.Extra.isOrdered ordering list
-        |> Expect.true "Expected ordered list"
+        |> Expect.equal True
+        |> Expect.onFail "Expected ordered list"
 
 
-expectNotOrdered : Ordering a -> List a -> Expect.Expectation
+expectNotOrdered : (a -> a -> Order) -> List a -> Expect.Expectation
 expectNotOrdered ordering list =
     Order.Extra.isOrdered ordering list
-        |> Expect.false "Expected list to be out of order"
+        |> Expect.equal False
+        |> Expect.onFail "Expected list to be out of order"
 
 
 categorize : (a -> comparable) -> List a -> List (List a)
@@ -141,16 +143,16 @@ all =
     describe "Ordering"
         [ describe "isOrdered"
             [ test "ascending list" <|
-                \_ -> expectOrdered Order.Extra.natural [ 1, 2, 3 ]
+                \_ -> expectOrdered Basics.compare [ 1, 2, 3 ]
             , test "out-of-order list" <|
                 \_ ->
-                    expectNotOrdered Order.Extra.natural [ 2, 1, 3 ]
+                    expectNotOrdered Basics.compare [ 2, 1, 3 ]
             , test "empty list" <|
                 \_ ->
-                    expectOrdered Order.Extra.natural []
+                    expectOrdered Basics.compare []
             , test "singleton list" <|
                 \_ ->
-                    expectOrdered Order.Extra.natural [ 1 ]
+                    expectOrdered Basics.compare [ 1 ]
             ]
         , describe "lessThanBy / greaterThanBy"
             (let
@@ -168,17 +170,17 @@ all =
              in
              [ test "lessThanBy true" <|
                 \_ ->
-                    Order.Extra.lessThanBy xThenYOrdering point1 point2 |> Expect.true "expected ordered elements"
+                    Order.Extra.lessThanBy xThenYOrdering point1 point2 |> Expect.equal True |> Expect.onFail "expected ordered elements"
              , test "greaterThanBy false" <|
                 \_ ->
-                    Order.Extra.greaterThanBy xThenYOrdering point1 point2 |> Expect.false "expected out of order elements"
+                    Order.Extra.greaterThanBy xThenYOrdering point1 point2 |> Expect.equal False |> Expect.onFail "expected out of order elements"
              , test "lessThanBy false" <|
                 \_ ->
-                    Order.Extra.lessThanBy yThenXOrdering point1 point2 |> Expect.false "expected out-of-order elements"
+                    Order.Extra.lessThanBy yThenXOrdering point1 point2 |> Expect.equal False |> Expect.onFail "expected out-of-order elements"
              , test "greaterThanBy true" <|
                 \_ ->
-                    Order.Extra.greaterThanBy yThenXOrdering point1 point2 |> Expect.true "expected ordered elements"
-             , fuzz (Fuzz.tuple ( point, point )) "greaterThanBy and lessThanBy behave as ordering functions" <|
+                    Order.Extra.greaterThanBy yThenXOrdering point1 point2 |> Expect.equal True |> Expect.onFail "expected ordered elements"
+             , fuzz (Fuzz.pair point point) "greaterThanBy and lessThanBy behave as ordering functions" <|
                 \( p1, p2 ) ->
                     case ( Order.Extra.lessThanBy pointOrdering p1 p2, Order.Extra.greaterThanBy pointOrdering p1 p2 ) of
                         ( True, True ) ->
@@ -225,10 +227,11 @@ all =
               <|
                 \included excluded ->
                     Order.Extra.lessThanBy partialValueOrdering excluded included
-                        |> Expect.true "Expected excluded value from partial ordering to be less than included"
+                        |> Expect.equal True
+                        |> Expect.onFail "Expected excluded value from partial ordering to be less than included"
             ]
         , describe "byField"
-            [ fuzz (Fuzz.list point) "Ordering list of points by field produces ascending ordered values" <|
+            [ fuzz (Fuzz.list point) "list -> list -> Order of points by field produces ascending ordered values" <|
                 \points ->
                     let
                         xCoordsOfOrderedPoints =
@@ -252,8 +255,8 @@ all =
                     Expect.equal (List.reverse sortedPoints) reverseSortedPoints
             ]
         , describe "breakTiesWith"
-            [ fuzzWith { runs = 1000 }
-                (Fuzz.list (Fuzz.tuple3 ( Fuzz.int, Fuzz.int, Fuzz.int )))
+            [ fuzz
+                (Fuzz.list (Fuzz.triple Fuzz.int Fuzz.int Fuzz.int))
                 "Breaking ties three ways works"
               <|
                 \triples ->
@@ -276,27 +279,27 @@ all =
                                 triples
 
                         firstsSorted =
-                            Order.Extra.isOrdered Order.Extra.natural (List.map fst sorted)
+                            Order.Extra.isOrdered Basics.compare (List.map fst sorted)
 
                         categorizedByFirst =
                             categorize fst sorted
 
                         secondsSorted =
-                            List.map (\triples_ -> Order.Extra.isOrdered Order.Extra.natural (List.map snd triples_))
+                            List.map (\triples_ -> Order.Extra.isOrdered Basics.compare (List.map snd triples_))
                                 categorizedByFirst
 
                         categorizedByFirstAndSecond =
                             categorize (\( x, y, _ ) -> ( x, y )) sorted
 
                         thirdsSorted =
-                            List.map (\triples_ -> Order.Extra.isOrdered Order.Extra.natural (List.map thd triples_))
+                            List.map (\triples_ -> Order.Extra.isOrdered Basics.compare (List.map thd triples_))
                                 categorizedByFirstAndSecond
                     in
-                    Expect.true "Something wasn't sorted"
-                        (firstsSorted
-                            && List.all (\x -> x) secondsSorted
-                            && List.all (\x -> x) thirdsSorted
-                        )
+                    (firstsSorted
+                        && List.all (\x -> x) secondsSorted
+                        && List.all (\x -> x) thirdsSorted
+                    )
+                        |> Expect.equal True
             ]
         , describe "byRank" <|
             let
@@ -317,7 +320,7 @@ all =
                                         |> Order.Extra.ifStillTiedThen (valueOrdering v1 v2)
 
                                 _ ->
-                                    Order.Extra.noConflicts
+                                    EQ
                         )
             in
             [ test "Orders jokers first" <|

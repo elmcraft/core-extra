@@ -3,10 +3,15 @@
   "tests": [
     "Array.Extra",
     "Basics.Extra",
+    "Char.Extra",
+    "Cmd.Extra",
     "Dict.Extra",
     "List.Extra",
     "Maybe.Extra",
+    "Order.Extra",
     "Result.Extra",
-    "String.Extra"
+    "Set.Extra",
+    "String.Extra",
+    "Tuple.Extra"
   ]
 }
