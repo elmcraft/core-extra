@@ -236,13 +236,13 @@ and collect the result in a `List`.
             >> Html.div []
 
 -}
-indexedMapToList : (Int -> a -> b) -> (Array a -> List b)
-indexedMapToList mapIndexedElement array =
+indexedMapToList : (Int -> a -> b) -> Array a -> List b
+indexedMapToList fn array =
     array
         |> Array.foldr
             (\element ( i, listSoFar ) ->
                 ( i - 1
-                , mapIndexedElement i element :: listSoFar
+                , fn i element :: listSoFar
                 )
             )
             ( length array - 1, [] )
@@ -388,8 +388,8 @@ This is equivalent to `Array.filter (not << predicate)`.
 
 -}
 removeWhen : (a -> Bool) -> Array a -> Array a
-removeWhen isBad array =
-    Array.filter (\element -> not (isBad element)) array
+removeWhen shouldRemove array =
+    Array.filter (\element -> not (shouldRemove element)) array
 
 
 {-| Resize from the left, padding the right-hand side with a given value.
@@ -527,7 +527,7 @@ resizelIndexed lengthNew paddingElementForIndex array =
     --> empty
 
 -}
-resizerIndexed : Int -> (Int -> a) -> (Array a -> Array a)
+resizerIndexed : Int -> (Int -> a) -> Array a -> Array a
 resizerIndexed lengthNew paddingAtIndex array =
     let
         arrayLength =
