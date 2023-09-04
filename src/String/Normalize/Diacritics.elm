@@ -1,7 +1,7 @@
 module String.Normalize.Diacritics exposing (lookupArray, lookupTable, minCode)
 
 import Array exposing (Array)
-import Dict exposing (Dict, insert)
+import Dict exposing (Dict)
 
 
 lookupTable : Dict Char String

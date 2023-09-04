@@ -100,18 +100,6 @@ import Regex exposing (Regex)
 import String.Normalize
 
 
-fromLessThan : (a -> a -> Bool) -> a -> a -> Order
-fromLessThan lt x y =
-    if lt x y then
-        LT
-
-    else if lt y x then
-        GT
-
-    else
-        EQ
-
-
 {-| Creates an ordering that orders items in the order given in the input list.
 Items that are not part of the input list are all considered to be equal to each
 other and less than anything in the list.

@@ -152,30 +152,28 @@ cleanup : Set Char -> Char -> String -> String
 cleanup keepChars separator str =
     let
         removePunctuation c =
-            let
-                code =
-                    Char.toCode c
+            if Set.member c keepChars then
+                ( c, True, True )
 
-                newChar =
-                    if Set.member c keepChars then
-                        ( c, True, True )
+            else
+                let
+                    code =
+                        Char.toCode c
+                in
+                if code > 0x7F then
+                    ( c, False, False )
 
-                    else if code > 0x7F then
-                        ( c, False, False )
+                else if
+                    code
+                        > 0x7A
+                        || (code > 0x5A && code < 0x61)
+                        || (code > 0x39 && code < 0x41)
+                        || (code < 0x30)
+                then
+                    ( '-', True, False )
 
-                    else if
-                        code
-                            > 0x7A
-                            || (code > 0x5A && code < 0x61)
-                            || (code > 0x39 && code < 0x41)
-                            || (code < 0x30)
-                    then
-                        ( '-', True, False )
-
-                    else
-                        ( c, False, False )
-            in
-            newChar
+                else
+                    ( c, False, False )
 
         replace c ( resultAcc, isPreviousBoundary, isPreviousKeep ) =
             case Dict.get c Diacritics.lookupTable of
@@ -186,11 +184,6 @@ cleanup keepChars separator str =
                     let
                         ( replacement, isBoundary, isKeep ) =
                             removePunctuation c
-
-                        replacement_ =
-                            replacement
-                                |> String.fromChar
-                                |> String.toLower
                     in
                     if isBoundary && isPreviousBoundary && isPreviousKeep then
                         ( resultAcc
@@ -198,17 +191,24 @@ cleanup keepChars separator str =
                         , isPreviousKeep
                         )
 
-                    else if isBoundary && isPreviousBoundary then
-                        ( String.dropRight 1 resultAcc ++ replacement_
-                        , isBoundary
-                        , isKeep
-                        )
-
                     else
-                        ( resultAcc ++ replacement_
-                        , isBoundary
-                        , isKeep
-                        )
+                        let
+                            replacement_ =
+                                replacement
+                                    |> String.fromChar
+                                    |> String.toLower
+                        in
+                        if isBoundary && isPreviousBoundary then
+                            ( String.dropRight 1 resultAcc ++ replacement_
+                            , isBoundary
+                            , isKeep
+                            )
+
+                        else
+                            ( resultAcc ++ replacement_
+                            , isBoundary
+                            , isKeep
+                            )
 
         ( result, _, _ ) =
             String.foldl replace ( "", True, False ) str
@@ -219,12 +219,9 @@ cleanup keepChars separator str =
 
             else
                 result
-
-        result__ =
-            if String.endsWith "-" result_ then
-                String.dropRight 1 result_
-
-            else
-                result_
     in
-    result__
+    if String.endsWith "-" result_ then
+        String.dropRight 1 result_
+
+    else
+        result_

@@ -1,4 +1,4 @@
-module String.NormalizeTests exposing (..)
+module String.NormalizeTests exposing (filenameTests, pathTests, removeDiacriticsTests, slugTests, urlTests)
 
 import Dict
 import Expect exposing (equal)
@@ -89,14 +89,6 @@ oldRemoveDiacritics str =
                     result ++ String.fromChar c
     in
     String.foldl replace "" str
-
-
-unicode : Fuzz.Fuzzer String
-unicode =
-    Fuzz.intRange 0 0x0010FFFF
-        |> Fuzz.map Char.fromCode
-        |> Fuzz.list
-        |> Fuzz.map String.fromList
 
 
 withDiacritics : Fuzz.Fuzzer String

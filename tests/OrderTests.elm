@@ -1,6 +1,6 @@
-module OrderTests exposing (..)
+module OrderTests exposing (Card, JokerCard(..), Point, Suite(..), Value(..), all)
 
-import Dict exposing (Dict)
+import Dict
 import Expect
 import Fuzz exposing (Fuzzer)
 import Order.Extra
@@ -63,26 +63,6 @@ sortCards =
 oneOf : List a -> Fuzzer a
 oneOf items =
     Fuzz.frequency (List.map (\x -> ( 1, Fuzz.constant x )) items)
-
-
-suite : Fuzzer Suite
-suite =
-    oneOf [ Clubs, Hearts, Diamonds, Spades ]
-
-
-value : Fuzzer Value
-value =
-    oneOf [ Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace ]
-
-
-card : Fuzzer Card
-card =
-    Fuzz.map2 Card value suite
-
-
-deck : Fuzzer (List Card)
-deck =
-    Fuzz.list card
 
 
 type alias Point =
