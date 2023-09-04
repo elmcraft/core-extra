@@ -1,7 +1,7 @@
 {
     "type": "package",
     "name": "gampleman/core-extra",
-    "summary": "This is a collection of utility functions that provide additional or improved functions to the Elm standard library.",
+    "summary": "Utility functions for an improved experience with elm/core",
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [
