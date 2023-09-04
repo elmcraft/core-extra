@@ -1,9 +1,8 @@
-module SetTests exposing (all, doubleList, doubleSet, tripleSet)
+module SetTests exposing (all)
 
 import Basics.Extra exposing (flip)
 import Expect
 import Fuzz exposing (int, list, string)
-import List.Extra
 import Set exposing (Set)
 import Set.Extra
 import Test exposing (..)

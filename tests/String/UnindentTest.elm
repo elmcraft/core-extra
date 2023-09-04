@@ -26,7 +26,7 @@ unindentTest =
                 unindent s
                     |> String.lines
                     |> List.map (not << String.startsWith " ")
-                    |> List.any ((==) True)
+                    |> List.member True
                     |> Expect.equal True
                     |> Expect.onFail "No lines with leading whitespace detected"
         , fuzz multilineProducer "All lines' length have been reduced by exactly the minimum indentation" <|
