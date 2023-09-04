@@ -748,7 +748,7 @@ Extra elements of either `Array` are glued to the end without anything in betwee
     --> fromList [ "turtles", "on", "turtles", "turtles" ]
 
 -}
-interweave : Array element -> Array element -> Array element
+interweave : Array a -> Array a -> Array a
 interweave toInterweave array =
     let
         untilArrayEnd =
