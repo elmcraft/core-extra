@@ -233,8 +233,10 @@ insertAtTest =
 
 insertAtProducer : Fuzzer ( String, Int, String )
 insertAtProducer =
-    Fuzz.triple (Fuzz.intRange 0 10) (Fuzz.intRange 1 10) Fuzz.string
-        |> Fuzz.map (\( a, b, s ) -> ( "b" ++ s, b, String.repeat (a + b) "a" ))
+    Fuzz.map3 (\a b s -> ( "b" ++ s, b, String.repeat (a + b) "a" ))
+        (Fuzz.intRange 0 10)
+        (Fuzz.intRange 1 10)
+        Fuzz.string
 
 
 isBlankTest : Test

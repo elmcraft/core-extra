@@ -160,8 +160,8 @@ all =
              , test "greaterThanBy true" <|
                 \_ ->
                     Order.Extra.greaterThanBy yThenXOrdering point1 point2 |> Expect.equal True |> Expect.onFail "expected ordered elements"
-             , fuzz (Fuzz.pair point point) "greaterThanBy and lessThanBy behave as ordering functions" <|
-                \( p1, p2 ) ->
+             , fuzz2 point point "greaterThanBy and lessThanBy behave as ordering functions" <|
+                \p1 p2 ->
                     case ( Order.Extra.lessThanBy pointOrdering p1 p2, Order.Extra.greaterThanBy pointOrdering p1 p2 ) of
                         ( True, True ) ->
                             Expect.fail "Point 1 is both greater than and less than point 2"
