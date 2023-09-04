@@ -1,7 +1,7 @@
 {
     "type": "package",
-    "name": "gampleman/elm-rosetree",
-    "summary": "Strict multiway trees aka rosetrees and a Zipper to go with them",
+    "name": "gampleman/core-extra",
+    "summary": "Utility functions for an improved experience with elm/core",
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [
