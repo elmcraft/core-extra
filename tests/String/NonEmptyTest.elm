@@ -2,7 +2,7 @@ module String.NonEmptyTest exposing (nonEmptyTest)
 
 import Expect
 import String.Extra exposing (nonEmpty)
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 nonEmptyTest : Test

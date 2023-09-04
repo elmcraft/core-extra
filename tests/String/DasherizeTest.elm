@@ -2,22 +2,21 @@ module String.DasherizeTest exposing (dasherizeTest)
 
 import Char.Extra
 import Expect
-import Fuzz exposing (..)
+import Fuzz
 import Regex exposing (Regex)
-import String
-import String.Extra exposing (dasherize)
-import Test exposing (..)
+import String.Extra exposing (..)
+import Test exposing (Test, describe, fuzz)
 
 
 dasherizeTest : Test
 dasherizeTest =
     describe "dasherize"
-        [ fuzz string "It is a lowercased string" <|
+        [ fuzz Fuzz.string "It is a lowercased string" <|
             \s ->
                 dasherize s
                     |> String.toLower
                     |> Expect.equal (dasherize s)
-        , fuzz string "It has no spaces in the resulting string" <|
+        , fuzz Fuzz.string "It has no spaces in the resulting string" <|
             \s ->
                 let
                     whiteSpaceChecker =
@@ -27,7 +26,7 @@ dasherizeTest =
                     |> String.toList
                     |> whiteSpaceChecker
                     |> Expect.equal False
-        , fuzz string "It has no consecutive dashes in the resulting string" <|
+        , fuzz Fuzz.string "It has no consecutive dashes in the resulting string" <|
             \s ->
                 let
                     consecutiveDashesChecker =

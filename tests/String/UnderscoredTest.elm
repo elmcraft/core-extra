@@ -2,22 +2,22 @@ module String.UnderscoredTest exposing (underscoredTest)
 
 import Char
 import Expect
-import Fuzz exposing (..)
+import Fuzz
 import String exposing (replace)
 import String.Extra exposing (..)
 import String.TestData as TestData
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz)
 
 
 underscoredTest : Test
 underscoredTest =
     describe "underscored"
-        [ fuzz string "It is a lowercased string" <|
+        [ fuzz Fuzz.string "It is a lowercased string" <|
             \s ->
                 underscored s
                     |> String.toLower
                     |> Expect.equal (underscored s |> String.toLower)
-        , fuzz string "It replaces spaces and dashes with an underscore" <|
+        , fuzz Fuzz.string "It replaces spaces and dashes with an underscore" <|
             \s ->
                 let
                     expected =

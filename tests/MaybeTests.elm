@@ -3,7 +3,7 @@ module MaybeTests exposing (suite)
 import Array
 import Expect
 import Maybe.Extra exposing (..)
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 suite : Test
