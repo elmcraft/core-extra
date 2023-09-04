@@ -25,7 +25,7 @@ Work with 1 `Maybe`
 @docs withDefaultLazy, unwrap, unpack
 
 
-# Or
+# OR based logic
 
 Take the first value that's present
 
@@ -38,7 +38,7 @@ Take the first value that's present
 @docs combine, traverse, combineArray, traverseArray
 
 
-# toList
+# Transforming to collections
 
 @docs toList, toArray
 @docs cons
@@ -62,7 +62,7 @@ If you need a version of `andThenN` that takes more than 4 arguments, you can ch
 -}
 
 import Array
-import Maybe exposing (..)
+import Maybe
 
 
 
@@ -528,7 +528,7 @@ but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Arr
 -}
 combineArray : Array.Array (Maybe a) -> Maybe (Array.Array a)
 combineArray =
-    Array.foldl (map2 Array.push) (Just Array.empty)
+    Array.foldl (Maybe.map2 Array.push) (Just Array.empty)
 
 
 {-| Like [`traverse`](#traverse),
@@ -536,7 +536,7 @@ but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Arr
 -}
 traverseArray : (a -> Maybe b) -> Array.Array a -> Maybe (Array.Array b)
 traverseArray f =
-    Array.foldl (\x -> map2 Array.push (f x)) (Just Array.empty)
+    Array.foldl (\x -> Maybe.map2 Array.push (f x)) (Just Array.empty)
 
 
 
@@ -643,7 +643,8 @@ andThen2 func ma mb =
             Nothing
 
 
-{-| -}
+{-| `andThen` for 3 maybes.
+-}
 andThen3 : (a -> b -> c -> Maybe value) -> Maybe a -> Maybe b -> Maybe c -> Maybe value
 andThen3 func ma mb mc =
     case ma of
@@ -664,7 +665,8 @@ andThen3 func ma mb mc =
             Nothing
 
 
-{-| -}
+{-| `andThen` for 4 maybes.
+-}
 andThen4 : (a -> b -> c -> d -> Maybe value) -> Maybe a -> Maybe b -> Maybe c -> Maybe d -> Maybe value
 andThen4 func ma mb mc md =
     case ma of
@@ -709,7 +711,7 @@ If either argument is `Nothing`, return `Nothing`.
         |> andMap Nothing
     --> Nothing
 
-This can be used to do [`Maybe.mapN`](https://package.elm-lang.org/packages/elm/core/latest/Maybe#map2) or [`andThenN`](#andThenN) for any number of arguments.
+This can be used to do [`Maybe.mapN`](https://package.elm-lang.org/packages/elm/core/latest/Maybe#map2) or [`andThenN`](#andthenn) for any number of arguments.
 
     -- map4
     Just (\a b c d -> a + b + c + d )

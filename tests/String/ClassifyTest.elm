@@ -5,7 +5,7 @@ import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
 import String exposing (replace, uncons)
-import String.Extra exposing (..)
+import String.Extra exposing (classify)
 import String.TestData as TestData
 import Test exposing (Test, describe, fuzz)
 import Tuple exposing (first, second)
@@ -33,7 +33,7 @@ classifyTest =
                     |> classify
                     |> uncons
                     |> Maybe.map second
-                    |> Expect.equal (string |> replace "." "-" |> camelize |> uncons |> Maybe.map second)
+                    |> Expect.equal (string |> replace "." "-" |> String.Extra.camelize |> uncons |> Maybe.map second)
         ]
 
 

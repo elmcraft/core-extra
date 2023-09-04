@@ -71,7 +71,7 @@ module List.Extra exposing
 
 -}
 
-import List exposing (..)
+import List
 import Tuple exposing (first, second)
 
 
@@ -316,7 +316,7 @@ maximumBy f ls =
             Just l_
 
         l_ :: ls_ ->
-            Just <| first <| foldl maxBy ( l_, f l_ ) ls_
+            Just <| first <| List.foldl maxBy ( l_, f l_ ) ls_
 
         _ ->
             Nothing
@@ -370,7 +370,7 @@ minimumBy f ls =
             Just l_
 
         l_ :: ls_ ->
-            Just <| first <| foldl minBy ( l_, f l_ ) ls_
+            Just <| first <| List.foldl minBy ( l_, f l_ ) ls_
 
         _ ->
             Nothing
@@ -522,7 +522,7 @@ uniqueHelp f existing remaining accumulator =
 -}
 andMap : List a -> List (a -> b) -> List b
 andMap l fl =
-    map2 (<|) fl l
+    List.map2 (<|) fl l
 
 
 {-| Equivalent to `concatMap`. For example, suppose you want to have a cartesian product of [1,2] and [3,4]:
@@ -554,7 +554,7 @@ Advanced functional programmers will recognize this as the implementation of bin
 -}
 andThen : (a -> List b) -> List a -> List b
 andThen =
-    concatMap
+    List.concatMap
 
 
 {-| `reverseMap f xs` gives the same result as `List.reverse (List.map f xs)`,
@@ -566,7 +566,7 @@ but is tail-recursive and slightly more efficient.
 -}
 reverseMap : (a -> b) -> List a -> List b
 reverseMap f xs =
-    foldl (\x acc -> f x :: acc) [] xs
+    List.foldl (\x acc -> f x :: acc) [] xs
 
 
 {-| `reverseMap f xs` gives the same result as `List.reverse (List.map f xs)`,
@@ -578,7 +578,7 @@ but is tail-recursive and slightly more efficient.
 -}
 reverseFilter : (a -> Bool) -> List a -> List a
 reverseFilter isGood xs =
-    foldl
+    List.foldl
         (\x acc ->
             if isGood x then
                 x :: acc
@@ -601,7 +601,7 @@ reverseFilter isGood xs =
 -}
 notMember : a -> List a -> Bool
 notMember x =
-    not << member x
+    not << List.member x
 
 
 {-| Find the first element that satisfies a predicate and return
@@ -975,12 +975,12 @@ removeAt index l =
         l
 
     else
-        case drop index l of
+        case List.drop index l of
             [] ->
                 l
 
             _ :: rest ->
-                take index l ++ rest
+                List.take index l ++ rest
 
 
 {-| Remove an element at an index that satisfies a predicate.
@@ -1028,7 +1028,7 @@ filterNot pred list =
 -}
 intercalate : List a -> List (List a) -> List a
 intercalate xs =
-    concat << intersperse xs
+    List.concat << List.intersperse xs
 
 
 {-| Transpose rows and columns of the list of lists.
@@ -1083,7 +1083,7 @@ subsequencesHelp list =
                 f ys r =
                     ys :: (first :: ys) :: r
             in
-            [ first ] :: foldr f [] (subsequencesHelp rest)
+            [ first ] :: List.foldr f [] (subsequencesHelp rest)
 
 
 {-| Return the list of all subsequences of the argument, except for the empty list.
@@ -1104,7 +1104,7 @@ subsequencesNonEmpty list =
                 f ( yf, ys ) r =
                     ( yf, ys ) :: ( first, yf :: ys ) :: r
             in
-            ( first, [] ) :: foldr f [] (subsequencesNonEmpty rest)
+            ( first, [] ) :: List.foldr f [] (subsequencesNonEmpty rest)
 
 
 {-| Return the list of of all permutations of a list. The result is in lexicographic order.
@@ -1122,9 +1122,9 @@ permutations xs_ =
         xs ->
             let
                 f ( y, ys ) =
-                    map ((::) y) (permutations ys)
+                    List.map ((::) y) (permutations ys)
             in
-            concatMap f (select xs)
+            List.concatMap f (select xs)
 
 
 {-| Return a list that contains elements from the two provided, in alternate order.
@@ -1337,7 +1337,7 @@ scanl f b xs =
 
         -- impossible
     in
-    reverse (foldl scan1 [ b ] xs)
+    List.reverse (List.foldl scan1 [ b ] xs)
 
 
 {-| `scanl1` is a variant of `scanl` that has no starting value argument.
@@ -1546,7 +1546,7 @@ unfoldr f seed =
 -}
 splitAt : Int -> List a -> ( List a, List a )
 splitAt n xs =
-    ( take n xs, drop n xs )
+    ( List.take n xs, List.drop n xs )
 
 
 {-| Attempts to split the list at the first element where the given predicate is true. If the predicate is not true for any elements in the list, return nothing. Otherwise, return the split list.
@@ -1580,7 +1580,7 @@ takeWhileRight p =
             else
                 ( xs, False )
     in
-    first << foldr step ( [], True )
+    first << List.foldr step ( [], True )
 
 
 {-| Drop elements from the right, while predicate still holds.
@@ -1591,9 +1591,9 @@ takeWhileRight p =
 -}
 dropWhileRight : (a -> Bool) -> List a -> List a
 dropWhileRight p =
-    foldr
+    List.foldr
         (\x xs ->
-            if p x && isEmpty xs then
+            if p x && List.isEmpty xs then
                 []
 
             else
@@ -1672,7 +1672,7 @@ stripPrefix prefix xs =
                     else
                         Nothing
     in
-    foldl step (Just xs) prefix
+    List.foldl step (Just xs) prefix
 
 
 {-| Group similar elements together. `group` is equivalent to `groupWhile (==)`.
@@ -1736,7 +1736,7 @@ groupWhile isSameGroup items =
 -}
 inits : List a -> List (List a)
 inits =
-    foldr (\e acc -> [] :: map ((::) e) acc) [ [] ]
+    List.foldr (\e acc -> [] :: List.map ((::) e) acc) [ [] ]
 
 
 {-| Return all final segments of a list, from longest to shortest, the list itself first, empty list last.
@@ -1747,7 +1747,7 @@ inits =
 -}
 tails : List a -> List (List a)
 tails =
-    foldr tailsHelp [ [] ]
+    List.foldr tailsHelp [ [] ]
 
 
 tailsHelp : a -> List (List a) -> List (List a)
@@ -1773,7 +1773,7 @@ select list =
             []
 
         x :: xs ->
-            ( x, xs ) :: map (\( y, ys ) -> ( y, x :: ys )) (select xs)
+            ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) (select xs)
 
 
 {-| Return all combinations in the form of (elements before, element, elements after).
@@ -1789,7 +1789,7 @@ selectSplit list =
             []
 
         x :: xs ->
-            ( [], x, xs ) :: map (\( lys, y, rys ) -> ( x :: lys, y, rys )) (selectSplit xs)
+            ( [], x, xs ) :: List.map (\( lys, y, rys ) -> ( x :: lys, y, rys )) (selectSplit xs)
 
 
 {-| Take two lists and return `True`, if the first list is the prefix of the second list.
@@ -1815,7 +1815,7 @@ isPrefixOf prefix list =
 -}
 isSuffixOf : List a -> List a -> Bool
 isSuffixOf suffix xs =
-    isPrefixOf (reverse suffix) (reverse xs)
+    isPrefixOf (List.reverse suffix) (List.reverse xs)
 
 
 {-| Return True if all the elements of the first list occur in-order and
@@ -1928,6 +1928,7 @@ removeOneMember culprit l =
     removeOneMemberHelp culprit [] l
 
 
+removeOneMemberHelp : a -> List a -> List a -> { foundAny : Bool, without : List a }
 removeOneMemberHelp culprit before list =
     case list of
         [] ->
@@ -1945,14 +1946,14 @@ removeOneMemberHelp culprit before list =
 -}
 zip : List a -> List b -> List ( a, b )
 zip =
-    map2 Tuple.pair
+    List.map2 Tuple.pair
 
 
 {-| Take three lists and returns a list of triples
 -}
 zip3 : List a -> List b -> List c -> List ( a, b, c )
 zip3 =
-    map3 triple
+    List.map3 triple
 
 
 triple : a -> b -> c -> ( a, b, c )
@@ -1972,13 +1973,15 @@ lift2 f la lb =
     la |> andThen (\a -> lb |> andThen (\b -> [ f a b ]))
 
 
-{-| -}
+{-| Maps a function over three lists, exploring all possible combinations.
+-}
 lift3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
 lift3 f la lb lc =
     la |> andThen (\a -> lb |> andThen (\b -> lc |> andThen (\c -> [ f a b c ])))
 
 
-{-| -}
+{-| Maps a function over four lists, exploring all possible combinations.
+-}
 lift4 : (a -> b -> c -> d -> e) -> List a -> List b -> List c -> List d -> List e
 lift4 f la lb lc ld =
     la |> andThen (\a -> lb |> andThen (\b -> lc |> andThen (\c -> ld |> andThen (\d -> [ f a b c d ]))))

@@ -5,7 +5,7 @@ import Expect
 import Fuzz exposing (Fuzzer, string)
 import Regex exposing (Regex)
 import String exposing (fromChar, replace, toLower, toUpper, uncons)
-import String.Extra exposing (..)
+import String.Extra
 import Test exposing (Test, describe, fuzz, fuzz2, test)
 import Tuple exposing (first, second)
 
@@ -23,7 +23,7 @@ toSentenceCaseTest =
                 let
                     result =
                         string
-                            |> toSentenceCase
+                            |> String.Extra.toSentenceCase
                             |> uncons
                             |> Maybe.map (first >> fromChar)
                             |> Maybe.withDefault ""
@@ -39,7 +39,7 @@ toSentenceCaseTest =
             \string ->
                 let
                     result =
-                        (toSentenceCase >> tail) string
+                        (String.Extra.toSentenceCase >> tail) string
 
                     expected =
                         tail string
@@ -56,7 +56,7 @@ decapitalizeTest =
                 let
                     result =
                         string
-                            |> decapitalize
+                            |> String.Extra.decapitalize
                             |> uncons
                             |> Maybe.map (first >> fromChar)
                             |> Maybe.withDefault ""
@@ -72,7 +72,7 @@ decapitalizeTest =
             \string ->
                 let
                     result =
-                        (decapitalize >> tail) string
+                        (String.Extra.decapitalize >> tail) string
 
                     expected =
                         tail string
@@ -90,14 +90,14 @@ toTitleCaseTest =
                     result =
                         strings
                             |> String.join " "
-                            |> toTitleCase
+                            |> String.Extra.toTitleCase
                             |> String.words
 
                     expected =
                         strings
                             |> String.join " "
                             |> String.words
-                            |> List.map toSentenceCase
+                            |> List.map String.Extra.toSentenceCase
                 in
                 Expect.equal expected result
         , fuzz (Fuzz.list Fuzz.string) "It does not change the length of the string" <|
@@ -106,7 +106,7 @@ toTitleCaseTest =
                     result =
                         strings
                             |> String.join " "
-                            |> toTitleCase
+                            |> String.Extra.toTitleCase
                             |> String.length
 
                     expected =
@@ -125,29 +125,29 @@ breakTest =
             \string width ->
                 case ( string, width ) of
                     ( "", _ ) ->
-                        break width string
+                        String.Extra.break width string
                             |> List.length
                             |> Expect.equal 1
 
                     ( _, 0 ) ->
-                        break width string
+                        String.Extra.break width string
                             |> List.length
                             |> Expect.equal 1
 
                     _ ->
-                        break width string
+                        String.Extra.break width string
                             |> List.length
                             |> Expect.equal (ceiling <| (toFloat << String.length) string / toFloat width)
         , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "Concatenating the result yields the original string" <|
             \string width ->
-                break width string
+                String.Extra.break width string
                     |> String.concat
                     |> Expect.equal string
         , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "No element in the list should have more than `width` chars" <|
             \string width ->
-                break width string
+                String.Extra.break width string
                     |> List.map String.length
-                    |> List.filter ((<) width)
+                    |> List.filter (\x -> width < x)
                     |> List.isEmpty
                     |> Expect.equal True
                     |> Expect.onFail "The list has some long elements"
@@ -159,12 +159,12 @@ softBreakTest =
     describe "softBreak"
         [ fuzz2 Fuzz.string (Fuzz.intRange 1 10) "Concatenating the result yields the original string" <|
             \string width ->
-                softBreak width (String.trim string)
+                String.Extra.softBreak width (String.trim string)
                     |> String.concat
                     |> Expect.equal (String.trim string)
         , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "The list should not have more elements than words" <|
             \string width ->
-                softBreak width string
+                String.Extra.softBreak width string
                     |> List.length
                     |> Expect.atMost (String.words string |> List.length)
         ]
@@ -191,14 +191,14 @@ cleanTest =
           fuzz Fuzz.string "It trims the string on the left side" <|
             \string ->
                 string
-                    |> clean
+                    |> String.Extra.clean
                     |> String.startsWith " "
                     |> Expect.equal False
                     |> Expect.onFail "Did not trim the start of the string"
         , fuzz Fuzz.string "It trims the string on the right side" <|
             \string ->
                 string
-                    |> clean
+                    |> String.Extra.clean
                     |> String.endsWith " "
                     |> Expect.equal False
                     |> Expect.onFail "Did not trim the end of the string"
@@ -211,23 +211,23 @@ insertAtTest =
         [ fuzz insertAtProducer "Result contains the substitution string" <|
             \( sub, at, string ) ->
                 string
-                    |> insertAt sub at
+                    |> String.Extra.insertAt sub at
                     |> String.contains sub
                     |> Expect.equal True
                     |> Expect.onFail "Could not find substitution string in result"
         , fuzz insertAtProducer "Resulting string has length as the sum of both arguments" <|
             \( sub, at, string ) ->
-                insertAt sub at string
+                String.Extra.insertAt sub at string
                     |> String.length
                     |> Expect.equal (String.length sub + String.length string)
         , fuzz insertAtProducer "Start of the string remains the same" <|
             \( sub, at, string ) ->
-                insertAt sub at string
+                String.Extra.insertAt sub at string
                     |> String.slice 0 at
                     |> Expect.equal (String.slice 0 at string)
         , fuzz insertAtProducer "End of the string remains the same" <|
             \( sub, at, string ) ->
-                insertAt sub at string
+                String.Extra.insertAt sub at string
                     |> String.slice (at + String.length sub) (String.length string + String.length sub)
                     |> Expect.equal (String.slice at (String.length string) string)
         ]
@@ -246,12 +246,12 @@ isBlankTest =
     describe "isBlank"
         [ test "Returns true if the given string is blank" <|
             \_ ->
-                isBlank ""
+                String.Extra.isBlank ""
                     |> Expect.equal True
                     |> Expect.onFail "Did not return true"
         , test "Returns false if the given string is not blank" <|
             \_ ->
-                isBlank " Slartibartfast"
+                String.Extra.isBlank " Slartibartfast"
                     |> Expect.equal False
                     |> Expect.onFail "Did not return false"
         ]
@@ -262,11 +262,11 @@ nonBlankTest =
     describe "nonBlank"
         [ test "Returns Nothing if the given string is blank" <|
             \_ ->
-                nonBlank ""
+                String.Extra.nonBlank ""
                     |> Expect.equal Nothing
         , test "Returns just the string if the given string is not blank" <|
             \_ ->
-                nonBlank " Slartibartfast"
+                String.Extra.nonBlank " Slartibartfast"
                     |> Expect.equal (Just " Slartibartfast")
         ]
 
@@ -277,21 +277,21 @@ surroundTest =
         [ fuzz2 Fuzz.string Fuzz.string "It starts with the wrapping string" <|
             \string wrap ->
                 string
-                    |> surround wrap
+                    |> String.Extra.surround wrap
                     |> String.startsWith wrap
                     |> Expect.equal True
                     |> Expect.onFail "Did not start with the wrapping string"
         , fuzz2 Fuzz.string Fuzz.string "It ends with the wrapping string" <|
             \string wrap ->
                 string
-                    |> surround wrap
+                    |> String.Extra.surround wrap
                     |> String.endsWith wrap
                     |> Expect.equal True
                     |> Expect.onFail "Did not end with the wrapping string"
         , fuzz2 Fuzz.string Fuzz.string "It contains the original string" <|
             \string wrap ->
                 string
-                    |> surround wrap
+                    |> String.Extra.surround wrap
                     |> String.contains string
                     |> Expect.equal True
                     |> Expect.onFail "Did not contain the string"
@@ -299,7 +299,7 @@ surroundTest =
             \string wrap ->
                 let
                     result =
-                        String.length (surround wrap string)
+                        String.length (String.Extra.surround wrap string)
 
                     expected =
                         String.length string + (2 * String.length wrap)
@@ -320,7 +320,7 @@ countOccurrencesTest =
             \needle haystack ->
                 let
                     times =
-                        countOccurrences needle haystack
+                        String.Extra.countOccurrences needle haystack
 
                     result =
                         String.length haystack - (times * String.length needle)
@@ -337,16 +337,16 @@ ellipsisTest =
     describe "ellipsis"
         [ fuzz2 (Fuzz.intRange 3 20) Fuzz.string "The resulting string length does not exceed the specified length" <|
             \howLong string ->
-                ellipsis howLong string
+                String.Extra.ellipsis howLong string
                     |> String.length
-                    |> (>=) howLong
+                    |> (\x -> howLong >= x)
                     |> Expect.equal True
                     |> Expect.onFail "Resulting string exceeds specified length"
         , fuzz2 (Fuzz.intRange 3 20) Fuzz.string "The resulting string contains three dots at the end if necessary" <|
             \howLong string ->
                 let
                     result =
-                        ellipsis howLong string
+                        String.Extra.ellipsis howLong string
                 in
                 result
                     |> String.endsWith "..."
@@ -360,7 +360,7 @@ ellipsisTest =
             \howLong string ->
                 let
                     result =
-                        ellipsis howLong string
+                        String.Extra.ellipsis howLong string
 
                     resultLeft =
                         String.dropRight 3 result
@@ -377,7 +377,7 @@ unquoteTest =
     describe "unquote"
         [ test "Removes quotes from the start of the string" <|
             \_ ->
-                unquote "\"Magrathea\""
+                String.Extra.unquote "\"Magrathea\""
                     |> Expect.equal "Magrathea"
         ]
 
@@ -387,7 +387,7 @@ wrapTest =
     describe "wrap"
         [ fuzz2 (Fuzz.intRange 1 20) Fuzz.string "Wraps given string at the requested length" <|
             \howLong string ->
-                wrap howLong string
+                String.Extra.wrap howLong string
                     |> String.split "\n"
                     |> List.map (\str -> String.length str <= howLong)
                     |> List.all ((==) True)
@@ -395,7 +395,7 @@ wrapTest =
                     |> Expect.onFail "Given string was not wrapped at requested length"
         , test "Does not wrap string shorter than the requested length" <|
             \_ ->
-                wrap 50 "Heart of Gold"
+                String.Extra.wrap 50 "Heart of Gold"
                     |> String.contains "\n"
                     |> Expect.equal False
                     |> Expect.onFail "Short string was wrapped"
@@ -407,15 +407,15 @@ pluralizeTest =
     describe "pluralize"
         [ test "It uses the singular version when the count is one" <|
             \() ->
-                pluralize "elf" "elves" 1
+                String.Extra.pluralize "elf" "elves" 1
                     |> Expect.equal "1 elf"
         , test "It uses the plural version for > 1 count" <|
             \() ->
-                pluralize "elf" "elves" 4
+                String.Extra.pluralize "elf" "elves" 4
                     |> Expect.equal "4 elves"
         , test "It uses the plural version for 0 count" <|
             \() ->
-                pluralize "elf" "elves" 0
+                String.Extra.pluralize "elf" "elves" 0
                     |> Expect.equal "0 elves"
         ]
 
@@ -424,7 +424,7 @@ leftOfBackTest : Test
 leftOfBackTest =
     test "leftOfBack" <|
         \() ->
-            leftOfBack "_" "This_is_a_test_string"
+            String.Extra.leftOfBack "_" "This_is_a_test_string"
                 |> Expect.equal "This_is_a_test"
 
 
@@ -432,18 +432,18 @@ rightOfBackTest : Test
 rightOfBackTest =
     test "rightOfBack" <|
         \() ->
-            rightOfBack "_" "This_is_a_test_string"
+            String.Extra.rightOfBack "_" "This_is_a_test_string"
                 |> Expect.equal "string"
 
 
 underscoredTest : Test
 underscoredTest =
-    underscoredDasherizeTestHelper underscored "_" "underscored"
+    underscoredDasherizeTestHelper String.Extra.underscored "_" "underscored"
 
 
 dasherizeTest : Test
 dasherizeTest =
-    underscoredDasherizeTestHelper dasherize "-" "dasherize"
+    underscoredDasherizeTestHelper String.Extra.dasherize "-" "dasherize"
 
 
 underscoredDasherizeTestHelper : (String -> String) -> String -> String -> Test

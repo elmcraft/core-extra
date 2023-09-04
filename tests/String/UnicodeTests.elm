@@ -4,7 +4,7 @@ import Char
 import Expect
 import Fuzz exposing (Fuzzer)
 import String
-import String.Extra exposing (..)
+import String.Extra
 import Test exposing (Test, describe, fuzz, test)
 
 
@@ -85,30 +85,30 @@ unicodeTests =
     describe "unicode"
         [ fuzz unicodeStringFuzzer "fromCodePoints is inverse of toCodePoints" <|
             \string ->
-                fromCodePoints (toCodePoints string)
+                String.Extra.fromCodePoints (String.Extra.toCodePoints string)
                     |> Expect.equal string
         , fuzz (Fuzz.list codePointFuzzer) "toCodePoints is inverse of fromCodePoints" <|
             \codePoints ->
-                toCodePoints (fromCodePoints codePoints)
+                String.Extra.toCodePoints (String.Extra.fromCodePoints codePoints)
                     |> Expect.equal codePoints
         , fuzz (Fuzz.list codePointFuzzer) "string length is greater than or equal to number of code points" <|
             \codePoints ->
-                String.length (fromCodePoints codePoints)
+                String.length (String.Extra.fromCodePoints codePoints)
                     |> Expect.atLeast (List.length codePoints)
         , fuzz unicodeStringFuzzer "number of code points is less than or equal to string length" <|
             \string ->
-                List.length (toCodePoints string)
+                List.length (String.Extra.toCodePoints string)
                     |> Expect.atMost (String.length string)
         , fuzz (Fuzz.list codePointFuzzer) "encoded string length is as expected" <|
             \codePoints ->
-                String.length (fromCodePoints codePoints)
+                String.length (String.Extra.fromCodePoints codePoints)
                     |> Expect.equal (expectedStringLength codePoints)
         , describe "toCodePoints works as expected on hard-coded test cases"
             (hardCodedTestCases
                 |> List.indexedMap
                     (\index ( string, codePoints ) ->
                         test ("toCodePoints works properly - test case " ++ Debug.toString index)
-                            (\() -> toCodePoints string |> Expect.equal codePoints)
+                            (\() -> String.Extra.toCodePoints string |> Expect.equal codePoints)
                     )
             )
         , describe "fromCodePoints works as expected on hard-coded test cases"
@@ -116,7 +116,7 @@ unicodeTests =
                 |> List.indexedMap
                     (\index ( string, codePoints ) ->
                         test ("fromCodePoints works properly - test case " ++ Debug.toString index)
-                            (\() -> fromCodePoints codePoints |> Expect.equal string)
+                            (\() -> String.Extra.fromCodePoints codePoints |> Expect.equal string)
                     )
             )
         ]

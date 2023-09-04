@@ -2,7 +2,7 @@ module MaybeTests exposing (suite)
 
 import Array
 import Expect
-import Maybe.Extra exposing (..)
+import Maybe.Extra
 import Test exposing (Test, describe, test)
 
 
@@ -13,69 +13,69 @@ suite =
             [ test "both Just" <|
                 \() ->
                     Just 4
-                        |> orElse (Just 5)
+                        |> Maybe.Extra.orElse (Just 5)
                         |> Expect.equal (Just 4)
             , test "pipe input Nothing" <|
                 \() ->
                     Nothing
-                        |> orElse (Just 5)
+                        |> Maybe.Extra.orElse (Just 5)
                         |> Expect.equal (Just 5)
             , test "pipe function Nothing" <|
                 \() ->
                     Just 4
-                        |> orElse Nothing
+                        |> Maybe.Extra.orElse Nothing
                         |> Expect.equal (Just 4)
             , test "both Nothing" <|
                 \() ->
                     Nothing
-                        |> orElse Nothing
+                        |> Maybe.Extra.orElse Nothing
                         |> Expect.equal Nothing
             ]
         , describe "orLazy"
             [ test "both Just" <|
                 \() ->
-                    orLazy (Just 4) (\() -> Just 5)
+                    Maybe.Extra.orLazy (Just 4) (\() -> Just 5)
                         |> Expect.equal (Just 4)
             , test "first Nothing" <|
                 \() ->
-                    orLazy Nothing (\() -> Just 5)
+                    Maybe.Extra.orLazy Nothing (\() -> Just 5)
                         |> Expect.equal (Just 5)
             , test "second Nothing" <|
                 \() ->
-                    orLazy (Just 4) (\() -> Nothing)
+                    Maybe.Extra.orLazy (Just 4) (\() -> Nothing)
                         |> Expect.equal (Just 4)
             , test "both Nothing" <|
                 \() ->
-                    orLazy Nothing (\() -> Nothing)
+                    Maybe.Extra.orLazy Nothing (\() -> Nothing)
                         |> Expect.equal Nothing
             ]
         , describe "orElseLazy"
             [ test "both Just" <|
                 \() ->
                     Just 4
-                        |> orElseLazy (\() -> Just 5)
+                        |> Maybe.Extra.orElseLazy (\() -> Just 5)
                         |> Expect.equal (Just 4)
             , test "pipe input Nothing" <|
                 \() ->
                     Nothing
-                        |> orElseLazy (\() -> Just 5)
+                        |> Maybe.Extra.orElseLazy (\() -> Just 5)
                         |> Expect.equal (Just 5)
             , test "pipe function Nothing" <|
                 \() ->
                     Just 4
-                        |> orElseLazy (\() -> Nothing)
+                        |> Maybe.Extra.orElseLazy (\() -> Nothing)
                         |> Expect.equal (Just 4)
             , test "both Nothing" <|
                 \() ->
                     Nothing
-                        |> orElseLazy (\() -> Nothing)
+                        |> Maybe.Extra.orElseLazy (\() -> Nothing)
                         |> Expect.equal Nothing
             ]
         , describe "orListLazy"
             [ test "empty" <|
                 \() ->
                     []
-                        |> orListLazy
+                        |> Maybe.Extra.orListLazy
                         |> Expect.equal Nothing
             , test "all nothing" <|
                 \() ->
@@ -83,70 +83,70 @@ suite =
                     , \() -> Nothing
                     , \() -> String.toInt ""
                     ]
-                        |> orListLazy
+                        |> Maybe.Extra.orListLazy
                         |> Expect.equal Nothing
             ]
         , describe "traverseArray"
             [ test "empty" <|
                 \() ->
                     Array.empty
-                        |> traverseArray (\x -> Just (x * 10))
+                        |> Maybe.Extra.traverseArray (\x -> Just (x * 10))
                         |> Expect.equal (Just Array.empty)
             , test "all Just" <|
                 \() ->
                     [ 1, 2, 3, 4, 5 ]
                         |> Array.fromList
-                        |> traverseArray (\x -> Just (x * 10))
+                        |> Maybe.Extra.traverseArray (\x -> Just (x * 10))
                         |> Expect.equal (Just (Array.fromList [ 10, 20, 30, 40, 50 ]))
             , test "one Nothing fails the whole function" <|
                 \() ->
                     [ [ 1 ], [ 2, 3 ], [] ]
                         |> Array.fromList
-                        |> traverseArray List.head
+                        |> Maybe.Extra.traverseArray List.head
                         |> Expect.equal Nothing
             ]
         , describe "combineArray"
             [ test "empty" <|
                 \() ->
                     Array.empty
-                        |> combineArray
+                        |> Maybe.Extra.combineArray
                         |> Expect.equal (Just Array.empty)
             , test "succeed" <|
                 \() ->
                     [ Just 1, Just 2, Just 3 ]
                         |> Array.fromList
-                        |> combineArray
+                        |> Maybe.Extra.combineArray
                         |> Expect.equal (Just (Array.fromList [ 1, 2, 3 ]))
             , test "fail" <|
                 \() ->
                     [ Just 1, Nothing ]
                         |> Array.fromList
-                        |> combineArray
+                        |> Maybe.Extra.combineArray
                         |> Expect.equal Nothing
             ]
         , describe "oneOf"
             [ test "empty" <|
                 \() ->
-                    oneOf [] 0
+                    Maybe.Extra.oneOf [] 0
                         |> Expect.equal Nothing
             , test "all fail" <|
                 \() ->
-                    oneOf (List.repeat 10 (always Nothing)) 0
+                    Maybe.Extra.oneOf (List.repeat 10 (always Nothing)) 0
                         |> Expect.equal Nothing
             , test "last function succeeds" <|
                 \() ->
-                    oneOf [ always Nothing, always Nothing, always Nothing, always (Just True) ] 0
+                    Maybe.Extra.oneOf [ always Nothing, always Nothing, always Nothing, always (Just True) ] 0
                         |> Expect.equal (Just True)
             , test "first function succeeds" <|
                 \() ->
                     0
-                        |> oneOf [ Just, Just << (+) 10, Just << (+) 20 ]
+                        |> Maybe.Extra.oneOf [ Just, Just << (+) 10, Just << (+) 20 ]
                         |> Expect.equal (Just 0)
             ]
         , describe "andThen3"
             [ test "returns a Just if it can" <|
                 \() ->
-                    andThen3
+                    Maybe.Extra.andThen3
                         (\a b c -> Just (a + b + c))
                         (Just 4)
                         (Just 2)
@@ -156,7 +156,7 @@ suite =
         , describe "andThen4"
             [ test "returns a Just if it can" <|
                 \() ->
-                    andThen4
+                    Maybe.Extra.andThen4
                         (\a b c d -> Just (a + b + c + d))
                         (Just 8)
                         (Just 4)
@@ -167,21 +167,21 @@ suite =
         , describe "unwrap"
             [ test "returns the default value if it is a Nothing" <|
                 \() ->
-                    unwrap 0 String.length Nothing
+                    Maybe.Extra.unwrap 0 String.length Nothing
                         |> Expect.equal 0
             , test "returns the unwrapped value if it is a Just" <|
                 \() ->
-                    unwrap 0 String.length (Just "abc")
+                    Maybe.Extra.unwrap 0 String.length (Just "abc")
                         |> Expect.equal 3
             ]
         , describe "unpack"
             [ test "returns the default value if it is a Nothing" <|
                 \() ->
-                    unpack (\() -> 0) String.length Nothing
+                    Maybe.Extra.unpack (\() -> 0) String.length Nothing
                         |> Expect.equal 0
             , test "returns the unpackped value if it is a Just" <|
                 \() ->
-                    unpack (\() -> 0) String.length (Just "abc")
+                    Maybe.Extra.unpack (\() -> 0) String.length (Just "abc")
                         |> Expect.equal 3
             ]
         ]

@@ -3,7 +3,7 @@ module String.ReplaceSliceTest exposing (replaceSliceTest)
 import Expect
 import Fuzz exposing (Fuzzer)
 import String
-import String.Extra exposing (..)
+import String.Extra
 import Test exposing (Test, describe, fuzz)
 
 
@@ -14,11 +14,11 @@ replaceSliceTest =
             \{ string, start, end, sub } ->
                 case string of
                     "" ->
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                             |> Expect.equal sub
 
                     _ ->
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                             |> String.contains sub
                             |> Expect.equal True
                             |> Expect.onFail "The slice was not subtituted"
@@ -26,30 +26,30 @@ replaceSliceTest =
             \{ string, start, end, sub } ->
                 case string of
                     "" ->
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                             |> String.length
                             |> Expect.equal (String.length sub)
 
                     _ ->
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                             |> String.length
                             |> Expect.equal ((String.length string - (end - start)) + String.length sub)
         , fuzz replaceSliceProducer "Start of the original string remains the same" <|
             \{ string, start, end, sub } ->
                 case string of
                     "" ->
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                             |> Expect.equal sub
 
                     _ ->
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                             |> String.slice 0 start
                             |> Expect.equal (String.slice 0 start string)
         , fuzz replaceSliceProducer "End of the original string remains the same" <|
             \{ string, start, end, sub } ->
                 let
                     replaced =
-                        replaceSlice sub start end string
+                        String.Extra.replaceSlice sub start end string
                 in
                 case string of
                     "" ->

@@ -5,7 +5,7 @@ import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
 import String
-import String.Extra exposing (..)
+import String.Extra exposing (humanize)
 import String.TestData as TestData
 import Test exposing (Test, describe, fuzz, test)
 import Tuple exposing (first, second)
@@ -43,7 +43,7 @@ humanizeTest =
                 let
                     expected =
                         String.trim
-                            >> toSentenceCase
+                            >> String.Extra.toSentenceCase
                             >> String.uncons
                             >> Maybe.map (first >> String.fromChar)
                             >> Maybe.withDefault ""
