@@ -294,7 +294,11 @@ map3 :
     -> Array c
     -> Array combined
 map3 elementsCombine aArray bArray cArray =
-    apply (map2 elementsCombine aArray bArray) cArray
+    List.map3 elementsCombine
+        (aArray |> Array.toList)
+        (bArray |> Array.toList)
+        (cArray |> Array.toList)
+        |> Array.fromList
 
 
 {-| Combine the elements of four `Array`s with the given function. See [`map2`](Array-Extra#map2).
@@ -307,7 +311,12 @@ map4 :
     -> Array d
     -> Array combined
 map4 elementsCombine aArray bArray cArray dArray =
-    apply (map3 elementsCombine aArray bArray cArray) dArray
+    List.map4 elementsCombine
+        (aArray |> Array.toList)
+        (bArray |> Array.toList)
+        (cArray |> Array.toList)
+        (dArray |> Array.toList)
+        |> Array.fromList
 
 
 {-| Combine the elements of five `Array`s with the given function. See [`map2`](Array-Extra#map2).
@@ -321,7 +330,13 @@ map5 :
     -> Array e
     -> Array combined
 map5 elementsCombine aArray bArray cArray dArray eArray =
-    apply (map4 elementsCombine aArray bArray cArray dArray) eArray
+    List.map5 elementsCombine
+        (aArray |> Array.toList)
+        (bArray |> Array.toList)
+        (cArray |> Array.toList)
+        (dArray |> Array.toList)
+        (eArray |> Array.toList)
+        |> Array.fromList
 
 
 {-| Combine the elements of two `Array`s into tuples.
