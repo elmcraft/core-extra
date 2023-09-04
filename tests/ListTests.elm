@@ -1,11 +1,9 @@
 module ListTests exposing (all)
 
 import Expect
-import Fuzz exposing (int, intRange, list)
-import List exposing (map, range)
+import Fuzz
 import List.Extra exposing (..)
 import Test exposing (Test, describe, fuzz, fuzz2, fuzz3, test)
-import Tuple exposing (first)
 
 
 all : Test
@@ -29,7 +27,7 @@ all =
                 \() ->
                     Expect.equal
                         ([ 1, 2, 3 ]
-                            |> map (\a b c -> a + b * c)
+                            |> List.map (\a b c -> a + b * c)
                             |> andMap [ 4, 5, 6 ]
                             |> andMap [ 2, 1, 1 ]
                         )
@@ -183,7 +181,7 @@ all =
                         [ [ 1, 2, 3 ], [ 1, 3, 2 ], [ 2, 1, 3 ], [ 2, 3, 1 ], [ 3, 1, 2 ], [ 3, 2, 1 ] ]
             ]
         , describe "isPermutationOf"
-            [ fuzz2 (list int) (list int) "works the same as sorting" <|
+            [ fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "works the same as sorting" <|
                 \a b ->
                     isPermutationOf a b
                         |> Expect.equal (List.sort a == List.sort b)
@@ -399,10 +397,10 @@ all =
             [ test "handles an empty list" <|
                 \() ->
                     Expect.equal (init []) Nothing
-            , fuzz int "handles a nearly-empty list" <|
+            , fuzz Fuzz.int "handles a nearly-empty list" <|
                 \x ->
                     Expect.equal (init [ x ]) (Just [])
-            , fuzz2 (list int) int "handles a non-empty list" <|
+            , fuzz2 (Fuzz.list Fuzz.int) Fuzz.int "handles a non-empty list" <|
                 \list x ->
                     Expect.equal (init <| list ++ [ x ]) (Just list)
             ]
@@ -442,7 +440,7 @@ all =
                 rangeFloor =
                     negate rangeCeiling
               in
-              fuzz2 (intRange rangeFloor rangeCeiling) (intRange rangeFloor rangeCeiling) "always equal to the reverse of List.range" <|
+              fuzz2 (Fuzz.intRange rangeFloor rangeCeiling) (Fuzz.intRange rangeFloor rangeCeiling) "always equal to the reverse of List.range" <|
                 \hi lo ->
                     reverseRange hi lo
                         |> Expect.equalLists (List.reverse (List.range lo hi))
@@ -478,15 +476,15 @@ all =
         , describe "takeWhileRight" <|
             [ test "keeps the correct items" <|
                 \() ->
-                    Expect.equal (takeWhileRight ((<) 5) (range 1 10)) [ 6, 7, 8, 9, 10 ]
+                    Expect.equal (takeWhileRight ((<) 5) (List.range 1 10)) [ 6, 7, 8, 9, 10 ]
             , test "drops the correct items" <|
                 \() ->
-                    Expect.equal (dropWhileRight ((<) 5) (range 1 10)) [ 1, 2, 3, 4, 5 ]
+                    Expect.equal (dropWhileRight ((<) 5) (List.range 1 10)) [ 1, 2, 3, 4, 5 ]
             ]
         , describe "takeWhile" <|
             [ test "doesn't exceed maximum call stack" <|
                 \() ->
-                    Expect.equal (takeWhile ((>) 19999) (range 1 20000)) (range 1 19998)
+                    Expect.equal (takeWhile ((>) 19999) (List.range 1 20000)) (List.range 1 19998)
             ]
         , describe "span" <|
             [ test "splits in the middle of the list" <|
@@ -537,7 +535,7 @@ all =
             [ test "groups by sub-element equality" <|
                 \() ->
                     Expect.equal
-                        (groupWhile (\x y -> first x == first y) [ ( 0, 'a' ), ( 0, 'b' ), ( 1, 'c' ), ( 1, 'd' ) ])
+                        (groupWhile (\( x, _ ) ( y, _ ) -> x == y) [ ( 0, 'a' ), ( 0, 'b' ), ( 1, 'c' ), ( 1, 'd' ) ])
                         [ ( ( 0, 'a' ), [ ( 0, 'b' ) ] ), ( ( 1, 'c' ), [ ( 1, 'd' ) ] ) ]
             , test "comparison function is reflexive, symmetric, and transitive" <|
                 \() ->
@@ -592,21 +590,21 @@ all =
         , describe "groupsOf" <|
             [ test "groups by the correct number of items" <|
                 \() ->
-                    Expect.equal (groupsOf 3 (range 1 10))
+                    Expect.equal (groupsOf 3 (List.range 1 10))
                         [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
             ]
         , describe "groupsOfWithStep" <|
             [ test "step == size" <|
                 \() ->
-                    Expect.equal (groupsOfWithStep 4 4 (range 1 10))
+                    Expect.equal (groupsOfWithStep 4 4 (List.range 1 10))
                         [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ] ]
             , test "step < size" <|
                 \() ->
-                    Expect.equal (groupsOfWithStep 3 1 (range 1 5))
+                    Expect.equal (groupsOfWithStep 3 1 (List.range 1 5))
                         [ [ 1, 2, 3 ], [ 2, 3, 4 ], [ 3, 4, 5 ] ]
             , test "step > size" <|
                 \() ->
-                    Expect.equal (groupsOfWithStep 3 6 (range 1 20))
+                    Expect.equal (groupsOfWithStep 3 6 (List.range 1 20))
                         [ [ 1, 2, 3 ], [ 7, 8, 9 ], [ 13, 14, 15 ] ]
             ]
         , describe "groupsOfVarying" <|
@@ -629,35 +627,35 @@ all =
         , describe "greedyGroupsOf" <|
             [ test "groups correctly while keeping trailing group" <|
                 \() ->
-                    Expect.equal (greedyGroupsOf 3 (range 1 10))
+                    Expect.equal (greedyGroupsOf 3 (List.range 1 10))
                         [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
             ]
         , describe "greedyGroupsOfWithStep" <|
             [ test "step == size" <|
                 \() ->
-                    Expect.equal (greedyGroupsOfWithStep 4 4 (range 1 10))
+                    Expect.equal (greedyGroupsOfWithStep 4 4 (List.range 1 10))
                         [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10 ] ]
             , test "step < size" <|
                 \() ->
-                    Expect.equal (greedyGroupsOfWithStep 3 2 (range 1 6))
+                    Expect.equal (greedyGroupsOfWithStep 3 2 (List.range 1 6))
                         [ [ 1, 2, 3 ], [ 3, 4, 5 ], [ 5, 6 ] ]
             , test "step > size" <|
                 \() ->
-                    Expect.equal (greedyGroupsOfWithStep 3 6 (range 1 20))
+                    Expect.equal (greedyGroupsOfWithStep 3 6 (List.range 1 20))
                         [ [ 1, 2, 3 ], [ 7, 8, 9 ], [ 13, 14, 15 ], [ 19, 20 ] ]
             ]
         , describe "isPrefixOf"
-            [ fuzz (list int) "[] is prefix to anything" <|
+            [ fuzz (Fuzz.list Fuzz.int) "[] is prefix to anything" <|
                 \list ->
                     List.Extra.isPrefixOf [] list
                         |> Expect.equal True
                         |> Expect.onFail "Expected [] to be a prefix."
-            , fuzz (list int) "reflexivity" <|
+            , fuzz (Fuzz.list Fuzz.int) "reflexivity" <|
                 \list ->
                     List.Extra.isPrefixOf list list
                         |> Expect.equal True
                         |> Expect.onFail "Expected list to be a prefix of itself."
-            , fuzz2 (list int) (list int) "antisymmetry" <|
+            , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "antisymmetry" <|
                 \listA listB ->
                     not (List.Extra.isPrefixOf listA listB)
                         || not (List.Extra.isPrefixOf listB listA)
@@ -665,7 +663,7 @@ all =
                         == listB
                         |> Expect.equal True
                         |> Expect.onFail "Expected exactly one to be prefix of the other."
-            , fuzz3 (list int) (list int) (list int) "transitivity" <|
+            , fuzz3 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "transitivity" <|
                 \listA listB listC ->
                     not (List.Extra.isPrefixOf listA listB)
                         || not (List.Extra.isPrefixOf listB listC)
@@ -677,24 +675,24 @@ all =
                     isPrefixOf (List.range 1 6000) (List.range 1 10000)
                         |> Expect.equal True
                         |> Expect.onFail "1, 2, ..., 6k is prefix of 1, 2, ..., 10k"
-            , fuzz2 (list int) (list int) "generalized fuzz test" <|
+            , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "generalized fuzz test" <|
                 \prefix rest ->
                     isPrefixOf prefix (prefix ++ rest)
                         |> Expect.equal True
                         |> Expect.onFail "xs is prefix of xs ++ ys"
             ]
         , describe "isSuffixOf"
-            [ fuzz (list int) "[] is suffix to anything" <|
+            [ fuzz (Fuzz.list Fuzz.int) "[] is suffix to anything" <|
                 \list ->
                     List.Extra.isSuffixOf [] list
                         |> Expect.equal True
                         |> Expect.onFail "Expected [] to be a suffix."
-            , fuzz (list int) "reflexivity" <|
+            , fuzz (Fuzz.list Fuzz.int) "reflexivity" <|
                 \list ->
                     List.Extra.isSuffixOf list list
                         |> Expect.equal True
                         |> Expect.onFail "Expected list to be a suffix of itself."
-            , fuzz2 (list int) (list int) "antisymmetry" <|
+            , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "antisymmetry" <|
                 \listA listB ->
                     not (List.Extra.isSuffixOf listA listB)
                         || not (List.Extra.isSuffixOf listB listA)
@@ -702,7 +700,7 @@ all =
                         == listB
                         |> Expect.equal True
                         |> Expect.onFail "Expected exactly one to be suffix of the other."
-            , fuzz3 (list int) (list int) (list int) "transitivity" <|
+            , fuzz3 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "transitivity" <|
                 \listA listB listC ->
                     not (List.Extra.isSuffixOf listA listB)
                         || not (List.Extra.isSuffixOf listB listC)
@@ -714,7 +712,7 @@ all =
                     isSuffixOf (List.range 4000 10000) (List.range 1 10000)
                         |> Expect.equal True
                         |> Expect.onFail "4000, 4001, ..., 10k is suffix of 1, 2, ..., 10k"
-            , fuzz2 (list int) (list int) "generalized fuzz test" <|
+            , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "generalized fuzz test" <|
                 \suffix rest ->
                     isSuffixOf suffix (rest ++ suffix)
                         |> Expect.equal True
@@ -746,7 +744,7 @@ all =
                     isInfixOf (List.range 1 6000) (List.range 1 10000)
                         |> Expect.equal True
                         |> Expect.onFail "1, 2, ..., 6k is infix of 1, 2, ..., 10k"
-            , fuzz3 (list int) (list int) (list int) "generalized fuzz test" <|
+            , fuzz3 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "generalized fuzz test" <|
                 \prefix match suffix ->
                     isInfixOf match (prefix ++ match ++ suffix)
                         |> Expect.equal True
@@ -756,17 +754,17 @@ all =
                     isInfixOf [] []
                         |> Expect.equal True
                         |> Expect.onFail "empty is infix of empty"
-            , fuzz (list int) "empty is infix of anything" <|
+            , fuzz (Fuzz.list Fuzz.int) "empty is infix of anything" <|
                 \list ->
                     isInfixOf [] list
                         |> Expect.equal True
                         |> Expect.onFail "empty is infix of anything"
-            , fuzz2 int (list int) "non-empty is not infix of empty" <|
+            , fuzz2 Fuzz.int (Fuzz.list Fuzz.int) "non-empty is not infix of empty" <|
                 \x xs ->
                     isInfixOf (x :: xs) []
                         |> Expect.equal False
                         |> Expect.onFail "non-empty is not infix of empty"
-            , fuzz (list int) "equal lists are infix" <|
+            , fuzz (Fuzz.list Fuzz.int) "equal lists are infix" <|
                 \list ->
                     isInfixOf list list
                         |> Expect.equal True
@@ -1039,12 +1037,12 @@ all =
             ]
         , describe "frequencies"
             [ describe "Property testing with fuzz"
-                [ fuzz (list int) "Final value similar list and List.sort list" <|
+                [ fuzz (Fuzz.list Fuzz.int) "Final value similar list and List.sort list" <|
                     \list ->
                         frequencies list
                             |> List.sort
                             |> Expect.equal (frequencies list)
-                , fuzz (list int) "Final value similar, no matter the order of composition for frequencies and List.sort" <|
+                , fuzz (Fuzz.list Fuzz.int) "Final value similar, no matter the order of composition for frequencies and List.sort" <|
                     \list ->
                         let
                             freqFirst =
@@ -1059,7 +1057,7 @@ all =
                         in
                         freqFirst
                             |> Expect.equal sortFirst
-                , fuzz2 (list int) (list int) "Two (different/similar) lists should give 2 (different/similar) results" <|
+                , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "Two (different/similar) lists should give 2 (different/similar) results" <|
                     \list1 list2 ->
                         let
                             areListsSimilar =
@@ -1096,7 +1094,7 @@ all =
                 ]
             ]
         , describe "stoppableFoldl"
-            [ fuzz (list int) "behaves like foldl if function always returns Continue" <|
+            [ fuzz (Fuzz.list Fuzz.int) "behaves like foldl if function always returns Continue" <|
                 \xs ->
                     stoppableFoldl (\n acc -> Continue (n + acc)) 0 xs
                         |> Expect.equal (List.sum xs)

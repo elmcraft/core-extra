@@ -2,7 +2,7 @@ module CharTests exposing (suite)
 
 import Char.Extra
 import Expect
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 suite : Test

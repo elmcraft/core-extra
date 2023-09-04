@@ -1,10 +1,10 @@
 module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, unquoteTest, wrapTest)
 
 import Expect
-import Fuzz exposing (..)
+import Fuzz exposing (Fuzzer)
 import String exposing (fromChar, replace, toLower, toUpper, uncons)
 import String.Extra exposing (..)
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz, fuzz2, test)
 import Tuple exposing (first, second)
 
 
@@ -16,7 +16,7 @@ tail =
 toSentenceCaseTest : Test
 toSentenceCaseTest =
     describe "toSentenceCase"
-        [ fuzz string "It converts the first char of the string to uppercase" <|
+        [ fuzz Fuzz.string "It converts the first char of the string to uppercase" <|
             \string ->
                 let
                     result =
@@ -33,7 +33,7 @@ toSentenceCaseTest =
                             |> Maybe.withDefault ""
                 in
                 Expect.equal expected result
-        , fuzz string "The tail of the string remains untouched" <|
+        , fuzz Fuzz.string "The tail of the string remains untouched" <|
             \string ->
                 let
                     result =
@@ -49,7 +49,7 @@ toSentenceCaseTest =
 decapitalizeTest : Test
 decapitalizeTest =
     describe "decapitalize"
-        [ fuzz string "It only converst the first char in the string to lowercase" <|
+        [ fuzz Fuzz.string "It only converst the first char in the string to lowercase" <|
             \string ->
                 let
                     result =
@@ -66,7 +66,7 @@ decapitalizeTest =
                             |> Maybe.withDefault ""
                 in
                 Expect.equal expected result
-        , fuzz string "It does not change the tail of the string" <|
+        , fuzz Fuzz.string "It does not change the tail of the string" <|
             \string ->
                 let
                     result =
@@ -82,7 +82,7 @@ decapitalizeTest =
 toTitleCaseTest : Test
 toTitleCaseTest =
     describe "toTitleCase"
-        [ fuzz (list string) "It converts the first letter of each word to uppercase" <|
+        [ fuzz (Fuzz.list Fuzz.string) "It converts the first letter of each word to uppercase" <|
             \strings ->
                 let
                     result =
@@ -98,7 +98,7 @@ toTitleCaseTest =
                             |> List.map toSentenceCase
                 in
                 Expect.equal expected result
-        , fuzz (list string) "It does not change the length of the string" <|
+        , fuzz (Fuzz.list Fuzz.string) "It does not change the length of the string" <|
             \strings ->
                 let
                     result =
@@ -119,7 +119,7 @@ toTitleCaseTest =
 breakTest : Test
 breakTest =
     describe "break"
-        [ fuzz2 string (intRange 0 100) "The list should have as many elements as the ceil division of the length" <|
+        [ fuzz2 Fuzz.string (Fuzz.intRange 0 100) "The list should have as many elements as the ceil division of the length" <|
             \string width ->
                 case ( string, width ) of
                     ( "", _ ) ->
@@ -136,12 +136,12 @@ breakTest =
                         break width string
                             |> List.length
                             |> Expect.equal (ceiling <| (toFloat << String.length) string / toFloat width)
-        , fuzz2 string (intRange 1 10) "Concatenating the result yields the original string" <|
+        , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "Concatenating the result yields the original string" <|
             \string width ->
                 break width string
                     |> String.concat
                     |> Expect.equal string
-        , fuzz2 string (intRange 1 10) "No element in the list should have more than `width` chars" <|
+        , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "No element in the list should have more than `width` chars" <|
             \string width ->
                 break width string
                     |> List.map String.length
@@ -155,12 +155,12 @@ breakTest =
 softBreakTest : Test
 softBreakTest =
     describe "softBreak"
-        [ fuzz2 string (intRange 1 10) "Concatenating the result yields the original string" <|
+        [ fuzz2 Fuzz.string (Fuzz.intRange 1 10) "Concatenating the result yields the original string" <|
             \string width ->
                 softBreak width (String.trim string)
                     |> String.concat
                     |> Expect.equal (String.trim string)
-        , fuzz2 string (intRange 1 10) "The list should not have more elements than words" <|
+        , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "The list should not have more elements than words" <|
             \string width ->
                 softBreak width string
                     |> List.length
@@ -172,7 +172,7 @@ cleanTest : Test
 cleanTest =
     describe "clean"
         [ {- Test.skip <|
-                 fuzz string "The String.split result is the same as String.words" <|
+                 fuzz Fuzz.string "The String.split result is the same as String.words" <|
                      \string ->
                          let
                              result =
@@ -186,14 +186,14 @@ cleanTest =
                          Expect.equal expected result
              ,
           -}
-          fuzz string "It trims the string on the left side" <|
+          fuzz Fuzz.string "It trims the string on the left side" <|
             \string ->
                 string
                     |> clean
                     |> String.startsWith " "
                     |> Expect.equal False
                     |> Expect.onFail "Did not trim the start of the string"
-        , fuzz string "It trims the string on the right side" <|
+        , fuzz Fuzz.string "It trims the string on the right side" <|
             \string ->
                 string
                     |> clean
@@ -233,8 +233,8 @@ insertAtTest =
 
 insertAtProducer : Fuzzer ( String, Int, String )
 insertAtProducer =
-    Fuzz.triple (intRange 0 10) (intRange 1 10) string
-        |> map (\( a, b, s ) -> ( "b" ++ s, b, String.repeat (a + b) "a" ))
+    Fuzz.triple (Fuzz.intRange 0 10) (Fuzz.intRange 1 10) Fuzz.string
+        |> Fuzz.map (\( a, b, s ) -> ( "b" ++ s, b, String.repeat (a + b) "a" ))
 
 
 isBlankTest : Test
@@ -270,28 +270,28 @@ nonBlankTest =
 surroundTest : Test
 surroundTest =
     describe "surround"
-        [ fuzz2 string string "It starts with the wrapping string" <|
+        [ fuzz2 Fuzz.string Fuzz.string "It starts with the wrapping string" <|
             \string wrap ->
                 string
                     |> surround wrap
                     |> String.startsWith wrap
                     |> Expect.equal True
                     |> Expect.onFail "Did not start with the wrapping string"
-        , fuzz2 string string "It ends with the wrapping string" <|
+        , fuzz2 Fuzz.string Fuzz.string "It ends with the wrapping string" <|
             \string wrap ->
                 string
                     |> surround wrap
                     |> String.endsWith wrap
                     |> Expect.equal True
                     |> Expect.onFail "Did not end with the wrapping string"
-        , fuzz2 string string "It contains the original string" <|
+        , fuzz2 Fuzz.string Fuzz.string "It contains the original string" <|
             \string wrap ->
                 string
                     |> surround wrap
                     |> String.contains string
                     |> Expect.equal True
                     |> Expect.onFail "Did not contain the string"
-        , fuzz2 string string "It does not have anything else inside" <|
+        , fuzz2 Fuzz.string Fuzz.string "It does not have anything else inside" <|
             \string wrap ->
                 let
                     result =
@@ -312,7 +312,7 @@ surroundTest =
 countOccurrencesTest : Test
 countOccurrencesTest =
     describe "countOccurrences"
-        [ fuzz2 string string "Removing the occurences should yield the right length" <|
+        [ fuzz2 Fuzz.string Fuzz.string "Removing the occurences should yield the right length" <|
             \needle haystack ->
                 let
                     times =
@@ -331,14 +331,14 @@ countOccurrencesTest =
 ellipsisTest : Test
 ellipsisTest =
     describe "ellipsis"
-        [ fuzz2 (intRange 3 20) string "The resulting string length does not exceed the specified length" <|
+        [ fuzz2 (Fuzz.intRange 3 20) Fuzz.string "The resulting string length does not exceed the specified length" <|
             \howLong string ->
                 ellipsis howLong string
                     |> String.length
                     |> (>=) howLong
                     |> Expect.equal True
                     |> Expect.onFail "Resulting string exceeds specified length"
-        , fuzz2 (intRange 3 20) string "The resulting string contains three dots at the end if necessary" <|
+        , fuzz2 (Fuzz.intRange 3 20) Fuzz.string "The resulting string contains three dots at the end if necessary" <|
             \howLong string ->
                 let
                     result =
@@ -352,7 +352,7 @@ ellipsisTest =
                         else
                             Expect.equal False >> Expect.onFail "Should not add ellipsis"
                        )
-        , fuzz2 (intRange 3 20) string "It starts with the left of the original string" <|
+        , fuzz2 (Fuzz.intRange 3 20) Fuzz.string "It starts with the left of the original string" <|
             \howLong string ->
                 let
                     result =
@@ -381,7 +381,7 @@ unquoteTest =
 wrapTest : Test
 wrapTest =
     describe "wrap"
-        [ fuzz2 (intRange 1 20) string "Wraps given string at the requested length" <|
+        [ fuzz2 (Fuzz.intRange 1 20) Fuzz.string "Wraps given string at the requested length" <|
             \howLong string ->
                 wrap howLong string
                     |> String.split "\n"

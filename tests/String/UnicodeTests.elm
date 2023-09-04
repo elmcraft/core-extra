@@ -2,17 +2,17 @@ module String.UnicodeTests exposing (unicodeTests)
 
 import Char
 import Expect
-import Fuzz exposing (..)
+import Fuzz exposing (Fuzzer)
 import String
 import String.Extra exposing (..)
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz, test)
 
 
 bmpCodePointFuzzer : Fuzzer Int
 bmpCodePointFuzzer =
-    frequency
-        [ ( 1, intRange 0 0xD7FF )
-        , ( 1, intRange 0xE000 0xFFFF )
+    Fuzz.frequency
+        [ ( 1, Fuzz.intRange 0 0xD7FF )
+        , ( 1, Fuzz.intRange 0xE000 0xFFFF )
         ]
 
 
@@ -20,37 +20,39 @@ unicodeStringFuzzer : Fuzzer String
 unicodeStringFuzzer =
     let
         singletonFuzzer =
-            bmpCodePointFuzzer |> map (\codePoint -> [ codePoint ])
+            bmpCodePointFuzzer
+                |> Fuzz.map (\codePoint -> [ Char.fromCode codePoint ])
 
         leadingSurrogateFuzzer =
-            intRange 0xD800 0xDBFF
+            Fuzz.intRange 0xD800 0xDBFF
 
         trailingSurrogateFuzzer =
-            intRange 0xDC00 0xDFFF
+            Fuzz.intRange 0xDC00 0xDFFF
 
         surrogatePairFuzzer =
-            pair leadingSurrogateFuzzer trailingSurrogateFuzzer
-                |> map (\( leading, trailing ) -> [ leading, trailing ])
+            Fuzz.map2
+                (\leading trailing -> [ Char.fromCode leading, Char.fromCode trailing ])
+                leadingSurrogateFuzzer
+                trailingSurrogateFuzzer
 
         sublistFuzzer =
-            frequency
+            Fuzz.frequency
                 [ ( 1, singletonFuzzer )
                 , ( 1, surrogatePairFuzzer )
                 ]
     in
-    list sublistFuzzer
-        |> map List.concat
-        |> map (List.map Char.fromCode)
-        |> map String.fromList
+    Fuzz.list sublistFuzzer
+        |> Fuzz.map List.concat
+        |> Fuzz.map String.fromList
 
 
 codePointFuzzer : Fuzzer Int
 codePointFuzzer =
     let
         astralCodePointFuzzer =
-            intRange 0x00010000 0x0010FFFF
+            Fuzz.intRange 0x00010000 0x0010FFFF
     in
-    frequency
+    Fuzz.frequency
         [ ( 1, bmpCodePointFuzzer )
         , ( 1, astralCodePointFuzzer )
         ]
@@ -85,11 +87,11 @@ unicodeTests =
             \string ->
                 fromCodePoints (toCodePoints string)
                     |> Expect.equal string
-        , fuzz (list codePointFuzzer) "toCodePoints is inverse of fromCodePoints" <|
+        , fuzz (Fuzz.list codePointFuzzer) "toCodePoints is inverse of fromCodePoints" <|
             \codePoints ->
                 toCodePoints (fromCodePoints codePoints)
                     |> Expect.equal codePoints
-        , fuzz (list codePointFuzzer) "string length is greater than or equal to number of code points" <|
+        , fuzz (Fuzz.list codePointFuzzer) "string length is greater than or equal to number of code points" <|
             \codePoints ->
                 String.length (fromCodePoints codePoints)
                     |> Expect.atLeast (List.length codePoints)
@@ -97,7 +99,7 @@ unicodeTests =
             \string ->
                 List.length (toCodePoints string)
                     |> Expect.atMost (String.length string)
-        , fuzz (list codePointFuzzer) "encoded string length is as expected" <|
+        , fuzz (Fuzz.list codePointFuzzer) "encoded string length is as expected" <|
             \codePoints ->
                 String.length (fromCodePoints codePoints)
                     |> Expect.equal (expectedStringLength codePoints)

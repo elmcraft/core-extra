@@ -1,10 +1,10 @@
-module OrderTests exposing (Card, JokerCard(..), Point, Suite(..), Value(..), all)
+module OrderTests exposing (Card, Point, Suite(..), Value(..), all)
 
 import Dict
 import Expect
 import Fuzz exposing (Fuzzer)
 import Order.Extra
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz, fuzz2, test)
 
 
 type alias Card =

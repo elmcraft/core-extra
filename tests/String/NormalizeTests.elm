@@ -5,12 +5,12 @@ import Expect exposing (equal)
 import Fuzz
 import String.Normalize exposing (filename, path, removeDiacritics, slug, url)
 import String.Normalize.Diacritics exposing (lookupTable)
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz, test)
 
 
 removeDiacriticsTests : Test
 removeDiacriticsTests =
-    Test.describe "String.Normalize.removeDiacritics"
+    describe "String.Normalize.removeDiacritics"
         [ test "removes lowercase accents" <|
             \_ ->
                 removeDiacritics "éeaèüàäö"

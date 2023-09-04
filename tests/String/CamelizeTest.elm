@@ -1,30 +1,30 @@
 module String.CamelizeTest exposing (camelizeTest)
 
 import Expect
-import Fuzz exposing (..)
+import Fuzz exposing (Fuzzer)
 import Regex
 import String exposing (replace)
 import String.Extra exposing (..)
 import String.TestData as TestData
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz)
 
 
 camelizeTest : Test
 camelizeTest =
     describe "camelize"
-        [ fuzz string "It does not contain dashes" <|
+        [ fuzz Fuzz.string "It does not contain dashes" <|
             \s ->
                 camelize s
                     |> String.contains "-"
                     |> Expect.equal False
                     |> Expect.onFail "Camelize should remove dashes"
-        , fuzz string "It does not contain underscores" <|
+        , fuzz Fuzz.string "It does not contain underscores" <|
             \s ->
                 camelize s
                     |> String.contains "-"
                     |> Expect.equal False
                     |> Expect.onFail "Camelize should remove underscores"
-        , fuzz string "It is the same lowercased string after removing the dashes and spaces" <|
+        , fuzz Fuzz.string "It is the same lowercased string after removing the dashes and spaces" <|
             \s ->
                 let
                     expected =

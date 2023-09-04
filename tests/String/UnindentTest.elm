@@ -1,11 +1,10 @@
 module String.UnindentTest exposing (unindentTest)
 
 import Expect
-import Fuzz exposing (..)
+import Fuzz exposing (Fuzzer)
 import String
-import String.Extra exposing (..)
-import Test exposing (..)
-import Tuple exposing (first)
+import String.Extra exposing (unindent)
+import Test exposing (Test, describe, fuzz)
 
 
 unindentTest : Test
@@ -46,18 +45,22 @@ unindentTest =
 
 multilineProducerString : Fuzzer String
 multilineProducerString =
-    map (convertToMultiline >> first)
-        (triple (intRange 0 10) (intRange 0 10) (intRange 0 10))
+    Fuzz.map3 (\a b c -> Tuple.first <| convertToMultiline a b c)
+        (Fuzz.intRange 0 10)
+        (Fuzz.intRange 0 10)
+        (Fuzz.intRange 0 10)
 
 
 multilineProducer : Fuzzer ( String, Int )
 multilineProducer =
-    map convertToMultiline
-        (triple (intRange 0 10) (intRange 0 10) (intRange 0 10))
+    Fuzz.map3 convertToMultiline
+        (Fuzz.intRange 0 10)
+        (Fuzz.intRange 0 10)
+        (Fuzz.intRange 0 10)
 
 
-convertToMultiline : ( Int, Int, Int ) -> ( String, Int )
-convertToMultiline ( a, b, c ) =
+convertToMultiline : Int -> Int -> Int -> ( String, Int )
+convertToMultiline a b c =
     ( [ String.repeat a " " ++ "aaaa aaa "
       , String.repeat b " " ++ "aaaa aaa"
       , String.repeat c " " ++ "ccc  "

@@ -2,17 +2,17 @@ module SetTests exposing (all)
 
 import Basics.Extra exposing (flip)
 import Expect
-import Fuzz exposing (int, list, string)
+import Fuzz
 import Set exposing (Set)
 import Set.Extra
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz, fuzz2, test)
 
 
 all : Test
 all =
     describe "Set.Extra"
         [ describe "#concatMap"
-            [ fuzz (list int) "Same as concatMap and from/toList" <|
+            [ fuzz (Fuzz.list Fuzz.int) "Same as concatMap and from/toList" <|
                 \xs ->
                     Set.fromList xs
                         |> Set.Extra.concatMap doubleSet
@@ -21,17 +21,17 @@ all =
                                 |> List.concatMap doubleList
                                 |> Set.fromList
                             )
-            , fuzz int "left identity" <|
+            , fuzz Fuzz.int "left identity" <|
                 \x ->
                     Set.singleton x
                         |> Set.Extra.concatMap doubleSet
                         |> Expect.equal (doubleSet x)
-            , fuzz (list int) "right identity" <|
+            , fuzz (Fuzz.list Fuzz.int) "right identity" <|
                 \xs ->
                     Set.fromList xs
                         |> Set.Extra.concatMap Set.singleton
                         |> Expect.equal (Set.fromList xs)
-            , fuzz (list int) "associativity" <|
+            , fuzz (Fuzz.list Fuzz.int) "associativity" <|
                 \xs ->
                     Set.fromList xs
                         |> Set.Extra.concatMap doubleSet
@@ -46,7 +46,7 @@ all =
                             )
             ]
         , describe "#subset"
-            [ fuzz2 (list int) (list int) "Same as List.Extra.isInfixOf" <|
+            [ fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "Same as List.Extra.isInfixOf" <|
                 \xs ys ->
                     Set.fromList xs
                         |> flip Set.Extra.subset (Set.fromList ys)
@@ -66,7 +66,7 @@ all =
                         |> Expect.onFail "Expected the Set to not be a subset"
             ]
         , describe "#toggle"
-            [ fuzz2 (list int) int "Removes an existing element" <|
+            [ fuzz2 (Fuzz.list Fuzz.int) Fuzz.int "Removes an existing element" <|
                 \xs x ->
                     let
                         setWithoutX =
@@ -78,7 +78,7 @@ all =
                     in
                     Set.Extra.toggle x setWithoutX
                         |> Expect.equalSets setWithX
-            , fuzz2 (list int) int "Adds an new element" <|
+            , fuzz2 (Fuzz.list Fuzz.int) Fuzz.int "Adds an new element" <|
                 \xs x ->
                     let
                         setWithoutX =
@@ -97,7 +97,7 @@ all =
                     Set.fromList [ "1", "2", "3", "hello", "4", "world" ]
                         |> Set.Extra.filterMap String.toFloat
                         |> Expect.equal (Set.fromList [ 1, 2, 3, 4 ])
-            , fuzz (list string) "should work like (List.filterMap >> Set.fromList)" <|
+            , fuzz (Fuzz.list Fuzz.string) "should work like (List.filterMap >> Set.fromList)" <|
                 \xs ->
                     Set.fromList xs
                         |> Set.Extra.filterMap String.toFloat

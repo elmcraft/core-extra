@@ -2,12 +2,12 @@ module String.HumanizeTest exposing (humanizeTest)
 
 import Char
 import Expect
-import Fuzz exposing (..)
+import Fuzz exposing (Fuzzer)
 import Regex
 import String
 import String.Extra exposing (..)
 import String.TestData as TestData
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz, test)
 import Tuple exposing (first, second)
 
 
@@ -77,7 +77,7 @@ humanizeTest =
                 humanize (String.toLower s)
                     |> String.toLower
                     |> Expect.equal (expected s)
-        , fuzz string "It yields the same string after removing underscores, dashes and spaces" <|
+        , fuzz Fuzz.string "It yields the same string after removing underscores, dashes and spaces" <|
             \s ->
                 let
                     expected =
@@ -101,7 +101,7 @@ humanizeTest =
                 humanize s
                     |> String.toLower
                     |> Expect.equal (expected s)
-        , fuzz string "It does not leave double spaces around" <|
+        , fuzz Fuzz.string "It does not leave double spaces around" <|
             \s ->
                 humanize s
                     |> String.contains "  "
@@ -119,7 +119,7 @@ humanizeTest =
 idString : Fuzzer String
 idString =
     validWords [ '-', '_' ]
-        |> map (\s -> s ++ "s_id")
+        |> Fuzz.map (\s -> s ++ "s_id")
 
 
 validWords : List Char -> Fuzzer String
@@ -127,6 +127,7 @@ validWords ch =
     TestData.randomStringsWithChars ch
 
 
+regex : String -> Regex.Regex
 regex str =
     Maybe.withDefault Regex.never <|
         Regex.fromString str

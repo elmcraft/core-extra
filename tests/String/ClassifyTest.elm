@@ -2,19 +2,19 @@ module String.ClassifyTest exposing (classifyTest)
 
 import Char
 import Expect
-import Fuzz exposing (..)
+import Fuzz exposing (Fuzzer)
 import Regex
 import String exposing (replace, uncons)
 import String.Extra exposing (..)
 import String.TestData as TestData
-import Test exposing (..)
+import Test exposing (Test, describe, fuzz)
 import Tuple exposing (first, second)
 
 
 classifyTest : Test
 classifyTest =
     describe "classify"
-        [ fuzz string "It does not contain non-word characters" <|
+        [ fuzz Fuzz.string "It does not contain non-word characters" <|
             \string ->
                 classify string
                     |> Regex.contains (Regex.fromString "[\\W]" |> Maybe.withDefault Regex.never)

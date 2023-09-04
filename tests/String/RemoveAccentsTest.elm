@@ -2,7 +2,7 @@ module String.RemoveAccentsTest exposing (removeAccentsTest)
 
 import Expect
 import String.Extra exposing (removeAccents)
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 removeAccentsTest : Test
