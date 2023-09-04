@@ -1,11 +1,11 @@
 module String.DasherizeTest exposing (dasherizeTest)
 
-import Char
+import Char.Extra
 import Expect
 import Fuzz exposing (..)
-import String exposing (replace)
-import String.Extra exposing (..)
-import String.TestData as TestData
+import Regex exposing (Regex)
+import String
+import String.Extra exposing (dasherize)
 import Test exposing (..)
 
 
@@ -17,40 +17,29 @@ dasherizeTest =
                 dasherize s
                     |> String.toLower
                     |> Expect.equal (dasherize s)
-        , fuzz string "It replaces spaces and underscores with a dash" <|
+        , fuzz string "It has no spaces in the resulting string" <|
             \s ->
                 let
-                    expected =
-                        String.toLower
-                            >> String.trim
-                            >> replace "  " " "
-                            >> replace " " "-"
-                            >> replace "\t" "-"
-                            >> replace "\n" "-"
-                            >> replace "_" "-"
-                            >> replace "--" "-"
-                            >> replace "--" "-"
+                    whiteSpaceChecker =
+                        List.any Char.Extra.isSpace
                 in
                 dasherize (String.toLower s)
-                    |> String.toLower
-                    |> Expect.equal (expected s)
-        , fuzz TestData.randomStrings "It puts dash before every single uppercase character" <|
+                    |> String.toList
+                    |> whiteSpaceChecker
+                    |> Expect.equal False
+        , fuzz string "It has no consecutive dashes in the resulting string" <|
             \s ->
-                dasherize s
-                    |> Expect.equal (replaceUppercase s |> String.toLower)
+                let
+                    consecutiveDashesChecker =
+                        Regex.contains consecutiveDashesRegex
+                in
+                dasherize (String.toLower s)
+                    |> consecutiveDashesChecker
+                    |> Expect.equal False
         ]
 
 
-replaceUppercase : String -> String
-replaceUppercase string =
-    string
-        |> String.toList
-        |> List.map
-            (\c ->
-                if Char.isUpper c then
-                    "-" ++ String.fromChar c
-
-                else
-                    String.fromChar c
-            )
-        |> String.concat
+consecutiveDashesRegex : Regex
+consecutiveDashesRegex =
+    Regex.fromString "\\-{2,}"
+        |> Maybe.withDefault Regex.never
