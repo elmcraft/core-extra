@@ -1,7 +1,9 @@
-module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, unquoteTest, wrapTest)
+module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
 
+import Char.Extra
 import Expect
-import Fuzz exposing (Fuzzer)
+import Fuzz exposing (Fuzzer, string)
+import Regex exposing (Regex)
 import String exposing (fromChar, replace, toLower, toUpper, uncons)
 import String.Extra exposing (..)
 import Test exposing (Test, describe, fuzz, fuzz2, test)
@@ -432,3 +434,49 @@ rightOfBackTest =
         \() ->
             rightOfBack "_" "This_is_a_test_string"
                 |> Expect.equal "string"
+
+
+underscoredTest : Test
+underscoredTest =
+    underscoredDasherizeTestHelper underscored "_" "underscored"
+
+
+dasherizeTest : Test
+dasherizeTest =
+    underscoredDasherizeTestHelper dasherize "-" "dasherize"
+
+
+underscoredDasherizeTestHelper : (String -> String) -> String -> String -> Test
+underscoredDasherizeTestHelper testFn testChar testLabel =
+    describe testLabel
+        [ fuzz string "It is a lowercased string" <|
+            \s ->
+                testFn s
+                    |> String.toLower
+                    |> Expect.equal (testFn s)
+        , fuzz string "It has no spaces in the resulting string" <|
+            \s ->
+                let
+                    whiteSpaceChecker =
+                        List.any Char.Extra.isSpace
+                in
+                testFn (String.toLower s)
+                    |> String.toList
+                    |> whiteSpaceChecker
+                    |> Expect.equal False
+        , fuzz string "It has no consecutive target characters in the resulting string" <|
+            \s ->
+                let
+                    consecutiveDashesChecker =
+                        Regex.contains <| consecutiveCharacterRegex testChar
+                in
+                testFn (String.toLower s)
+                    |> consecutiveDashesChecker
+                    |> Expect.equal False
+        ]
+
+
+consecutiveCharacterRegex : String -> Regex
+consecutiveCharacterRegex charStr =
+    Regex.fromString (charStr ++ "{2,}")
+        |> Maybe.withDefault Regex.never
