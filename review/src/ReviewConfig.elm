@@ -65,6 +65,6 @@ config =
     , NoUnused.Parameters.rule
     , NoUnused.Patterns.rule
     , NoUnused.Variables.rule
-    , Simplify.rule Simplify.defaults
+    , Simplify.rule (Simplify.expectNaN Simplify.defaults)
     ]
         |> List.map (Rule.ignoreErrorsForDirectories [ "tests/VerifyExamples" ])

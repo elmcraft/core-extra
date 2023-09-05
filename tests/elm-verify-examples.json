@@ -6,6 +6,7 @@
     "Char.Extra",
     "Cmd.Extra",
     "Dict.Extra",
+    "Float.Extra",
     "List.Extra",
     "Maybe.Extra",
     "Order.Extra",
