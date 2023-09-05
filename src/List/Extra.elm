@@ -71,9 +71,6 @@ module List.Extra exposing
 
 -}
 
-import List
-import Tuple exposing (first, second)
-
 
 {-| Extract the last element of a list.
 
@@ -316,7 +313,7 @@ maximumBy f ls =
             Just l_
 
         l_ :: ls_ ->
-            Just <| first <| List.foldl maxBy ( l_, f l_ ) ls_
+            Just <| Tuple.first <| List.foldl maxBy ( l_, f l_ ) ls_
 
         _ ->
             Nothing
@@ -370,7 +367,7 @@ minimumBy f ls =
             Just l_
 
         l_ :: ls_ ->
-            Just <| first <| List.foldl minBy ( l_, f l_ ) ls_
+            Just <| Tuple.first <| List.foldl minBy ( l_, f l_ ) ls_
 
         _ ->
             Nothing
@@ -927,7 +924,7 @@ stableSortWith pred list =
                 _ ->
                     result
     in
-    List.sortWith predWithIndex listWithIndex |> List.map first
+    List.sortWith predWithIndex listWithIndex |> List.map Tuple.first
 
 
 {-| Swap two values in a list by index. Return the original list if the index is out of range.
@@ -1267,7 +1264,7 @@ indexedFoldl func acc list =
         step x ( i, thisAcc ) =
             ( i + 1, func i x thisAcc )
     in
-    second (List.foldl step ( 0, acc ) list)
+    Tuple.second (List.foldl step ( 0, acc ) list)
 
 
 {-| Variant of `foldr` that passes the index of the current element to the step function. `indexedFoldr` is to `List.foldr` as `List.indexedMap` is to `List.map`.
@@ -1279,7 +1276,7 @@ indexedFoldr func acc list =
         step x ( i, thisAcc ) =
             ( i - 1, func i x thisAcc )
     in
-    second (List.foldr step ( List.length list - 1, acc ) list)
+    Tuple.second (List.foldr step ( List.length list - 1, acc ) list)
 
 
 {-| A custom type used for stoppable folds.
@@ -1580,7 +1577,7 @@ takeWhileRight p =
             else
                 ( xs, False )
     in
-    first << List.foldr step ( [], True )
+    Tuple.first << List.foldr step ( [], True )
 
 
 {-| Drop elements from the right, while predicate still holds.
