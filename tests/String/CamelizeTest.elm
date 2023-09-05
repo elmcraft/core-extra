@@ -4,7 +4,7 @@ import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
 import String exposing (replace)
-import String.Extra exposing (..)
+import String.Extra exposing (camelize)
 import String.TestData as TestData
 import Test exposing (Test, describe, fuzz)
 
@@ -60,7 +60,7 @@ runCamelize separator string =
 capitalizeOdds : Int -> String -> String
 capitalizeOdds pos str =
     if pos > 0 then
-        toSentenceCase str
+        String.Extra.toSentenceCase str
 
     else
         str

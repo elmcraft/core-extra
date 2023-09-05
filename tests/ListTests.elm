@@ -2,7 +2,7 @@ module ListTests exposing (all)
 
 import Expect
 import Fuzz
-import List.Extra exposing (..)
+import List.Extra exposing (Step(..))
 import Test exposing (Test, describe, fuzz, fuzz2, fuzz3, test)
 
 
@@ -28,142 +28,142 @@ all =
                     Expect.equal
                         ([ 1, 2, 3 ]
                             |> List.map (\a b c -> a + b * c)
-                            |> andMap [ 4, 5, 6 ]
-                            |> andMap [ 2, 1, 1 ]
+                            |> List.Extra.andMap [ 4, 5, 6 ]
+                            |> List.Extra.andMap [ 2, 1, 1 ]
                         )
                         [ 9, 7, 9 ]
             ]
         , describe "reverseMap" <|
             [ test "maps and reverses" <|
                 \() ->
-                    Expect.equal (reverseMap sqrt [ 1, 4, 9 ]) [ 3, 2, 1 ]
+                    Expect.equal (List.Extra.reverseMap sqrt [ 1, 4, 9 ]) [ 3, 2, 1 ]
             ]
         , describe "reverseFilter" <|
             [ test "filters and reverses" <|
                 \() ->
-                    Expect.equal (reverseFilter (\x -> x > 5) [ 1, 4, 9, 16 ]) [ 16, 9 ]
+                    Expect.equal (List.Extra.reverseFilter (\x -> x > 5) [ 1, 4, 9, 16 ]) [ 16, 9 ]
             ]
         , describe "notMember" <|
             [ test "disconfirms member" <|
                 \() ->
-                    Expect.equal (notMember 1 [ 1, 2, 3 ]) False
+                    Expect.equal (List.Extra.notMember 1 [ 1, 2, 3 ]) False
             , test "confirms non-member" <|
                 \() ->
-                    Expect.equal (notMember 4 [ 1, 2, 3 ]) True
+                    Expect.equal (List.Extra.notMember 4 [ 1, 2, 3 ]) True
             ]
         , describe "find" <|
             [ test "behaves as documented" <|
                 \() ->
-                    Expect.equal (find (\num -> num > 5) [ 2, 4, 6, 8 ]) (Just 6)
+                    Expect.equal (List.Extra.find (\num -> num > 5) [ 2, 4, 6, 8 ]) (Just 6)
             ]
         , describe "elemIndex" <|
             [ test "finds index of value" <|
                 \() ->
-                    Expect.equal (elemIndex 1 [ 1, 2, 3 ]) (Just 0)
+                    Expect.equal (List.Extra.elemIndex 1 [ 1, 2, 3 ]) (Just 0)
             , test "doesn't find index of non-present" <|
                 \() ->
-                    Expect.equal (elemIndex 4 [ 1, 2, 3 ]) Nothing
+                    Expect.equal (List.Extra.elemIndex 4 [ 1, 2, 3 ]) Nothing
             , test "finds index of first match" <|
                 \() ->
-                    Expect.equal (elemIndex 1 [ 1, 2, 1 ]) (Just 0)
+                    Expect.equal (List.Extra.elemIndex 1 [ 1, 2, 1 ]) (Just 0)
             ]
         , describe "elemIndices" <|
             [ test "finds singleton index" <|
                 \() ->
-                    Expect.equal (elemIndices 1 [ 1, 2, 3 ]) [ 0 ]
+                    Expect.equal (List.Extra.elemIndices 1 [ 1, 2, 3 ]) [ 0 ]
             , test "doesn't find indices of non-present" <|
                 \() ->
-                    Expect.equal (elemIndices 4 [ 1, 2, 3 ]) []
+                    Expect.equal (List.Extra.elemIndices 4 [ 1, 2, 3 ]) []
             , test "finds all indices" <|
                 \() ->
-                    Expect.equal (elemIndices 1 [ 1, 2, 1 ]) [ 0, 2 ]
+                    Expect.equal (List.Extra.elemIndices 1 [ 1, 2, 1 ]) [ 0, 2 ]
             ]
         , describe "findIndex" <|
             [ test "finds index of value" <|
                 \() ->
-                    Expect.equal (findIndex (\x -> modBy 2 x == 0) [ 1, 2, 3 ]) (Just 1)
+                    Expect.equal (List.Extra.findIndex (\x -> modBy 2 x == 0) [ 1, 2, 3 ]) (Just 1)
             , test "doesn't find index of non-present" <|
                 \() ->
-                    Expect.equal (findIndex (\x -> modBy 2 x == 0) [ 1, 3, 5 ]) Nothing
+                    Expect.equal (List.Extra.findIndex (\x -> modBy 2 x == 0) [ 1, 3, 5 ]) Nothing
             , test "finds index of first match" <|
                 \() ->
-                    Expect.equal (findIndex (\x -> modBy 2 x == 0) [ 1, 2, 4 ]) (Just 1)
+                    Expect.equal (List.Extra.findIndex (\x -> modBy 2 x == 0) [ 1, 2, 4 ]) (Just 1)
             ]
         , describe "findIndices" <|
             [ test "finds singleton index" <|
                 \() ->
-                    Expect.equal (findIndices (\x -> modBy 2 x == 0) [ 1, 2, 3 ]) [ 1 ]
+                    Expect.equal (List.Extra.findIndices (\x -> modBy 2 x == 0) [ 1, 2, 3 ]) [ 1 ]
             , test "doesn't find indices of non-present" <|
                 \() ->
-                    Expect.equal (findIndices (\x -> modBy 2 x == 0) [ 1, 3, 5 ]) []
+                    Expect.equal (List.Extra.findIndices (\x -> modBy 2 x == 0) [ 1, 3, 5 ]) []
             , test "finds all indices" <|
                 \() ->
-                    Expect.equal (findIndices (\x -> modBy 2 x == 0) [ 1, 2, 4 ]) [ 1, 2 ]
+                    Expect.equal (List.Extra.findIndices (\x -> modBy 2 x == 0) [ 1, 2, 4 ]) [ 1, 2 ]
             ]
         , describe "findMap" <|
             [ test "Nothing for empty list" <|
                 \() ->
-                    Expect.equal (findMap identity []) Nothing
+                    Expect.equal (List.Extra.findMap identity []) Nothing
             , test "Finds and maps for list of one with first element matching" <|
                 \() ->
-                    Expect.equal (findMap List.head [ [ 1 ] ]) (Just 1)
+                    Expect.equal (List.Extra.findMap List.head [ [ 1 ] ]) (Just 1)
             , test "Fails to find and map for list of one without element matching" <|
                 \() ->
-                    Expect.equal (findMap List.head [ [] ]) Nothing
+                    Expect.equal (List.Extra.findMap List.head [ [] ]) Nothing
             , test "Finds and maps for list with middle element matching" <|
                 \() ->
-                    Expect.equal (findMap List.head [ [], [ 2 ], [] ]) (Just 2)
+                    Expect.equal (List.Extra.findMap List.head [ [], [ 2 ], [] ]) (Just 2)
             , test "Finds and maps for list with last element matching" <|
                 \() ->
-                    Expect.equal (findMap List.head [ [], [], [ 3 ] ]) (Just 3)
+                    Expect.equal (List.Extra.findMap List.head [ [], [], [ 3 ] ]) (Just 3)
             , test "Fails to find and map for list with no element matching" <|
                 \() ->
-                    Expect.equal (findMap List.head [ [], [], [] ]) Nothing
+                    Expect.equal (List.Extra.findMap List.head [ [], [], [] ]) Nothing
             ]
         , describe "count" <|
             [ test "isOdd predicate" <|
                 \() ->
-                    Expect.equal (count (\n -> modBy 2 n == 1) [ 1, 2, 3, 4, 5, 6, 7 ]) 4
+                    Expect.equal (List.Extra.count (\n -> modBy 2 n == 1) [ 1, 2, 3, 4, 5, 6, 7 ]) 4
             , test "equal predicate" <|
                 \() ->
-                    Expect.equal (count ((==) "yeah") [ "She", "loves", "you", "yeah", "yeah", "yeah" ]) 3
+                    Expect.equal (List.Extra.count ((==) "yeah") [ "She", "loves", "you", "yeah", "yeah", "yeah" ]) 3
             ]
         , describe "intercalate" <|
             [ test "computes example" <|
                 \() ->
                     Expect.equal
-                        (intercalate [ 0, 0 ] [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
+                        (List.Extra.intercalate [ 0, 0 ] [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
                         [ 1, 2, 0, 0, 3, 4, 0, 0, 5, 6 ]
             ]
         , describe "transpose" <|
             [ test "performs basic transpose" <|
                 \() ->
                     Expect.equal
-                        (transpose [ [ 1, 2, 3 ], [ 4, 5, 6 ] ])
+                        (List.Extra.transpose [ [ 1, 2, 3 ], [ 4, 5, 6 ] ])
                         [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
             , test "truncate the matrix to the shortest row size" <|
                 \() ->
                     Expect.equal
-                        (transpose [ [ 10, 11 ], [ 20 ], [ 30, 31, 32 ] ])
+                        (List.Extra.transpose [ [ 10, 11 ], [ 20 ], [ 30, 31, 32 ] ])
                         [ [ 10, 20, 30 ] ]
             , test "transposes large lists" <|
                 \() ->
                     Expect.equal
-                        (transpose [ List.repeat 10000 1 ])
+                        (List.Extra.transpose [ List.repeat 10000 1 ])
                         (List.repeat 10000 [ 1 ])
             ]
         , describe "subsequences" <|
             [ test "computes subsequences" <|
                 \() ->
                     Expect.equal
-                        (subsequences [ 1, 2, 3 ])
+                        (List.Extra.subsequences [ 1, 2, 3 ])
                         [ [], [ 1 ], [ 2 ], [ 1, 2 ], [ 3 ], [ 1, 3 ], [ 2, 3 ], [ 1, 2, 3 ] ]
             ]
         , describe "subsequencesNonEmpty" <|
             [ test "computes subsequences to non-empty lists" <|
                 \() ->
                     Expect.equal
-                        (subsequencesNonEmpty [ 1, 2, 3 ])
+                        (List.Extra.subsequencesNonEmpty [ 1, 2, 3 ])
                         [ ( 1, [] )
                         , ( 2, [] )
                         , ( 1, [ 2 ] )
@@ -177,13 +177,13 @@ all =
             [ test "computes permutations" <|
                 \() ->
                     Expect.equal
-                        (permutations [ 1, 2, 3 ])
+                        (List.Extra.permutations [ 1, 2, 3 ])
                         [ [ 1, 2, 3 ], [ 1, 3, 2 ], [ 2, 1, 3 ], [ 2, 3, 1 ], [ 3, 1, 2 ], [ 3, 2, 1 ] ]
             ]
         , describe "isPermutationOf"
             [ fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "works the same as sorting" <|
                 \a b ->
-                    isPermutationOf a b
+                    List.Extra.isPermutationOf a b
                         |> Expect.equal (List.sort a == List.sort b)
             , test "correctly notices permutations" <|
                 \() ->
@@ -192,18 +192,18 @@ all =
                             |> List.map
                                 (\permutation () ->
                                     permutation
-                                        |> isPermutationOf [ 1, 2, 3 ]
+                                        |> List.Extra.isPermutationOf [ 1, 2, 3 ]
                                         |> Expect.equal True
                                 )
                         )
                         ()
             , test "Notices that 1,1,1 is not a permutation of 1,2,3" <|
                 \() ->
-                    isPermutationOf [ 1, 1, 1 ] [ 1, 2, 3 ]
+                    List.Extra.isPermutationOf [ 1, 1, 1 ] [ 1, 2, 3 ]
                         |> Expect.equal False
             , test "Notices that 1,1,2 is not a permutation of 1,2,2" <|
                 \() ->
-                    isPermutationOf [ 1, 1, 2 ] [ 1, 2, 2 ]
+                    List.Extra.isPermutationOf [ 1, 1, 2 ] [ 1, 2, 2 ]
                         |> Expect.equal False
             , test "correctly notices non-permutations" <|
                 \() ->
@@ -212,7 +212,7 @@ all =
                             |> List.map
                                 (\nonPermutation () ->
                                     [ 1, 2, 3 ]
-                                        |> isPermutationOf nonPermutation
+                                        |> List.Extra.isPermutationOf nonPermutation
                                         |> Expect.equal False
                                 )
                         )
@@ -221,135 +221,135 @@ all =
         , describe "interweave" <|
             [ test "interweaves lists of equal length" <|
                 \() ->
-                    Expect.equal (interweave [ 1, 3 ] [ 2, 4 ]) [ 1, 2, 3, 4 ]
+                    Expect.equal (List.Extra.interweave [ 1, 3 ] [ 2, 4 ]) [ 1, 2, 3, 4 ]
             , test "appends remaining members of first list, if longer" <|
                 \() ->
-                    Expect.equal (interweave [ 1, 3, 5, 7 ] [ 2, 4 ]) [ 1, 2, 3, 4, 5, 7 ]
+                    Expect.equal (List.Extra.interweave [ 1, 3, 5, 7 ] [ 2, 4 ]) [ 1, 2, 3, 4, 5, 7 ]
             , test "appends remaining members of second list, if longer" <|
                 \() ->
-                    Expect.equal (interweave [ 4, 9, 16 ] [ 2, 3, 5, 7 ]) [ 4, 2, 9, 3, 16, 5, 7 ]
+                    Expect.equal (List.Extra.interweave [ 4, 9, 16 ] [ 2, 3, 5, 7 ]) [ 4, 2, 9, 3, 16, 5, 7 ]
             ]
         , describe "cartesianProduct" <|
             [ test "computes the cartesian product of lists of different length" <|
                 \() ->
-                    Expect.equal (cartesianProduct [ [ 1, 2 ], [ 3, 4, 5 ], [ 6 ] ]) [ [ 1, 3, 6 ], [ 1, 4, 6 ], [ 1, 5, 6 ], [ 2, 3, 6 ], [ 2, 4, 6 ], [ 2, 5, 6 ] ]
+                    Expect.equal (List.Extra.cartesianProduct [ [ 1, 2 ], [ 3, 4, 5 ], [ 6 ] ]) [ [ 1, 3, 6 ], [ 1, 4, 6 ], [ 1, 5, 6 ], [ 2, 3, 6 ], [ 2, 4, 6 ], [ 2, 5, 6 ] ]
             , test "computes the cartesian product of a single list" <|
                 \() ->
-                    Expect.equal (cartesianProduct [ [ 1, 2 ] ]) [ [ 1 ], [ 2 ] ]
+                    Expect.equal (List.Extra.cartesianProduct [ [ 1, 2 ] ]) [ [ 1 ], [ 2 ] ]
             , test "computes the cartesian product of lists including an empty one" <|
                 \() ->
-                    Expect.equal (cartesianProduct [ [ 1, 2 ], [], [ 6 ] ]) []
+                    Expect.equal (List.Extra.cartesianProduct [ [ 1, 2 ], [], [ 6 ] ]) []
             , test "computes the nullary cartesian product" <|
                 \() ->
-                    Expect.equal (cartesianProduct []) [ [] ]
+                    Expect.equal (List.Extra.cartesianProduct []) [ [] ]
             ]
         , describe "foldl1" <|
             [ test "computes minimum" <|
                 \() ->
-                    Expect.equal (foldl1 min [ 1, 2, 3, 2, 1 ]) (Just 1)
+                    Expect.equal (List.Extra.foldl1 min [ 1, 2, 3, 2, 1 ]) (Just 1)
             , test "computes left to right difference" <|
                 \() ->
-                    Expect.equal (foldl1 (-) [ 1, 2, 3, 4 ]) (Just 2)
+                    Expect.equal (List.Extra.foldl1 (-) [ 1, 2, 3, 4 ]) (Just 2)
             , test "concats in reverse" <|
                 \() ->
-                    Expect.equal (foldl1 (++) [ "a", "b", "c" ]) (Just "cba")
+                    Expect.equal (List.Extra.foldl1 (++) [ "a", "b", "c" ]) (Just "cba")
             , test "falls back to Nothing" <|
                 \() ->
-                    Expect.equal (foldl1 min []) Nothing
+                    Expect.equal (List.Extra.foldl1 min []) Nothing
             ]
         , describe "foldr1" <|
             [ test "computes minimum" <|
                 \() ->
-                    Expect.equal (foldr1 min [ 1, 2, 3, 2, 1 ]) (Just 1)
+                    Expect.equal (List.Extra.foldr1 min [ 1, 2, 3, 2, 1 ]) (Just 1)
             , test "computes right to left difference" <|
                 \() ->
-                    Expect.equal (foldr1 (-) [ 1, 2, 3, 4 ]) (Just -2)
+                    Expect.equal (List.Extra.foldr1 (-) [ 1, 2, 3, 4 ]) (Just -2)
             , test "concats properly" <|
                 \() ->
-                    Expect.equal (foldr1 (++) [ "a", "b", "c" ]) (Just "abc")
+                    Expect.equal (List.Extra.foldr1 (++) [ "a", "b", "c" ]) (Just "abc")
             , test "falls back to Nothing" <|
                 \() ->
-                    Expect.equal (foldr1 min []) Nothing
+                    Expect.equal (List.Extra.foldr1 min []) Nothing
             ]
         , describe "scanl1" <|
             [ test "computes left to right iterative sum" <|
                 \() ->
-                    Expect.equal (scanl1 (+) [ 1, 2, 3 ]) [ 1, 3, 6 ]
+                    Expect.equal (List.Extra.scanl1 (+) [ 1, 2, 3 ]) [ 1, 3, 6 ]
             , test "computes left to right iterative difference" <|
                 \() ->
-                    Expect.equal (scanl1 (-) [ 1, 2, 3 ]) [ 1, 1, 2 ]
+                    Expect.equal (List.Extra.scanl1 (-) [ 1, 2, 3 ]) [ 1, 1, 2 ]
             , test "computes left to right flipped iterative difference" <|
                 \() ->
-                    Expect.equal (scanl1 (\x y -> y - x) [ 1, 2, 3 ]) [ 1, -1, -4 ]
+                    Expect.equal (List.Extra.scanl1 (\x y -> y - x) [ 1, 2, 3 ]) [ 1, -1, -4 ]
             ]
         , describe "scanr" <|
             [ test "computes right to left iterative sum" <|
                 \() ->
-                    Expect.equal (scanr (+) 0 [ 1, 2, 3 ]) [ 6, 5, 3, 0 ]
+                    Expect.equal (List.Extra.scanr (+) 0 [ 1, 2, 3 ]) [ 6, 5, 3, 0 ]
             , test "computes right to left iterative difference" <|
                 \() ->
-                    Expect.equal (scanr (-) 0 [ 1, 2, 3 ]) [ 2, -1, 3, 0 ]
+                    Expect.equal (List.Extra.scanr (-) 0 [ 1, 2, 3 ]) [ 2, -1, 3, 0 ]
             ]
         , describe "scanr1" <|
             [ test "computes right to left iterative sum" <|
                 \() ->
-                    Expect.equal (scanr1 (+) [ 1, 2, 3 ]) [ 6, 5, 3 ]
+                    Expect.equal (List.Extra.scanr1 (+) [ 1, 2, 3 ]) [ 6, 5, 3 ]
             , test "computes right to left iterative difference" <|
                 \() ->
-                    Expect.equal (scanr1 (-) [ 1, 2, 3 ]) [ 2, -1, 3 ]
+                    Expect.equal (List.Extra.scanr1 (-) [ 1, 2, 3 ]) [ 2, -1, 3 ]
             , test "computes right to left flipped iterative difference" <|
                 \() ->
-                    Expect.equal (scanr1 (\x y -> y - x) [ 1, 2, 3 ]) [ 0, 1, 3 ]
+                    Expect.equal (List.Extra.scanr1 (\x y -> y - x) [ 1, 2, 3 ]) [ 0, 1, 3 ]
             ]
         , describe "mapAccuml" <|
             [ test "on empty list" <|
                 \() ->
                     Expect.equal
-                        (mapAccuml (\a x -> ( a + x, a * x )) 5 [])
+                        (List.Extra.mapAccuml (\a x -> ( a + x, a * x )) 5 [])
                         ( 5, [] )
             , test "accumulate sum and map product" <|
                 \() ->
                     Expect.equal
-                        (mapAccuml (\a x -> ( a + x, a * x )) 5 [ 2, 4, 8 ])
+                        (List.Extra.mapAccuml (\a x -> ( a + x, a * x )) 5 [ 2, 4, 8 ])
                         ( 19, [ 10, 28, 88 ] )
             , test "running total" <|
                 \() ->
                     Expect.equal
-                        (mapAccuml (\a x -> ( a + x, ( x, a + x ) )) 0 [ 2, 4, 8 ])
+                        (List.Extra.mapAccuml (\a x -> ( a + x, ( x, a + x ) )) 0 [ 2, 4, 8 ])
                         ( 14, [ ( 2, 2 ), ( 4, 6 ), ( 8, 14 ) ] )
             , test "works for very long list (i.e. is call stack size safe)" <|
                 \() ->
                     Expect.equal
-                        (mapAccuml (\a x -> ( a + x, () )) 0 (List.range 1 100000) |> Tuple.first)
+                        (List.Extra.mapAccuml (\a x -> ( a + x, () )) 0 (List.range 1 100000) |> Tuple.first)
                         5000050000
             ]
         , describe "mapAccumr" <|
             [ test "on empty list" <|
                 \() ->
                     Expect.equal
-                        (mapAccumr (\a x -> ( a + x, a * x )) 5 [])
+                        (List.Extra.mapAccumr (\a x -> ( a + x, a * x )) 5 [])
                         ( 5, [] )
             , test "accumulate sum and map product" <|
                 \() ->
                     Expect.equal
-                        (mapAccumr (\a x -> ( a + x, a * x )) 5 [ 2, 4, 8 ])
+                        (List.Extra.mapAccumr (\a x -> ( a + x, a * x )) 5 [ 2, 4, 8 ])
                         ( 19, [ 34, 52, 40 ] )
             , test "add count down" <|
                 \() ->
                     Expect.equal
-                        (mapAccumr (\a x -> ( a + 1, ( x, a ) )) 0 [ 2, 4, 8 ])
+                        (List.Extra.mapAccumr (\a x -> ( a + 1, ( x, a ) )) 0 [ 2, 4, 8 ])
                         ( 3, [ ( 2, 2 ), ( 4, 1 ), ( 8, 0 ) ] )
             , test "works for very long list (i.e. is call stack size safe)" <|
                 \() ->
                     Expect.equal
-                        (mapAccumr (\a x -> ( a + x, () )) 0 (List.range 1 100000) |> Tuple.first)
+                        (List.Extra.mapAccumr (\a x -> ( a + x, () )) 0 (List.range 1 100000) |> Tuple.first)
                         5000050000
             ]
         , describe "unfoldr" <|
             [ test "builds a decreasing list from a seed" <|
                 \() ->
                     Expect.equal
-                        (unfoldr
+                        (List.Extra.unfoldr
                             (\b ->
                                 if b == 0 then
                                     Nothing
@@ -377,7 +377,7 @@ all =
                                     else
                                         3 * n + 1
                     in
-                    Expect.equal (iterate collatz 13) [ 13, 40, 20, 10, 5, 16, 8, 4, 2, 1 ]
+                    Expect.equal (List.Extra.iterate collatz 13) [ 13, 40, 20, 10, 5, 16, 8, 4, 2, 1 ]
             , test "should not raise RangeError" <|
                 \() ->
                     let
@@ -389,48 +389,48 @@ all =
                                 Just (n + 1)
 
                         val =
-                            iterate loop 1
+                            List.Extra.iterate loop 1
                     in
                     Expect.equal (List.length val) 100000
             ]
         , describe "init" <|
             [ test "handles an empty list" <|
                 \() ->
-                    Expect.equal (init []) Nothing
+                    Expect.equal (List.Extra.init []) Nothing
             , fuzz Fuzz.int "handles a nearly-empty list" <|
                 \x ->
-                    Expect.equal (init [ x ]) (Just [])
+                    Expect.equal (List.Extra.init [ x ]) (Just [])
             , fuzz2 (Fuzz.list Fuzz.int) Fuzz.int "handles a non-empty list" <|
                 \list x ->
-                    Expect.equal (init <| list ++ [ x ]) (Just list)
+                    Expect.equal (List.Extra.init <| list ++ [ x ]) (Just list)
             ]
         , describe "initialize" <|
             [ test "creates a list starting from zero" <|
                 \() ->
-                    Expect.equal (initialize 5 identity) [ 0, 1, 2, 3, 4 ]
+                    Expect.equal (List.Extra.initialize 5 identity) [ 0, 1, 2, 3, 4 ]
             , test "creates a list by doubling the index" <|
                 \() ->
-                    Expect.equal (initialize 5 (\x -> x * 2)) [ 0, 2, 4, 6, 8 ]
+                    Expect.equal (List.Extra.initialize 5 (\x -> x * 2)) [ 0, 2, 4, 6, 8 ]
             , test "creates a list of identical values" <|
                 \() ->
-                    Expect.equal (initialize 1 (always 3)) [ 3 ]
+                    Expect.equal (List.Extra.initialize 1 (always 3)) [ 3 ]
             ]
         , describe "cycle" <|
             [ test "same length" <|
                 \() ->
-                    Expect.equal (cycle 3 [ 4, 7, 8 ]) [ 4, 7, 8 ]
+                    Expect.equal (List.Extra.cycle 3 [ 4, 7, 8 ]) [ 4, 7, 8 ]
             , test "multiple of length" <|
                 \() ->
-                    Expect.equal (cycle 6 [ 4, 7, 8 ]) [ 4, 7, 8, 4, 7, 8 ]
+                    Expect.equal (List.Extra.cycle 6 [ 4, 7, 8 ]) [ 4, 7, 8, 4, 7, 8 ]
             , test "partial cycle" <|
                 \() ->
-                    Expect.equal (cycle 4 [ 'a', 'b', 'c' ]) [ 'a', 'b', 'c', 'a' ]
+                    Expect.equal (List.Extra.cycle 4 [ 'a', 'b', 'c' ]) [ 'a', 'b', 'c', 'a' ]
             , test "empty list" <|
                 \() ->
-                    Expect.equal (cycle 9001 []) []
+                    Expect.equal (List.Extra.cycle 9001 []) []
             , test "resulting length smaller than cycle length" <|
                 \() ->
-                    Expect.equal (cycle 2 [ 1, 2, 3, 4, 5 ]) [ 1, 2 ]
+                    Expect.equal (List.Extra.cycle 2 [ 1, 2, 3, 4, 5 ]) [ 1, 2 ]
             ]
         , describe "reverseRange"
             [ let
@@ -442,206 +442,206 @@ all =
               in
               fuzz2 (Fuzz.intRange rangeFloor rangeCeiling) (Fuzz.intRange rangeFloor rangeCeiling) "always equal to the reverse of List.range" <|
                 \hi lo ->
-                    reverseRange hi lo
+                    List.Extra.reverseRange hi lo
                         |> Expect.equalLists (List.reverse (List.range lo hi))
             ]
         , describe "splitAt" <|
             [ test "splits a list in the middle" <|
                 \() ->
-                    Expect.equal (splitAt 3 [ 1, 2, 3, 4, 5 ]) ( [ 1, 2, 3 ], [ 4, 5 ] )
+                    Expect.equal (List.Extra.splitAt 3 [ 1, 2, 3, 4, 5 ]) ( [ 1, 2, 3 ], [ 4, 5 ] )
             , test "splits a list at the first element" <|
                 \() ->
-                    Expect.equal (splitAt 1 [ 1, 2, 3 ]) ( [ 1 ], [ 2, 3 ] )
+                    Expect.equal (List.Extra.splitAt 1 [ 1, 2, 3 ]) ( [ 1 ], [ 2, 3 ] )
             , test "splits the entire list correctly" <|
                 \() ->
-                    Expect.equal (splitAt 3 [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
+                    Expect.equal (List.Extra.splitAt 3 [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
             , test "splits past the length of the list" <|
                 \() ->
-                    Expect.equal (splitAt 4 [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
+                    Expect.equal (List.Extra.splitAt 4 [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
             , test "handles zero correctly" <|
                 \() ->
-                    Expect.equal (splitAt 0 [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
+                    Expect.equal (List.Extra.splitAt 0 [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
             , test "handles negative numbers correctly" <|
                 \() ->
-                    Expect.equal (splitAt -1 [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
+                    Expect.equal (List.Extra.splitAt -1 [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
             ]
         , describe "splitWhen" <|
             [ test "returns split list when predicate is true" <|
                 \() ->
-                    Expect.equal (splitWhen (\n -> n == 3) [ 1, 2, 3, 4, 5 ]) (Just ( [ 1, 2 ], [ 3, 4, 5 ] ))
+                    Expect.equal (List.Extra.splitWhen (\n -> n == 3) [ 1, 2, 3, 4, 5 ]) (Just ( [ 1, 2 ], [ 3, 4, 5 ] ))
             , test "returns nothing when predicate is false" <|
                 \() ->
-                    Expect.equal (splitWhen (\n -> n == 6) [ 1, 2, 3, 4, 5 ]) Nothing
+                    Expect.equal (List.Extra.splitWhen (\n -> n == 6) [ 1, 2, 3, 4, 5 ]) Nothing
             ]
         , describe "takeWhileRight" <|
             [ test "keeps the correct items" <|
                 \() ->
-                    Expect.equal (takeWhileRight ((<) 5) (List.range 1 10)) [ 6, 7, 8, 9, 10 ]
+                    Expect.equal (List.Extra.takeWhileRight (\x -> 5 < x) (List.range 1 10)) [ 6, 7, 8, 9, 10 ]
             , test "drops the correct items" <|
                 \() ->
-                    Expect.equal (dropWhileRight ((<) 5) (List.range 1 10)) [ 1, 2, 3, 4, 5 ]
+                    Expect.equal (List.Extra.dropWhileRight (\x -> 5 < x) (List.range 1 10)) [ 1, 2, 3, 4, 5 ]
             ]
         , describe "takeWhile" <|
             [ test "doesn't exceed maximum call stack" <|
                 \() ->
-                    Expect.equal (takeWhile ((>) 19999) (List.range 1 20000)) (List.range 1 19998)
+                    Expect.equal (List.Extra.takeWhile (\x -> 19999 > x) (List.range 1 20000)) (List.range 1 19998)
             ]
         , describe "span" <|
             [ test "splits in the middle of the list" <|
                 \() ->
-                    Expect.equal (span ((>) 3) [ 1, 2, 3, 4, 1, 2, 3, 4 ]) ( [ 1, 2 ], [ 3, 4, 1, 2, 3, 4 ] )
+                    Expect.equal (List.Extra.span (\x -> 3 > x) [ 1, 2, 3, 4, 1, 2, 3, 4 ]) ( [ 1, 2 ], [ 3, 4, 1, 2, 3, 4 ] )
             , test "every element passes predicate" <|
                 \() ->
-                    Expect.equal (span ((>) 5) [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
+                    Expect.equal (List.Extra.span (\x -> 5 > x) [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
             , test "first item doesn't pass predicate" <|
                 \() ->
-                    Expect.equal (span ((>) 0) [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
+                    Expect.equal (List.Extra.span (\x -> 0 > x) [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
             ]
         , describe "break" <|
             [ test "breaks in the middle of the list" <|
                 \() ->
-                    Expect.equal (break ((<) 3) [ 1, 2, 3, 4, 1, 2, 3, 4 ]) ( [ 1, 2, 3 ], [ 4, 1, 2, 3, 4 ] )
+                    Expect.equal (List.Extra.break (\x -> 3 < x) [ 1, 2, 3, 4, 1, 2, 3, 4 ]) ( [ 1, 2, 3 ], [ 4, 1, 2, 3, 4 ] )
             , test "breaks on the first item" <|
                 \() ->
-                    Expect.equal (break ((>) 5) [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
+                    Expect.equal (List.Extra.break (\x -> 5 > x) [ 1, 2, 3 ]) ( [], [ 1, 2, 3 ] )
             , test "doesn't break for any element" <|
                 \() ->
-                    Expect.equal (break ((<) 5) [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
+                    Expect.equal (List.Extra.break (\x -> 5 < x) [ 1, 2, 3 ]) ( [ 1, 2, 3 ], [] )
             ]
         , describe "stripPrefix" <|
             [ test "removes a matching prefix" <|
                 \() ->
-                    Expect.equal (stripPrefix [ 1, 2 ] [ 1, 2, 3, 4 ]) (Just [ 3, 4 ])
+                    Expect.equal (List.Extra.stripPrefix [ 1, 2 ] [ 1, 2, 3, 4 ]) (Just [ 3, 4 ])
             , test "removes a matching 3-element prefix" <|
                 \() ->
-                    Expect.equal (stripPrefix [ 1, 2, 3 ] [ 1, 2, 3, 4, 5 ]) (Just [ 4, 5 ])
+                    Expect.equal (List.Extra.stripPrefix [ 1, 2, 3 ] [ 1, 2, 3, 4, 5 ]) (Just [ 4, 5 ])
             , test "can remove the entire list" <|
                 \() ->
-                    Expect.equal (stripPrefix [ 1, 2, 3 ] [ 1, 2, 3 ]) (Just [])
+                    Expect.equal (List.Extra.stripPrefix [ 1, 2, 3 ] [ 1, 2, 3 ]) (Just [])
             , test "fails when prefix is longer than list" <|
                 \() ->
-                    Expect.equal (stripPrefix [ 1, 2, 3 ] [ 1, 2 ]) Nothing
+                    Expect.equal (List.Extra.stripPrefix [ 1, 2, 3 ] [ 1, 2 ]) Nothing
             , test "fails when list doesn't contain prefix" <|
                 \() ->
-                    Expect.equal (stripPrefix [ 3, 2, 1 ] [ 1, 2, 3, 4, 5 ]) Nothing
+                    Expect.equal (List.Extra.stripPrefix [ 3, 2, 1 ] [ 1, 2, 3, 4, 5 ]) Nothing
             ]
         , describe "group" <|
             [ test "groups elements correctly" <|
                 \() ->
-                    Expect.equal (group [ 1, 2, 2, 3, 3, 3, 2, 2, 1 ])
+                    Expect.equal (List.Extra.group [ 1, 2, 2, 3, 3, 3, 2, 2, 1 ])
                         [ ( 1, [] ), ( 2, [ 2 ] ), ( 3, [ 3, 3 ] ), ( 2, [ 2 ] ), ( 1, [] ) ]
             ]
         , describe "groupWhile" <|
             [ test "groups by sub-element equality" <|
                 \() ->
                     Expect.equal
-                        (groupWhile (\( x, _ ) ( y, _ ) -> x == y) [ ( 0, 'a' ), ( 0, 'b' ), ( 1, 'c' ), ( 1, 'd' ) ])
+                        (List.Extra.groupWhile (\( x, _ ) ( y, _ ) -> x == y) [ ( 0, 'a' ), ( 0, 'b' ), ( 1, 'c' ), ( 1, 'd' ) ])
                         [ ( ( 0, 'a' ), [ ( 0, 'b' ) ] ), ( ( 1, 'c' ), [ ( 1, 'd' ) ] ) ]
             , test "comparison function is reflexive, symmetric, and transitive" <|
                 \() ->
                     Expect.equal
-                        (groupWhile (<) [ 1, 2, 3, 2, 4, 1, 3, 2, 1 ])
+                        (List.Extra.groupWhile (<) [ 1, 2, 3, 2, 4, 1, 3, 2, 1 ])
                         [ ( 1, [ 2, 3 ] ), ( 2, [ 4 ] ), ( 1, [ 3 ] ), ( 2, [] ), ( 1, [] ) ]
             ]
         , describe "inits" <|
             [ test "returns all initial segments" <|
                 \() ->
-                    Expect.equal (inits [ 1, 2, 3 ]) [ [], [ 1 ], [ 1, 2 ], [ 1, 2, 3 ] ]
+                    Expect.equal (List.Extra.inits [ 1, 2, 3 ]) [ [], [ 1 ], [ 1, 2 ], [ 1, 2, 3 ] ]
             ]
         , describe "tails" <|
             [ test "returns all final segments" <|
                 \() ->
-                    Expect.equal (tails [ 1, 2, 3 ]) [ [ 1, 2, 3 ], [ 2, 3 ], [ 3 ], [] ]
+                    Expect.equal (List.Extra.tails [ 1, 2, 3 ]) [ [ 1, 2, 3 ], [ 2, 3 ], [ 3 ], [] ]
             ]
         , describe "select" <|
             [ test "returns all variations with a single item removed" <|
                 \() ->
                     Expect.equal
-                        (select [ 1, 2, 3, 4 ])
+                        (List.Extra.select [ 1, 2, 3, 4 ])
                         [ ( 1, [ 2, 3, 4 ] ), ( 2, [ 1, 3, 4 ] ), ( 3, [ 1, 2, 4 ] ), ( 4, [ 1, 2, 3 ] ) ]
             ]
         , describe "selectSplit" <|
             [ test "returns all splits at a single item" <|
                 \() ->
-                    Expect.equal (selectSplit [ 1, 2, 3 ]) [ ( [], 1, [ 2, 3 ] ), ( [ 1 ], 2, [ 3 ] ), ( [ 1, 2 ], 3, [] ) ]
+                    Expect.equal (List.Extra.selectSplit [ 1, 2, 3 ]) [ ( [], 1, [ 2, 3 ] ), ( [ 1 ], 2, [ 3 ] ), ( [ 1, 2 ], 3, [] ) ]
             ]
         , describe "isSubsequenceOf" <|
             [ test "success" <|
                 \() ->
-                    isSubsequenceOf [ "E", "l", "m" ] [ "E", "a", "t", " ", "l", "i", "m", "e", "s" ]
+                    List.Extra.isSubsequenceOf [ "E", "l", "m" ] [ "E", "a", "t", " ", "l", "i", "m", "e", "s" ]
                         |> Expect.equal True
                         |> Expect.onFail "Elm is a subsequence of Eat lime"
             , test "failure" <|
                 \() ->
-                    isSubsequenceOf [ "E", "l", "m" ] [ "E", "m", "a", "i", "l" ]
+                    List.Extra.isSubsequenceOf [ "E", "l", "m" ] [ "E", "m", "a", "i", "l" ]
                         |> Expect.equal False
                         |> Expect.onFail "Elm is not a subsequence of Email"
             , test "success at last element" <|
                 \() ->
-                    isSubsequenceOf [ 1, 3 ] [ 1, 2, 3 ]
+                    List.Extra.isSubsequenceOf [ 1, 3 ] [ 1, 2, 3 ]
                         |> Expect.equal True
                         |> Expect.onFail "[] should be a subsequence of []"
             ]
         , describe "lift2" <|
             [ test "produces all combinations of addition" <|
                 \() ->
-                    Expect.equal (lift2 (+) [ 1, 2, 3 ] [ 4, 5 ]) [ 5, 6, 6, 7, 7, 8 ]
+                    Expect.equal (List.Extra.lift2 (+) [ 1, 2, 3 ] [ 4, 5 ]) [ 5, 6, 6, 7, 7, 8 ]
             ]
         , describe "groupsOf" <|
             [ test "groups by the correct number of items" <|
                 \() ->
-                    Expect.equal (groupsOf 3 (List.range 1 10))
+                    Expect.equal (List.Extra.groupsOf 3 (List.range 1 10))
                         [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
             ]
         , describe "groupsOfWithStep" <|
             [ test "step == size" <|
                 \() ->
-                    Expect.equal (groupsOfWithStep 4 4 (List.range 1 10))
+                    Expect.equal (List.Extra.groupsOfWithStep 4 4 (List.range 1 10))
                         [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ] ]
             , test "step < size" <|
                 \() ->
-                    Expect.equal (groupsOfWithStep 3 1 (List.range 1 5))
+                    Expect.equal (List.Extra.groupsOfWithStep 3 1 (List.range 1 5))
                         [ [ 1, 2, 3 ], [ 2, 3, 4 ], [ 3, 4, 5 ] ]
             , test "step > size" <|
                 \() ->
-                    Expect.equal (groupsOfWithStep 3 6 (List.range 1 20))
+                    Expect.equal (List.Extra.groupsOfWithStep 3 6 (List.range 1 20))
                         [ [ 1, 2, 3 ], [ 7, 8, 9 ], [ 13, 14, 15 ] ]
             ]
         , describe "groupsOfVarying" <|
             [ test "group sizes match passed sizes" <|
                 \() ->
                     Expect.equal
-                        (groupsOfVarying [ 2, 3, 1 ] [ "a", "b", "c", "d", "e", "f" ])
+                        (List.Extra.groupsOfVarying [ 2, 3, 1 ] [ "a", "b", "c", "d", "e", "f" ])
                         [ [ "a", "b" ], [ "c", "d", "e" ], [ "f" ] ]
             , test "groups correctly when passed counts are less than list size" <|
                 \() ->
                     Expect.equal
-                        (groupsOfVarying [ 2 ] [ "a", "b", "c", "d", "e", "f" ])
+                        (List.Extra.groupsOfVarying [ 2 ] [ "a", "b", "c", "d", "e", "f" ])
                         [ [ "a", "b" ] ]
             , test "groups correctly when passed counts are greater than list size" <|
                 \() ->
                     Expect.equal
-                        (groupsOfVarying [ 2, 3, 1, 5, 6 ] [ "a", "b", "c", "d", "e" ])
+                        (List.Extra.groupsOfVarying [ 2, 3, 1, 5, 6 ] [ "a", "b", "c", "d", "e" ])
                         [ [ "a", "b" ], [ "c", "d", "e" ] ]
             ]
         , describe "greedyGroupsOf" <|
             [ test "groups correctly while keeping trailing group" <|
                 \() ->
-                    Expect.equal (greedyGroupsOf 3 (List.range 1 10))
+                    Expect.equal (List.Extra.greedyGroupsOf 3 (List.range 1 10))
                         [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
             ]
         , describe "greedyGroupsOfWithStep" <|
             [ test "step == size" <|
                 \() ->
-                    Expect.equal (greedyGroupsOfWithStep 4 4 (List.range 1 10))
+                    Expect.equal (List.Extra.greedyGroupsOfWithStep 4 4 (List.range 1 10))
                         [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10 ] ]
             , test "step < size" <|
                 \() ->
-                    Expect.equal (greedyGroupsOfWithStep 3 2 (List.range 1 6))
+                    Expect.equal (List.Extra.greedyGroupsOfWithStep 3 2 (List.range 1 6))
                         [ [ 1, 2, 3 ], [ 3, 4, 5 ], [ 5, 6 ] ]
             , test "step > size" <|
                 \() ->
-                    Expect.equal (greedyGroupsOfWithStep 3 6 (List.range 1 20))
+                    Expect.equal (List.Extra.greedyGroupsOfWithStep 3 6 (List.range 1 20))
                         [ [ 1, 2, 3 ], [ 7, 8, 9 ], [ 13, 14, 15 ], [ 19, 20 ] ]
             ]
         , describe "isPrefixOf"
@@ -672,12 +672,12 @@ all =
                         |> Expect.onFail "Expected prefix of prefix to be prefix."
             , test "stack safety" <|
                 \() ->
-                    isPrefixOf (List.range 1 6000) (List.range 1 10000)
+                    List.Extra.isPrefixOf (List.range 1 6000) (List.range 1 10000)
                         |> Expect.equal True
                         |> Expect.onFail "1, 2, ..., 6k is prefix of 1, 2, ..., 10k"
             , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "generalized fuzz test" <|
                 \prefix rest ->
-                    isPrefixOf prefix (prefix ++ rest)
+                    List.Extra.isPrefixOf prefix (prefix ++ rest)
                         |> Expect.equal True
                         |> Expect.onFail "xs is prefix of xs ++ ys"
             ]
@@ -709,144 +709,144 @@ all =
                         |> Expect.onFail "Expected suffix of suffix to be suffix."
             , test "stack safety" <|
                 \() ->
-                    isSuffixOf (List.range 4000 10000) (List.range 1 10000)
+                    List.Extra.isSuffixOf (List.range 4000 10000) (List.range 1 10000)
                         |> Expect.equal True
                         |> Expect.onFail "4000, 4001, ..., 10k is suffix of 1, 2, ..., 10k"
             , fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "generalized fuzz test" <|
                 \suffix rest ->
-                    isSuffixOf suffix (rest ++ suffix)
+                    List.Extra.isSuffixOf suffix (rest ++ suffix)
                         |> Expect.equal True
                         |> Expect.onFail "ys is suffix of xs ++ ys"
             ]
         , describe "isInfixOf"
             [ test "success" <|
                 \() ->
-                    isInfixOf [ 5, 7, 11 ] [ 2, 3, 5, 7, 11, 13 ]
+                    List.Extra.isInfixOf [ 5, 7, 11 ] [ 2, 3, 5, 7, 11, 13 ]
                         |> Expect.equal True
                         |> Expect.onFail "5, 7, 11 is infix of 2, 3, 5, 7, 11, 13"
             , test "not consecutive" <|
                 \() ->
-                    isInfixOf [ 5, 7, 13 ] [ 2, 3, 5, 7, 11, 13 ]
+                    List.Extra.isInfixOf [ 5, 7, 13 ] [ 2, 3, 5, 7, 11, 13 ]
                         |> Expect.equal False
                         |> Expect.onFail "5, 7, 13 is not infix of 2, 3, 5, 7, 11, 13"
             , test "not in-order" <|
                 \() ->
-                    isInfixOf [ 3, 5, 2 ] [ 2, 3, 5, 7, 11, 13 ]
+                    List.Extra.isInfixOf [ 3, 5, 2 ] [ 2, 3, 5, 7, 11, 13 ]
                         |> Expect.equal False
                         |> Expect.onFail "3, 5, 2 is not infix of 2, 3, 5, 7, 11, 13"
             , test "partial match then real match" <|
                 \() ->
-                    isInfixOf [ 1, 2 ] [ 1, 3, 1, 2 ]
+                    List.Extra.isInfixOf [ 1, 2 ] [ 1, 3, 1, 2 ]
                         |> Expect.equal True
                         |> Expect.onFail "1, 2 is infix of 1, 3, 1, 2"
             , test "stack safety" <|
                 \() ->
-                    isInfixOf (List.range 1 6000) (List.range 1 10000)
+                    List.Extra.isInfixOf (List.range 1 6000) (List.range 1 10000)
                         |> Expect.equal True
                         |> Expect.onFail "1, 2, ..., 6k is infix of 1, 2, ..., 10k"
             , fuzz3 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "generalized fuzz test" <|
                 \prefix match suffix ->
-                    isInfixOf match (prefix ++ match ++ suffix)
+                    List.Extra.isInfixOf match (prefix ++ match ++ suffix)
                         |> Expect.equal True
                         |> Expect.onFail "ys is infix of xs ++ ys ++ zs"
             , test "empty is infix of empty" <|
                 \() ->
-                    isInfixOf [] []
+                    List.Extra.isInfixOf [] []
                         |> Expect.equal True
                         |> Expect.onFail "empty is infix of empty"
             , fuzz (Fuzz.list Fuzz.int) "empty is infix of anything" <|
                 \list ->
-                    isInfixOf [] list
+                    List.Extra.isInfixOf [] list
                         |> Expect.equal True
                         |> Expect.onFail "empty is infix of anything"
             , fuzz2 Fuzz.int (Fuzz.list Fuzz.int) "non-empty is not infix of empty" <|
                 \x xs ->
-                    isInfixOf (x :: xs) []
+                    List.Extra.isInfixOf (x :: xs) []
                         |> Expect.equal False
                         |> Expect.onFail "non-empty is not infix of empty"
             , fuzz (Fuzz.list Fuzz.int) "equal lists are infix" <|
                 \list ->
-                    isInfixOf list list
+                    List.Extra.isInfixOf list list
                         |> Expect.equal True
                         |> Expect.onFail "equal lists are infix"
             , test "is stack safe" <|
                 \() ->
-                    isInfixOf [ 5, 7, 13 ] (List.repeat 1000000 5)
+                    List.Extra.isInfixOf [ 5, 7, 13 ] (List.repeat 1000000 5)
                         |> Expect.equal False
                         |> Expect.onFail "5, 7, 13 is not infix of 2, 3, 5, 7, 11, 13"
             ]
         , describe "swapAt"
             [ test "negative index as first argument returns the original list" <|
                 \() ->
-                    Expect.equal (swapAt -1 0 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.swapAt -1 0 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "negative index as second argument returns the original list" <|
                 \() ->
-                    Expect.equal (swapAt 0 -1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.swapAt 0 -1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "out of range index as first argument returns the original list" <|
                 \() ->
-                    Expect.equal (swapAt 10 0 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.swapAt 10 0 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "out of range index as second argument returns the original list" <|
                 \() ->
-                    Expect.equal (swapAt 0 -1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.swapAt 0 -1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "identical indexes returns the original list" <|
                 \() ->
-                    Expect.equal (swapAt 1 1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.swapAt 1 1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "swap the elements at indices 0 and 1" <|
                 \() ->
-                    Expect.equal (swapAt 0 1 [ 1, 2, 3 ]) [ 2, 1, 3 ]
+                    Expect.equal (List.Extra.swapAt 0 1 [ 1, 2, 3 ]) [ 2, 1, 3 ]
             ]
         , describe "removeAt"
             [ test "negative index returns the original list" <|
                 \() ->
-                    Expect.equal (removeAt -1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.removeAt -1 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "remove the element at index 0" <|
                 \() ->
-                    Expect.equal (removeAt 0 [ 1, 2, 3 ]) [ 2, 3 ]
+                    Expect.equal (List.Extra.removeAt 0 [ 1, 2, 3 ]) [ 2, 3 ]
             , test "remove the element at index 2" <|
                 \() ->
-                    Expect.equal (removeAt 2 [ 1, 2, 3 ]) [ 1, 2 ]
+                    Expect.equal (List.Extra.removeAt 2 [ 1, 2, 3 ]) [ 1, 2 ]
             , test "out of range index returns the original list" <|
                 \() ->
-                    Expect.equal (removeAt 4 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.removeAt 4 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             ]
         , describe "setAt"
             [ test "negative index returns the original list" <|
                 \() ->
-                    Expect.equal (setAt -1 9 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.setAt -1 9 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "set index 0 to 9" <|
                 \() ->
-                    Expect.equal (setAt 0 9 [ 1, 2, 3 ]) [ 9, 2, 3 ]
+                    Expect.equal (List.Extra.setAt 0 9 [ 1, 2, 3 ]) [ 9, 2, 3 ]
             , test "set index 2 to 9" <|
                 \() ->
-                    Expect.equal (setAt 2 9 [ 1, 2, 3 ]) [ 1, 2, 9 ]
+                    Expect.equal (List.Extra.setAt 2 9 [ 1, 2, 3 ]) [ 1, 2, 9 ]
             , test "out of range index returns the original list" <|
                 \() ->
-                    Expect.equal (setAt 4 9 [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.setAt 4 9 [ 1, 2, 3 ]) [ 1, 2, 3 ]
             ]
         , describe "updateAt"
             [ test "negative index returns the original list" <|
                 \() ->
-                    Expect.equal (updateAt -1 ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.updateAt -1 ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 3 ]
             , test "increment the element at index 0" <|
                 \() ->
-                    Expect.equal (updateAt 0 ((+) 1) [ 1, 2, 3 ]) [ 2, 2, 3 ]
+                    Expect.equal (List.Extra.updateAt 0 ((+) 1) [ 1, 2, 3 ]) [ 2, 2, 3 ]
             , test "increment the element at index 2" <|
                 \() ->
-                    Expect.equal (updateAt 2 ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 4 ]
+                    Expect.equal (List.Extra.updateAt 2 ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 4 ]
             , test "out of range index returns the original list" <|
                 \() ->
-                    Expect.equal (updateAt 4 ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 3 ]
+                    Expect.equal (List.Extra.updateAt 4 ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 3 ]
             ]
         , describe "updateIfIndex"
             [ test "increments first element" <|
                 \() ->
-                    Expect.equal (updateIfIndex (always True) ((+) 1) [ 1, 2, 3 ]) [ 2, 3, 4 ]
+                    Expect.equal (List.Extra.updateIfIndex (always True) ((+) 1) [ 1, 2, 3 ]) [ 2, 3, 4 ]
             , test "if the index is 2, then increment the element" <|
                 \() ->
-                    Expect.equal (updateIfIndex ((==) 2) ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 4 ]
+                    Expect.equal (List.Extra.updateIfIndex ((==) 2) ((+) 1) [ 1, 2, 3 ]) [ 1, 2, 4 ]
             , test "if the index is even, increment the element" <|
                 \() ->
-                    Expect.equal (updateIfIndex (\index -> modBy 2 index == 0) ((+) 1) [ 1, 2, 3 ]) [ 2, 2, 4 ]
+                    Expect.equal (List.Extra.updateIfIndex (\index -> modBy 2 index == 0) ((+) 1) [ 1, 2, 3 ]) [ 2, 2, 4 ]
             ]
         , describe "remove"
             [ test "leaves the list untouched if the value is not in the list" <|
@@ -857,17 +857,17 @@ all =
                             [ 1, 2, 3 ]
                     in
                     list
-                        |> remove 1000
+                        |> List.Extra.remove 1000
                         |> Expect.equal list
             , test "removes the element if it's present in the list" <|
                 \() ->
                     [ 1, 2, 3 ]
-                        |> remove 2
+                        |> List.Extra.remove 2
                         |> Expect.equal [ 1, 3 ]
             , test "removes only the first element" <|
                 \() ->
                     [ 1, 2, 3, 3, 3 ]
-                        |> remove 3
+                        |> List.Extra.remove 3
                         |> Expect.equal [ 1, 2, 3, 3 ]
             , test "is stack-safe" <|
                 \() ->
@@ -877,87 +877,87 @@ all =
                             List.range 1 10000
                     in
                     list
-                        |> remove 100000
+                        |> List.Extra.remove 100000
                         |> Expect.equal list
             ]
         , describe "removeIfIndex"
             [ test "remove all the elements" <|
                 \() ->
-                    Expect.equal (removeIfIndex (always True) [ 1, 2, 3 ]) []
+                    Expect.equal (List.Extra.removeIfIndex (always True) [ 1, 2, 3 ]) []
             , test "remove the element at index 2" <|
                 \() ->
-                    Expect.equal (removeIfIndex ((==) 2) [ 1, 2, 3 ]) [ 1, 2 ]
+                    Expect.equal (List.Extra.removeIfIndex ((==) 2) [ 1, 2, 3 ]) [ 1, 2 ]
             , test "remove all elements at even indices" <|
                 \() ->
-                    Expect.equal (removeIfIndex (\index -> modBy 2 index == 0) [ 1, 2, 3 ]) [ 2 ]
+                    Expect.equal (List.Extra.removeIfIndex (\index -> modBy 2 index == 0) [ 1, 2, 3 ]) [ 2 ]
             ]
         , describe "unconsLast"
             [ test "removes last element of list" <|
                 \() ->
-                    Expect.equal (unconsLast [ 1, 2, 3 ]) (Just ( 3, [ 1, 2 ] ))
+                    Expect.equal (List.Extra.unconsLast [ 1, 2, 3 ]) (Just ( 3, [ 1, 2 ] ))
             , test "returns Nothing if the list is empty" <|
                 \() ->
-                    Expect.equal (unconsLast []) Nothing
+                    Expect.equal (List.Extra.unconsLast []) Nothing
             ]
         , describe "maximumWith"
             [ test "maximum of empty list" <|
                 \() ->
-                    Expect.equal (maximumWith compare []) Nothing
+                    Expect.equal (List.Extra.maximumWith compare []) Nothing
             , test "first maximum of records list" <|
                 \() ->
                     Expect.equal
-                        (maximumWith (\x y -> compare x.val y.val) [ { id = 1, val = 1 }, { id = 2, val = 2 }, { id = 3, val = 2 } ])
+                        (List.Extra.maximumWith (\x y -> compare x.val y.val) [ { id = 1, val = 1 }, { id = 2, val = 2 }, { id = 3, val = 2 } ])
                         (Just { id = 2, val = 2 })
             ]
         , describe "maximumBy"
             [ test "maximumBy of empty list" <|
-                \() -> Expect.equal (maximumBy (\x -> x) []) Nothing
+                \() -> Expect.equal (List.Extra.maximumBy (\x -> x) []) Nothing
             , test "first maximumBy of records list" <|
                 \() ->
-                    Expect.equal (maximumBy (\x -> x.val) [ { id = 1, val = 1 }, { id = 2, val = 2 }, { id = 3, val = 2 } ])
+                    Expect.equal (List.Extra.maximumBy (\x -> x.val) [ { id = 1, val = 1 }, { id = 2, val = 2 }, { id = 3, val = 2 } ])
                         (Just { id = 2, val = 2 })
             ]
         , describe "minimumWith"
             [ test "minimum of empty list" <|
                 \() ->
-                    Expect.equal (minimumWith compare []) Nothing
+                    Expect.equal (List.Extra.minimumWith compare []) Nothing
             , test "first minimum of records list" <|
                 \() ->
                     Expect.equal
-                        (minimumWith (\x y -> compare x.val y.val) [ { id = 1, val = 2 }, { id = 2, val = 1 }, { id = 3, val = 1 } ])
+                        (List.Extra.minimumWith (\x y -> compare x.val y.val) [ { id = 1, val = 2 }, { id = 2, val = 1 }, { id = 3, val = 1 } ])
                         (Just { id = 2, val = 1 })
             ]
         , describe "minimumBy"
             [ test "minimumBy of empty list" <|
-                \() -> Expect.equal (minimumBy (\x -> x) []) Nothing
+                \() -> Expect.equal (List.Extra.minimumBy (\x -> x) []) Nothing
             , test "first minimumBy of records list" <|
                 \() ->
-                    Expect.equal (minimumBy (\x -> x.val) [ { id = 1, val = 2 }, { id = 2, val = 1 }, { id = 3, val = 1 } ])
+                    Expect.equal (List.Extra.minimumBy (\x -> x.val) [ { id = 1, val = 2 }, { id = 2, val = 1 }, { id = 3, val = 1 } ])
                         (Just { id = 2, val = 1 })
             ]
         , describe "setIf"
             [ test "empty list" <|
                 \() ->
-                    Expect.equal (setIf ((==) 1) 0 []) []
+                    Expect.equal (List.Extra.setIf ((==) 1) 0 []) []
             , test "set all" <|
                 \() ->
-                    Expect.equal (setIf (always True) 2 [ 1, 2, 3, 4 ]) [ 2, 2, 2, 2 ]
+                    Expect.equal (List.Extra.setIf (always True) 2 [ 1, 2, 3, 4 ]) [ 2, 2, 2, 2 ]
             , test "set only evens" <|
                 \() ->
-                    Expect.equal (setIf (\x -> modBy 2 x == 0) 0 [ 17, 8, 2, 9 ]) [ 17, 0, 0, 9 ]
+                    Expect.equal (List.Extra.setIf (\x -> modBy 2 x == 0) 0 [ 17, 8, 2, 9 ]) [ 17, 0, 0, 9 ]
             ]
         , describe "gatherEquals"
             [ test "empty list" <|
                 \() ->
-                    gatherEquals []
+                    List.Extra.gatherEquals []
                         |> Expect.equal []
             , test "single element" <|
                 \() ->
-                    gatherEquals [ 1 ]
+                    List.Extra.gatherEquals [ 1 ]
                         |> Expect.equal [ ( 1, [] ) ]
             , test "proper test" <|
                 \() ->
-                    gatherEquals [ 1, 2, 1, 2, 3, 4, 1 ]
+                    List.Extra.gatherEquals [ 1, 2, 1, 2, 3, 4, 1 ]
                         |> Expect.equal
                             [ ( 1, [ 1, 1 ] )
                             , ( 2, [ 2 ] )
@@ -968,15 +968,15 @@ all =
         , describe "gatherEqualsBy"
             [ test "empty list" <|
                 \() ->
-                    gatherEqualsBy identity []
+                    List.Extra.gatherEqualsBy identity []
                         |> Expect.equal []
             , test "single element" <|
                 \() ->
-                    gatherEqualsBy identity [ 1 ]
+                    List.Extra.gatherEqualsBy identity [ 1 ]
                         |> Expect.equal [ ( 1, [] ) ]
             , test "proper test" <|
                 \() ->
-                    gatherEqualsBy identity [ 1, 2, 1, 2, 3, 4, 1 ]
+                    List.Extra.gatherEqualsBy identity [ 1, 2, 1, 2, 3, 4, 1 ]
                         |> Expect.equal
                             [ ( 1, [ 1, 1 ] )
                             , ( 2, [ 2 ] )
@@ -987,15 +987,15 @@ all =
         , describe "gatherWith"
             [ test "empty list" <|
                 \() ->
-                    gatherWith (==) []
+                    List.Extra.gatherWith (==) []
                         |> Expect.equal []
             , test "single element" <|
                 \() ->
-                    gatherWith (==) [ 1 ]
+                    List.Extra.gatherWith (==) [ 1 ]
                         |> Expect.equal [ ( 1, [] ) ]
             , test "proper test" <|
                 \() ->
-                    gatherWith (==) [ 1, 2, 1, 2, 3, 4, 1 ]
+                    List.Extra.gatherWith (==) [ 1, 2, 1, 2, 3, 4, 1 ]
                         |> Expect.equal
                             [ ( 1, [ 1, 1 ] )
                             , ( 2, [ 2 ] )
@@ -1006,54 +1006,54 @@ all =
         , describe "uniquePairs"
             [ test "empty list" <|
                 \() ->
-                    uniquePairs []
+                    List.Extra.uniquePairs []
                         |> Expect.equal []
             , test "single element has no counterpart to pair with" <|
                 \() ->
-                    uniquePairs [ 1 ]
+                    List.Extra.uniquePairs [ 1 ]
                         |> Expect.equal []
             , test "two elements have exactly one way to pair" <|
                 \() ->
-                    uniquePairs [ 1, 2 ]
+                    List.Extra.uniquePairs [ 1, 2 ]
                         |> Expect.equal [ ( 1, 2 ) ]
             , test "three elements have three ways to pair" <|
                 \() ->
-                    uniquePairs [ 1, 2, 3 ]
+                    List.Extra.uniquePairs [ 1, 2, 3 ]
                         |> Expect.equal [ ( 1, 2 ), ( 1, 3 ), ( 2, 3 ) ]
             ]
         , describe "joinOn"
             [ test "with first list empty" <|
                 \() ->
-                    joinOn Tuple.pair identity identity [] [ 1, 2, 3 ]
+                    List.Extra.joinOn Tuple.pair identity identity [] [ 1, 2, 3 ]
                         |> Expect.equal []
             , test "with second list empty" <|
                 \() ->
-                    joinOn Tuple.pair identity identity [ 1, 2, 3 ] []
+                    List.Extra.joinOn Tuple.pair identity identity [ 1, 2, 3 ] []
                         |> Expect.equal []
             , test "with neither list empty" <|
                 \() ->
-                    joinOn Tuple.pair identity identity [ 1, 3, 2 ] [ 2, 1, 3 ]
+                    List.Extra.joinOn Tuple.pair identity identity [ 1, 3, 2 ] [ 2, 1, 3 ]
                         |> Expect.equal [ ( 3, 3 ), ( 2, 2 ), ( 1, 1 ) ]
             ]
         , describe "frequencies"
             [ describe "Property testing with fuzz"
                 [ fuzz (Fuzz.list Fuzz.int) "Final value similar list and List.sort list" <|
                     \list ->
-                        frequencies list
+                        List.Extra.frequencies list
                             |> List.sort
-                            |> Expect.equal (frequencies list)
+                            |> Expect.equal (List.Extra.frequencies list)
                 , fuzz (Fuzz.list Fuzz.int) "Final value similar, no matter the order of composition for frequencies and List.sort" <|
                     \list ->
                         let
                             freqFirst =
                                 list
-                                    |> frequencies
+                                    |> List.Extra.frequencies
                                     |> List.sort
 
                             sortFirst =
                                 list
                                     |> List.sort
-                                    |> frequencies
+                                    |> List.Extra.frequencies
                         in
                         freqFirst
                             |> Expect.equal sortFirst
@@ -1061,19 +1061,19 @@ all =
                     \list1 list2 ->
                         let
                             areListsSimilar =
-                                isPermutationOf list2 list1
+                                List.Extra.isPermutationOf list2 list1
 
                             freq1 =
-                                frequencies list1
+                                List.Extra.frequencies list1
 
                             freq2 =
-                                frequencies list2
+                                List.Extra.frequencies list2
 
                             shouldFreqsBeSimilar =
                                 areListsSimilar
 
                             areFreqsSimilar =
-                                isPermutationOf freq2 freq1
+                                List.Extra.isPermutationOf freq2 freq1
                         in
                         areFreqsSimilar
                             |> Expect.equal shouldFreqsBeSimilar
@@ -1081,26 +1081,26 @@ all =
             , describe "Unit testing on basic examples"
                 [ test "Frequencies on List Int" <|
                     \() ->
-                        frequencies [ 4, 1, 3, 2, 2, 4, 3, 3, 4, 4 ]
+                        List.Extra.frequencies [ 4, 1, 3, 2, 2, 4, 3, 3, 4, 4 ]
                             |> Expect.equal [ ( 1, 1 ), ( 2, 2 ), ( 3, 3 ), ( 4, 4 ) ]
                 , test "Frequencies on List String" <|
                     \() ->
-                        frequencies [ "a", "b", "aa", "c", "b", "aa", "c", "C", "C", "D" ]
+                        List.Extra.frequencies [ "a", "b", "aa", "c", "b", "aa", "c", "C", "C", "D" ]
                             |> Expect.equal [ ( "C", 2 ), ( "D", 1 ), ( "a", 1 ), ( "aa", 2 ), ( "b", 2 ), ( "c", 2 ) ]
                 , test "Frequencies on empty List a" <|
                     \() ->
-                        frequencies []
+                        List.Extra.frequencies []
                             |> Expect.equal []
                 ]
             ]
         , describe "stoppableFoldl"
             [ fuzz (Fuzz.list Fuzz.int) "behaves like foldl if function always returns Continue" <|
                 \xs ->
-                    stoppableFoldl (\n acc -> Continue (n + acc)) 0 xs
+                    List.Extra.stoppableFoldl (\n acc -> Continue (n + acc)) 0 xs
                         |> Expect.equal (List.sum xs)
             , test "simple example" <|
                 \() ->
-                    stoppableFoldl
+                    List.Extra.stoppableFoldl
                         (\n acc ->
                             if acc >= 50 then
                                 Stop acc
@@ -1122,7 +1122,7 @@ all =
                         throwRangeErrorException ()
                 in
                 \() ->
-                    stoppableFoldl
+                    List.Extra.stoppableFoldl
                         (\n _ ->
                             if n < 50 then
                                 Continue n

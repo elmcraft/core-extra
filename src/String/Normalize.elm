@@ -149,7 +149,7 @@ cleanupPath keepChars str =
 
 
 cleanup : Set Char -> Char -> String -> String
-cleanup keepChars separator str =
+cleanup keepChars _ str =
     let
         removePunctuation c =
             if Set.member c keepChars then
