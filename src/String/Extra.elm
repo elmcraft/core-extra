@@ -112,21 +112,14 @@ decapitalize word =
 
 {-| Capitalize the first character of each word in a string.
 
-    toTitleCase "this is a phrase" == "This Is A Phrase"
+    toTitleCase "this is a phrase" --> "This Is A Phrase"
 
-    toTitleCase "hello, world" == "Hello, World"
+    toTitleCase "hello, world" --> "Hello, World"
 
 -}
 toTitleCase : String -> String
 toTitleCase ws =
-    let
-        uppercaseMatch =
-            Regex.replace (regexFromString "\\w+") (.match >> toSentenceCase)
-    in
-    ws
-        |> Regex.replace
-            (regexFromString "^([a-z])|\\s+([a-z])")
-            (.match >> uppercaseMatch)
+    Regex.replace (regexFromString "^([^\\s])|\\s[^\\s]") (.match >> String.toUpper) ws
 
 
 {-| Replace text within a portion of a string given a substitution
@@ -202,7 +195,7 @@ softBreak width string =
 
 softBreakRegexp : Int -> Regex.Regex
 softBreakRegexp width =
-    regexFromString <| ".{1," ++ String.fromInt width ++ "}(\\s+|$)|\\S+?(\\s+|$)"
+    regexFromString <| ".{0," ++ String.fromInt (width - 1) ++ "}(\\s|$)|\\S+?(\\s|$)"
 
 
 {-| Trim the whitespace of both sides of the string and compress
@@ -214,7 +207,7 @@ repeated whitespace internally to a single whitespace char.
 clean : String -> String
 clean string =
     string
-        |> Regex.replace (regexFromString "\\s\\s+") (always " ")
+        |> Regex.replace (regexFromString "\\s+") (always " ")
         |> String.trim
 
 

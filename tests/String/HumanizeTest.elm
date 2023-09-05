@@ -84,11 +84,11 @@ humanizeTest =
                         String.replace "-" ""
                             >> String.replace "_" ""
                             >> Regex.replace (regex "\\s+") (\_ -> "")
-                            >> String.toLower
+                            >> String.toUpper
                 in
                 humanize s
                     |> String.replace " " ""
-                    |> String.toLower
+                    |> String.toUpper
                     |> Expect.equal (expected s)
         , fuzz (validWords []) "It adds a space before each group of uppercase letter" <|
             \s ->
