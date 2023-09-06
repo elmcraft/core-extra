@@ -17,14 +17,18 @@ import Array.Extra.Unzip
 import Benchmark exposing (Benchmark, describe)
 import Benchmark.Alternative exposing (rank)
 import Benchmark.Runner.Alternative as BenchmarkRunner
+import List.Extra
+import List.Extra.Unfoldr
+import List.Extra.UniquePairs
 
 
 main : BenchmarkRunner.Program
 main =
-    describe "for array-extra"
+    describe "for core-extra"
         [ application
         , array
         , arrayExtra
+        , listExtra
         ]
         |> BenchmarkRunner.program
 
@@ -162,6 +166,35 @@ arrayExtra =
             , ( "with any", Array.Extra.Member.withAny )
             ]
         ]
+
+
+listExtra : Benchmark
+listExtra =
+    let
+        intList =
+            List.range 1 100
+    in
+    describe "List.Extra"
+        [ rank "uniquePairs"
+            (\uniquePairs -> uniquePairs intList)
+            [ ( "original (++)", List.Extra.UniquePairs.originalConcat )
+            , ( "tail-recursive", List.Extra.UniquePairs.tailRecursive )
+            ]
+        , rank "unfoldr"
+            (\unfoldr -> unfoldr subtractOneUntilZero 100)
+            [ ( "original", List.Extra.Unfoldr.nonTailRecursive )
+            , ( "tail-recursive", List.Extra.Unfoldr.tailRecursive )
+            ]
+        ]
+
+
+subtractOneUntilZero : Int -> Maybe ( Int, Int )
+subtractOneUntilZero i =
+    if i /= 0 then
+        Just ( i, i - 1 )
+
+    else
+        Nothing
 
 
 ints1To100 : Array Int

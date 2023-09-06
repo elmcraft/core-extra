@@ -11,11 +11,16 @@
   "scripts": {
     "test": "npm-run-all --print-name  --sequential test:make test:format test:examples test:run  test:review ",
     "test:make": "elm make --docs=docs.json",
-    "test:format": "elm-format src/ tests/*.elm tests/String review --validate",
+    "test:format": "elm-format src/ tests/*.elm tests/String review benchmarks --validate",
     "test:examples": "elm-verify-examples",
     "test:run": "elm-test",
     "test:review": "elm-review",
-    "preview-docs": "elm-doc-preview",
+    "fix": "npm-run-all --print-name --sequential fix:format fix:review",
+    "fix:format": "elm-format src/ tests/*.elm tests/String review benchmarks --yes",
+    "fix:review": "elm-review --fix",
+    "start": "npm-run-all -p -l start:docs start:bench",
+    "start:docs": "elm-doc-preview",
+    "start:bench": "cd benchmarks; elm make --optimize --output elm-stuff/bench.html src/Benchmarks.elm && open elm-stuff/bench.html",
     "elm-bump": "npm-run-all --print-name --sequential test bump-version 'test:review -- --fix-all-without-prompt'",
     "bump-version": "(yes | elm bump)"
   }
