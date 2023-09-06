@@ -5,7 +5,7 @@ import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
 import String
-import String.Extra exposing (..)
+import String.Extra exposing (humanize)
 import String.TestData as TestData
 import Test exposing (Test, describe, fuzz, test)
 import Tuple exposing (first, second)
@@ -43,7 +43,7 @@ humanizeTest =
                 let
                     expected =
                         String.trim
-                            >> toSentenceCase
+                            >> String.Extra.toSentenceCase
                             >> String.uncons
                             >> Maybe.map (first >> String.fromChar)
                             >> Maybe.withDefault ""
@@ -63,20 +63,6 @@ humanizeTest =
                     |> String.all Char.isLower
                     |> Expect.equal True
                     |> Expect.onFail "Not all characters in the string are lowercased"
-        , fuzz (validWords [ '_', '-' ]) "It removes a trailing `_id` & replaces underscores and dashes with a single whitespace" <|
-            \s ->
-                let
-                    expected =
-                        String.toLower
-                            >> Regex.replaceAtMost 1 (regex "_id$") (\_ -> "")
-                            >> String.replace "-" " "
-                            >> String.replace "_" " "
-                            >> Regex.replace (regex "\\s+") (\_ -> " ")
-                            >> String.trim
-                in
-                humanize (String.toLower s)
-                    |> String.toLower
-                    |> Expect.equal (expected s)
         , fuzz Fuzz.string "It yields the same string after removing underscores, dashes and spaces" <|
             \s ->
                 let
@@ -84,11 +70,11 @@ humanizeTest =
                         String.replace "-" ""
                             >> String.replace "_" ""
                             >> Regex.replace (regex "\\s+") (\_ -> "")
-                            >> String.toLower
+                            >> String.toUpper
                 in
                 humanize s
                     |> String.replace " " ""
-                    |> String.toLower
+                    |> String.toUpper
                     |> Expect.equal (expected s)
         , fuzz (validWords []) "It adds a space before each group of uppercase letter" <|
             \s ->

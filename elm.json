@@ -7,11 +7,15 @@
     "exposed-modules": [
         "Array.Extra",
         "Basics.Extra",
+        "Char.Extra",
+        "Cmd.Extra",
         "Dict.Extra",
         "List.Extra",
         "Maybe.Extra",
+        "Order.Extra",
         "Result.Extra",
-        "String.Extra"
+        "String.Extra",
+        "Tuple.Extra"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
@@ -19,6 +23,7 @@
         "elm/regex": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {
-        "elm-explorations/test": "2.0.0 <= v < 3.0.0"
+        "elm-explorations/test": "2.0.0 <= v < 3.0.0",
+        "elm/html": "1.0.0 <= v < 2.0.0"
     }
 }

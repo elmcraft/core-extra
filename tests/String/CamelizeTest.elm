@@ -4,7 +4,7 @@ import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
 import String exposing (replace)
-import String.Extra exposing (..)
+import String.Extra exposing (camelize)
 import String.TestData as TestData
 import Test exposing (Test, describe, fuzz)
 
@@ -24,17 +24,17 @@ camelizeTest =
                     |> String.contains "-"
                     |> Expect.equal False
                     |> Expect.onFail "Camelize should remove underscores"
-        , fuzz Fuzz.string "It is the same lowercased string after removing the dashes and spaces" <|
+        , fuzz Fuzz.string "It is the same uppercased string after removing the dashes and spaces" <|
             \s ->
                 let
                     expected =
                         replace "-" ""
                             >> replace "_" ""
                             >> Regex.replace (Regex.fromString "\\s+" |> Maybe.withDefault Regex.never) (\_ -> "")
-                            >> String.toLower
+                            >> String.toUpper
                 in
                 camelize s
-                    |> String.toLower
+                    |> String.toUpper
                     |> Expect.equal (expected s)
         , fuzz (validWords '-') "The first letter after each dash is capitalized" <|
             \s ->
@@ -60,7 +60,7 @@ runCamelize separator string =
 capitalizeOdds : Int -> String -> String
 capitalizeOdds pos str =
     if pos > 0 then
-        toSentenceCase str
+        String.Extra.toSentenceCase str
 
     else
         str
