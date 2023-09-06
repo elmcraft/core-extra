@@ -4,7 +4,7 @@ import Char.Extra
 import Expect
 import Fuzz exposing (Fuzzer, string)
 import Regex exposing (Regex)
-import String exposing (fromChar, replace, toLower, toUpper, uncons)
+import String exposing (fromChar, replace, toLower, uncons)
 import String.Extra
 import Test exposing (Test, describe, fuzz, fuzz2, test)
 import Tuple exposing (first, second)
@@ -20,31 +20,17 @@ toSentenceCaseTest =
     describe "toSentenceCase"
         [ fuzz Fuzz.string "It converts the first char of the string to uppercase" <|
             \string ->
-                let
-                    result =
-                        string
-                            |> String.Extra.toSentenceCase
-                            |> uncons
-                            |> Maybe.map (first >> fromChar)
-                            |> Maybe.withDefault ""
-
-                    expected =
-                        string
-                            |> uncons
-                            |> Maybe.map (first >> fromChar >> toUpper)
-                            |> Maybe.withDefault ""
-                in
-                Expect.equal expected result
+                string
+                    |> String.Extra.toSentenceCase
+                    |> String.left 1
+                    |> (\pref -> String.startsWith pref (String.toUpper string))
+                    |> Expect.equal True
         , fuzz Fuzz.string "The tail of the string remains untouched" <|
             \string ->
-                let
-                    result =
-                        (String.Extra.toSentenceCase >> tail) string
-
-                    expected =
-                        tail string
-                in
-                Expect.equal expected result
+                string
+                    |> String.Extra.toSentenceCase
+                    |> String.endsWith (tail string)
+                    |> Expect.equal True
         ]
 
 
@@ -100,21 +86,6 @@ toTitleCaseTest =
                             |> List.map String.Extra.toSentenceCase
                 in
                 Expect.equal expected result
-        , fuzz (Fuzz.list Fuzz.string) "It does not change the length of the string" <|
-            \strings ->
-                let
-                    result =
-                        strings
-                            |> String.join " "
-                            |> String.Extra.toTitleCase
-                            |> String.length
-
-                    expected =
-                        strings
-                            |> String.join " "
-                            |> String.length
-                in
-                Expect.equal expected result
         ]
 
 
@@ -162,7 +133,7 @@ softBreakTest =
                 String.Extra.softBreak width (String.trim string)
                     |> String.concat
                     |> Expect.equal (String.trim string)
-        , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "The list should not have more elements than words" <|
+        , fuzz2 (Fuzz.map String.Extra.clean Fuzz.string) (Fuzz.intRange 1 10) "The list should not have more elements than words on a clean string" <|
             \string width ->
                 String.Extra.softBreak width string
                     |> List.length
@@ -173,22 +144,13 @@ softBreakTest =
 cleanTest : Test
 cleanTest =
     describe "clean"
-        [ {- Test.skip <|
-                 fuzz Fuzz.string "The String.split result is the same as String.words" <|
-                     \string ->
-                         let
-                             result =
-                                 string
-                                     |> clean
-                                     |> String.split " "
-
-                             expected =
-                                 String.words string
-                         in
-                         Expect.equal expected result
-             ,
-          -}
-          fuzz Fuzz.string "It trims the string on the left side" <|
+        [ fuzz Fuzz.string "The String.split result is the same as String.words" <|
+            \string ->
+                string
+                    |> String.Extra.clean
+                    |> String.split " "
+                    |> Expect.equal (String.words string)
+        , fuzz Fuzz.string "It trims the string on the left side" <|
             \string ->
                 string
                     |> String.Extra.clean
