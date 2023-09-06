@@ -23,10 +23,6 @@ module Float.Extra exposing
 
 -}
 
-import Bitwise
-
-
-
 -- toFixedDecimalDigits implementation
 
 
@@ -349,20 +345,22 @@ Differences from [List.range from the standard library](https://package.elm-lang
 -}
 range : Float -> Float -> Float -> List Float
 range start stop step =
-    let
-        n =
-            (stop - start)
-                / step
-                |> ceiling
-                -- get rid of NaN
-                |> Bitwise.or 0
-                |> max 0
+    if step == 0 then
+        []
 
-        helper i list =
-            if i >= 0 then
-                helper (i - 1) (start + step * toFloat i :: list)
+    else
+        let
+            n =
+                (stop - start)
+                    / step
+                    |> ceiling
+                    |> max 0
 
-            else
-                list
-    in
-    helper (n - 1) []
+            helper i list =
+                if i >= 0 then
+                    helper (i - 1) (start + step * toFloat i :: list)
+
+                else
+                    list
+        in
+        helper (n - 1) []

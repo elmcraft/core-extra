@@ -5,6 +5,7 @@ import Float.Extra exposing (aboutEqual)
 import Fuzz
 import List.Extra exposing (Step(..))
 import Test exposing (Test, describe, fuzz, fuzz2, test)
+import Utils exposing (expectAll)
 
 
 testToFixedDecimalPlaces : Test
@@ -210,7 +211,7 @@ testRange =
                     , Float.Extra.range 20 10 0.5
                         |> Expect.equal []
                     ]
-        , test "returns an empty array if start >= stop and step < 0" <|
+        , test "returns an empty array if start <= stop and step < 0" <|
             \() ->
                 expectAll
                     [ Float.Extra.range 5 5 -2
@@ -272,8 +273,3 @@ testRange =
                         |> Expect.equal [ 2.0e300, 2.0e300 - 3.0e299, 2.0e300 - 3.0e299 * 2, 2.0e300 - 3.0e299 * 3 ]
                     ]
         ]
-
-
-expectAll : List Expect.Expectation -> Expect.Expectation
-expectAll expectations =
-    Expect.all (List.map always expectations) ()
