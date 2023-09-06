@@ -2,7 +2,7 @@ module FloatTests exposing (testAboutEqual, testBoundaryValuesAsUnicode, testRan
 
 import Expect
 import Float.Extra exposing (aboutEqual)
-import Fuzz
+import Fuzz exposing (Fuzzer)
 import List.Extra exposing (Step(..))
 import Test exposing (Test, describe, fuzz, fuzz2, test)
 import Utils exposing (expectAll)
@@ -272,4 +272,27 @@ testRange =
                     , Float.Extra.range 2.0e300 1.0e300 -3.0e299
                         |> Expect.equal [ 2.0e300, 2.0e300 - 3.0e299, 2.0e300 - 3.0e299 * 2, 2.0e300 - 3.0e299 * 3 ]
                     ]
+        , fuzz fuzzRangeArgs "First element is always start" <|
+            \( start, end, step ) ->
+                case Float.Extra.range start end step |> List.head of
+                    Just v ->
+                        Expect.within (Expect.AbsoluteOrRelative 1.0e-8 1.0e-5) start v
+
+                    Nothing ->
+                        Expect.pass
         ]
+
+
+fuzzRangeArgs : Fuzzer ( Float, Float, Float )
+fuzzRangeArgs =
+    -- Float.Extra.range can generate some REALLY big lists very easily
+    -- this fuzzer makes sure that it generates inputs that lead to
+    -- ranges with about 10 elements
+    Fuzz.map4
+        (\start step count extra ->
+            ( start, start + (toFloat count + extra) * step, step )
+        )
+        Fuzz.float
+        Fuzz.float
+        (Fuzz.intRange -10 10)
+        (Fuzz.floatRange 0 1)

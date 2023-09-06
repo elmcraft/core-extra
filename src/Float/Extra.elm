@@ -135,8 +135,13 @@ toSignificantBaseNonScientific precision x =
 
 
 cutUnnecessaryDecimalZeroes : Int -> String -> String
-cutUnnecessaryDecimalZeroes num =
-    String.toList >> List.reverse >> cutUnnecessaryDecimalZeroesHelp num >> List.reverse >> String.fromList
+cutUnnecessaryDecimalZeroes num value =
+    value
+        |> String.toList
+        |> List.reverse
+        |> cutUnnecessaryDecimalZeroesHelp num
+        |> List.reverse
+        |> String.fromList
 
 
 cutUnnecessaryDecimalZeroesHelp : Int -> List Char -> List Char
@@ -152,12 +157,13 @@ cutUnnecessaryDecimalZeroesHelp toCut lst =
             _ ->
                 lst
 
-    else if List.head lst == Just '.' then
-        List.tail lst
-            |> Maybe.withDefault []
-
     else
-        lst
+        case lst of
+            '.' :: tail ->
+                tail
+
+            _ ->
+                lst
 
 
 sign : Float -> String
@@ -240,9 +246,9 @@ roundAsFloat places strNum =
 
 
 roundToDecimal : Int -> Float -> Float
-roundToDecimal places =
+roundToDecimal places value =
     if places < 0 then
-        identity
+        value
 
     else
         let
@@ -258,7 +264,11 @@ roundToDecimal places =
             divByExp v =
                 v / exp
         in
-        multiplyByExp >> round >> toFloat >> divByExp
+        value
+            |> multiplyByExp
+            |> round
+            |> toFloat
+            |> divByExp
 
 
 
