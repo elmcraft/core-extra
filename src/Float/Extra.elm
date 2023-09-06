@@ -40,113 +40,124 @@ adjustDecimalPlace x magnitude =
         x / 10 ^ magnitude
 
 
-{-| This ugly code is a port of the Intl API
+{-| As specified in <https://tc39.es/ecma402/#sec-torawprecision>
 -}
-toRawPrecision : Float -> Int -> Int -> String
-toRawPrecision x minPrecision maxPrecision =
-    -- IGNORE TCO - there is only so much precision to be had in JS numbers
+toRawPrecision : Float -> Float -> String
+toRawPrecision x precision =
     let
-        p =
-            toFloat maxPrecision
-
-        defaultCase _ =
-            let
-                e_ =
-                    toFloat <| floor <| logBase 10 <| abs x
-
-                decimalPlaceOffset =
-                    e_ - p + 1
-
-                n =
-                    round (adjustDecimalPlace x decimalPlaceOffset)
-            in
-            if adjustDecimalPlace (toFloat n) (p - 1) >= 10 then
-                ( String.fromInt (n // 10), e_ + 1 )
-
-            else
-                ( String.fromInt n, e_ )
-
-        ( m, ex ) =
-            if x == 0 then
-                ( zeroes p, 0 )
-
-            else
-                case String.split "e" (String.fromFloat x) of
-                    [ xToStringMantissa, xToStringExponent ] ->
-                        case String.toFloat xToStringExponent of
-                            Just xExponent ->
-                                let
-                                    xToStringMantissaWithoutDecimalPoint =
-                                        String.replace "." "" xToStringMantissa
-
-                                    len =
-                                        toFloat (String.length xToStringMantissaWithoutDecimalPoint)
-                                in
-                                if len <= p then
-                                    ( xToStringMantissaWithoutDecimalPoint ++ zeroes (p - len), xExponent )
-
-                                else
-                                    ( xToStringMantissa
-                                        |> String.toFloat
-                                        |> Maybe.map (\v -> toRawPrecision v minPrecision maxPrecision ++ "e" ++ xToStringExponent)
-                                        |> Maybe.withDefault xToStringMantissaWithoutDecimalPoint
-                                    , --hack
-                                      p - 1
-                                    )
-
-                            _ ->
-                                defaultCase ()
-
-                    _ ->
-                        defaultCase ()
+        ( significantBaseString, decimalPointIndex ) =
+            toSignificantBase precision x
     in
-    if ex >= p then
-        m ++ zeroes (ex - p + 1)
+    if decimalPointIndex >= precision then
+        significantBaseString ++ zeroes (decimalPointIndex - precision + 1)
 
-    else if ex == p - 1 then
-        m
+    else if decimalPointIndex == precision - 1 then
+        significantBaseString
 
     else
         let
-            m2 =
-                if ex >= 0 then
-                    String.slice 0 (floor (ex + 1)) m ++ "." ++ String.dropLeft (floor (ex + 1)) m
-
-                else if ex < 0 then
-                    "0." ++ zeroes -(ex + 1) ++ m
+            candidateString =
+                if decimalPointIndex >= 0 then
+                    String.slice 0 (floor (decimalPointIndex + 1)) significantBaseString ++ "." ++ String.dropLeft (floor (decimalPointIndex + 1)) significantBaseString
 
                 else
-                    m
+                    "0." ++ zeroes -(decimalPointIndex + 1) ++ significantBaseString
         in
-        if String.contains "." m2 && maxPrecision > minPrecision then
-            let
-                doCut toCut lst =
-                    if toCut > 0 then
-                        case lst of
-                            '0' :: rst ->
-                                doCut (toCut - 1) rst
-
-                            '.' :: rst ->
-                                List.reverse rst
-
-                            _ ->
-                                List.reverse lst
-
-                    else if List.head lst == Just '.' then
-                        List.tail lst
-                            |> Maybe.withDefault []
-                            |> List.reverse
-
-                    else
-                        List.reverse lst
-            in
-            String.toList m2
-                |> List.reverse
-                |> doCut (maxPrecision - minPrecision)
-                |> String.fromList
+        if String.contains "." candidateString && precision > minPrecision then
+            cutUnnecessaryDecimalZeroes (round (precision - minPrecision)) candidateString
 
         else
-            m2
+            candidateString
+
+
+minPrecision : Float
+minPrecision =
+    1
+
+
+toSignificantBase : Float -> Float -> ( String, Float )
+toSignificantBase precision x =
+    if x == 0 then
+        ( zeroes precision, 0 )
+
+    else
+        case String.split "e" (String.fromFloat x) of
+            [ xToStringMantissa, xToStringExponent ] ->
+                case String.toFloat xToStringExponent of
+                    Just xExponent ->
+                        toSignificantBaseScientific precision xToStringMantissa xToStringExponent xExponent
+
+                    _ ->
+                        toSignificantBaseNonScientific precision x
+
+            _ ->
+                toSignificantBaseNonScientific precision x
+
+
+toSignificantBaseScientific : Float -> String -> String -> Float -> ( String, Float )
+toSignificantBaseScientific precision xToStringMantissa xToStringExponent xExponent =
+    let
+        xToStringMantissaWithoutDecimalPoint =
+            String.replace "." "" xToStringMantissa
+
+        len =
+            toFloat (String.length xToStringMantissaWithoutDecimalPoint)
+    in
+    if len <= precision then
+        ( xToStringMantissaWithoutDecimalPoint ++ zeroes (precision - len), xExponent )
+
+    else
+        ( xToStringMantissa
+            |> String.toFloat
+            |> Maybe.map (\v -> toRawPrecision v precision ++ "e" ++ xToStringExponent)
+            |> Maybe.withDefault xToStringMantissaWithoutDecimalPoint
+        , precision - 1
+        )
+
+
+toSignificantBaseNonScientific : Float -> Float -> ( String, Float )
+toSignificantBaseNonScientific precision x =
+    let
+        e_ =
+            toFloat <| floor <| logBase 10 <| abs x
+
+        decimalPlaceOffset =
+            e_ - precision + 1
+
+        n =
+            round (adjustDecimalPlace x decimalPlaceOffset)
+    in
+    if adjustDecimalPlace (toFloat n) (precision - 1) >= 10 then
+        ( String.fromInt (n // 10), e_ + 1 )
+
+    else
+        ( String.fromInt n, e_ )
+
+
+cutUnnecessaryDecimalZeroes : Int -> String -> String
+cutUnnecessaryDecimalZeroes num =
+    String.toList >> List.reverse >> cutUnnecessaryDecimalZeroesHelp num >> List.reverse >> String.fromList
+
+
+cutUnnecessaryDecimalZeroesHelp : Int -> List Char -> List Char
+cutUnnecessaryDecimalZeroesHelp toCut lst =
+    if toCut > 0 then
+        case lst of
+            '0' :: rst ->
+                cutUnnecessaryDecimalZeroesHelp (toCut - 1) rst
+
+            '.' :: rst ->
+                rst
+
+            _ ->
+                lst
+
+    else if List.head lst == Just '.' then
+        List.tail lst
+            |> Maybe.withDefault []
+
+    else
+        lst
 
 
 sign : Float -> String
@@ -176,7 +187,7 @@ toFixedSignificantDigits significantDigits value =
         sign value ++ "Infinity"
 
     else
-        sign value ++ toRawPrecision (abs value) 1 (max 1 significantDigits)
+        sign value ++ toRawPrecision (abs value) (toFloat (max 1 significantDigits))
 
 
 
