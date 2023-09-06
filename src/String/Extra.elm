@@ -179,7 +179,7 @@ breaker width string acc =
 {-| Break a string into a list of strings of a specified maximum length,
 without truncating words.
 
-    softBreak 6 "The quick brown fox" == [ "The quick", " brown", " fox" ]
+    softBreak 6 "The quick brown fox" --> [ "The ", "quick ", "brown ", "fox" ]
 
 -}
 softBreak : Int -> String -> List String
