@@ -598,13 +598,14 @@ reverseToList array =
 -}
 splitAt : Int -> Array a -> ( Array a, Array a )
 splitAt index array =
-    if index >= 1 then
+    if index <= 0 then
+        ( empty, array )
+
+    else
+        -- index >= 1
         ( sliceUntil index array
         , sliceFrom index array
         )
-
-    else
-        ( empty, array )
 
 
 {-| Remove the element at a given index.
@@ -624,7 +625,11 @@ If the index is out of bounds, nothing is changed.
 -}
 removeAt : Int -> Array a -> Array a
 removeAt index array =
-    if index >= 0 then
+    if index <= -1 then
+        array
+
+    else
+        -- index >= 0
         let
             ( beforeIndex, startingAtIndex ) =
                 splitAt index array
@@ -639,9 +644,6 @@ removeAt index array =
         else
             append beforeIndex
                 (slice 1 lengthStartingAtIndex startingAtIndex)
-
-    else
-        array
 
 
 {-| Insert an element at a given index.
@@ -661,7 +663,11 @@ If the index is out of bounds, nothing is changed.
 -}
 insertAt : Int -> a -> Array a -> Array a
 insertAt index elementToInsert array =
-    if index >= 0 then
+    if index <= -1 then
+        array
+
+    else
+        -- index >= 0
         let
             arrayLength =
                 length array
@@ -678,9 +684,6 @@ insertAt index elementToInsert array =
 
         else
             array
-
-    else
-        array
 
 
 {-| Whether all elements satisfy a given test.
