@@ -433,14 +433,14 @@ resizelRepeat lengthNew padding array =
                 length array
         in
         case compare arrayLength lengthNew of
+            EQ ->
+                array
+
             GT ->
                 sliceUntil lengthNew array
 
             LT ->
                 append array (repeat (lengthNew - arrayLength) padding)
-
-            EQ ->
-                array
 
 
 {-| Resize from the right, padding the left-hand side with a given value.
@@ -465,6 +465,9 @@ resizerRepeat lengthNew defaultValue array =
             length array
     in
     case compare arrayLength lengthNew of
+        EQ ->
+            array
+
         GT ->
             slice (arrayLength - lengthNew) arrayLength array
 
@@ -472,9 +475,6 @@ resizerRepeat lengthNew defaultValue array =
             append
                 (repeat (lengthNew - arrayLength) defaultValue)
                 array
-
-        EQ ->
-            array
 
 
 {-| Resize from the left, padding the right-hand side with a given value based on index.
@@ -510,6 +510,9 @@ resizelIndexed lengthNew paddingElementForIndex array =
                 length array
         in
         case compare arrayLength lengthNew of
+            EQ ->
+                array
+
             GT ->
                 sliceUntil lengthNew array
 
@@ -520,9 +523,6 @@ resizelIndexed lengthNew paddingElementForIndex array =
                             paddingElementForIndex (arrayLength + padIndex)
                         )
                     )
-
-            EQ ->
-                array
 
 
 {-| Resize from the right, padding the left-hand side with a given value based on index.
@@ -550,6 +550,9 @@ resizerIndexed lengthNew paddingAtIndex array =
             length array
     in
     case compare arrayLength lengthNew of
+        EQ ->
+            array
+
         GT ->
             slice (arrayLength - lengthNew) arrayLength array
 
@@ -557,9 +560,6 @@ resizerIndexed lengthNew paddingAtIndex array =
             append
                 (initialize (lengthNew - arrayLength) paddingAtIndex)
                 array
-
-        EQ ->
-            array
 
 
 {-| Flip the element order.
