@@ -773,15 +773,13 @@ interweave toInterweave array =
                         case soFar.toInterweave of
                             [] ->
                                 { interwoven =
-                                    soFar.interwoven |> (::) element
+                                    element :: soFar.interwoven
                                 , toInterweave = []
                                 }
 
                             toInterweaveHead :: toInterweaveTail ->
                                 { interwoven =
-                                    soFar.interwoven
-                                        |> (::) element
-                                        |> (::) toInterweaveHead
+                                    toInterweaveHead :: element :: soFar.interwoven
                                 , toInterweave = toInterweaveTail
                                 }
                     )
