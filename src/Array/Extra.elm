@@ -69,12 +69,12 @@ If the index is out of bounds, nothing is changed.
 -}
 update : Int -> (a -> a) -> Array a -> Array a
 update index alter array =
-    case array |> Array.get index of
+    case Array.get index array of
         Nothing ->
             array
 
         Just element ->
-            array |> Array.set index (alter element)
+            Array.set index (alter element) array
 
 
 {-| Drop a given number of elements from the start.
@@ -92,7 +92,7 @@ Given a negative argument, count the end of the slice from the end.
 -}
 sliceFrom : Int -> Array a -> Array a
 sliceFrom lengthDropped array =
-    array |> slice lengthDropped (array |> length)
+    slice lengthDropped (length array) array
 
 
 {-| Take a number of elements from the start.
@@ -274,8 +274,8 @@ map2 :
     -> Array combined
 map2 elementsCombine aArray bArray =
     List.map2 elementsCombine
-        (aArray |> Array.toList)
-        (bArray |> Array.toList)
+        (Array.toList aArray)
+        (Array.toList bArray)
         |> Array.fromList
 
 
@@ -292,9 +292,9 @@ map3 :
     -> Array combined
 map3 elementsCombine aArray bArray cArray =
     List.map3 elementsCombine
-        (aArray |> Array.toList)
-        (bArray |> Array.toList)
-        (cArray |> Array.toList)
+        (Array.toList aArray)
+        (Array.toList bArray)
+        (Array.toList cArray)
         |> Array.fromList
 
 
@@ -309,10 +309,10 @@ map4 :
     -> Array combined
 map4 elementsCombine aArray bArray cArray dArray =
     List.map4 elementsCombine
-        (aArray |> Array.toList)
-        (bArray |> Array.toList)
-        (cArray |> Array.toList)
-        (dArray |> Array.toList)
+        (Array.toList aArray)
+        (Array.toList bArray)
+        (Array.toList cArray)
+        (Array.toList dArray)
         |> Array.fromList
 
 
@@ -328,11 +328,11 @@ map5 :
     -> Array combined
 map5 elementsCombine aArray bArray cArray dArray eArray =
     List.map5 elementsCombine
-        (aArray |> Array.toList)
-        (bArray |> Array.toList)
-        (cArray |> Array.toList)
-        (dArray |> Array.toList)
-        (eArray |> Array.toList)
+        (Array.toList aArray)
+        (Array.toList bArray)
+        (Array.toList cArray)
+        (Array.toList dArray)
+        (Array.toList eArray)
         |> Array.fromList
 
 
@@ -429,11 +429,11 @@ resizelRepeat lengthNew padding array =
     else
         let
             arrayLength =
-                array |> length
+                length array
         in
         case compare arrayLength lengthNew of
             GT ->
-                array |> sliceUntil lengthNew
+                sliceUntil lengthNew array
 
             LT ->
                 append array (repeat (lengthNew - arrayLength) padding)
@@ -460,11 +460,11 @@ resizerRepeat : Int -> a -> Array a -> Array a
 resizerRepeat lengthNew defaultValue array =
     let
         arrayLength =
-            array |> length
+            length array
     in
     case compare arrayLength lengthNew of
         GT ->
-            array |> slice (arrayLength - lengthNew) arrayLength
+            slice (arrayLength - lengthNew) arrayLength array
 
         LT ->
             append
@@ -493,8 +493,7 @@ resizerRepeat lengthNew defaultValue array =
 
     toLetterInAlphabet : Int -> Char
     toLetterInAlphabet inAlphabet =
-        ('a' |> Char.toCode) + inAlphabet
-            |> Char.fromCode
+        Char.fromCode ((Char.toCode 'a') + inAlphabet)
 
 -}
 resizelIndexed : Int -> (Int -> a) -> Array a -> Array a
@@ -505,18 +504,17 @@ resizelIndexed lengthNew paddingElementForIndex array =
     else
         let
             arrayLength =
-                array |> length
+                length array
         in
         case compare arrayLength lengthNew of
             GT ->
-                array |> sliceUntil lengthNew
+                sliceUntil lengthNew array
 
             LT ->
                 append array
                     (initialize (lengthNew - arrayLength)
                         (\padIndex ->
-                            (arrayLength + padIndex)
-                                |> paddingElementForIndex
+                            paddingElementForIndex (arrayLength + padIndex)
                         )
                     )
 
@@ -545,11 +543,11 @@ resizerIndexed : Int -> (Int -> a) -> Array a -> Array a
 resizerIndexed lengthNew paddingAtIndex array =
     let
         arrayLength =
-            array |> length
+            length array
     in
     case compare arrayLength lengthNew of
         GT ->
-            array |> slice (arrayLength - lengthNew) arrayLength
+            slice (arrayLength - lengthNew) arrayLength array
 
         LT ->
             append
@@ -597,8 +595,8 @@ reverseToList array =
 splitAt : Int -> Array a -> ( Array a, Array a )
 splitAt index array =
     if index >= 1 then
-        ( array |> sliceUntil index
-        , array |> sliceFrom index
+        ( sliceUntil index array
+        , sliceFrom index array
         )
 
     else
@@ -625,7 +623,7 @@ removeAt index array =
     if index >= 0 then
         let
             ( beforeIndex, startingAtIndex ) =
-                array |> splitAt index
+                splitAt index array
 
             lengthStartingAtIndex =
                 length startingAtIndex
@@ -661,15 +659,15 @@ insertAt index elementToInsert array =
     if index >= 0 then
         let
             arrayLength =
-                array |> length
+                length array
         in
         if index <= arrayLength then
             let
                 before =
-                    array |> Array.slice 0 index
+                    Array.slice 0 index array
 
                 after =
-                    array |> Array.slice index arrayLength
+                    Array.slice index arrayLength array
             in
             Array.append (before |> Array.push elementToInsert) after
 
@@ -696,10 +694,10 @@ insertAt index elementToInsert array =
 -}
 all : (a -> Bool) -> Array a -> Bool
 all isOkay array =
-    array
-        |> Array.foldl
-            (\element soFar -> soFar && isOkay element)
-            True
+    Array.foldl
+        (\element soFar -> soFar && isOkay element)
+        True
+        array
 
 
 {-| Whether at least some elements satisfy a given test.
@@ -718,10 +716,10 @@ all isOkay array =
 -}
 any : (a -> Bool) -> Array a -> Bool
 any isOkay array =
-    array
-        |> Array.foldl
-            (\element soFar -> soFar || isOkay element)
-            False
+    Array.foldl
+        (\element soFar -> soFar || isOkay element)
+        False
+        array
 
 
 {-| Whether a given value is contained.
@@ -766,28 +764,26 @@ interweave : Array a -> Array a -> Array a
 interweave toInterweave array =
     let
         untilArrayEnd =
-            array
-                |> Array.foldl
-                    (\element soFar ->
-                        case soFar.toInterweave of
-                            [] ->
-                                { interwoven =
-                                    element :: soFar.interwoven
-                                , toInterweave = []
-                                }
+            Array.foldl
+                (\element soFar ->
+                    case soFar.toInterweave of
+                        [] ->
+                            { interwoven =
+                                element :: soFar.interwoven
+                            , toInterweave = []
+                            }
 
-                            toInterweaveHead :: toInterweaveTail ->
-                                { interwoven =
-                                    toInterweaveHead :: element :: soFar.interwoven
-                                , toInterweave = toInterweaveTail
-                                }
-                    )
-                    { interwoven = []
-                    , toInterweave = toInterweave |> Array.toList
-                    }
+                        toInterweaveHead :: toInterweaveTail ->
+                            { interwoven =
+                                toInterweaveHead :: element :: soFar.interwoven
+                            , toInterweave = toInterweaveTail
+                            }
+                )
+                { interwoven = []
+                , toInterweave = toInterweave |> Array.toList
+                }
+                array
     in
-    (untilArrayEnd.interwoven
-        |> List.reverse
-    )
+    List.reverse untilArrayEnd.interwoven
         ++ untilArrayEnd.toInterweave
         |> Array.fromList
