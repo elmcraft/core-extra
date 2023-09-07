@@ -780,7 +780,7 @@ interweave toInterweave array =
                             }
                 )
                 { interwoven = []
-                , toInterweave = toInterweave |> Array.toList
+                , toInterweave = Array.toList toInterweave
                 }
                 array
     in
