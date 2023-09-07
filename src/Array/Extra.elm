@@ -109,8 +109,8 @@ Given a negative argument, count the beginning of the slice from the end.
 
 -}
 sliceUntil : Int -> Array a -> Array a
-sliceUntil =
-    slice 0
+sliceUntil exclusiveEndIndex array =
+    slice 0 exclusiveEndIndex array
 
 
 {-| Remove the last element.
@@ -125,8 +125,8 @@ sliceUntil =
 
 -}
 pop : Array a -> Array a
-pop =
-    slice 0 -1
+pop array =
+    slice 0 -1 array
 
 
 {-| Place a value between all elements.
@@ -368,8 +368,8 @@ Only the indexes of the shortest `Array` are used.
 
 -}
 zip3 : Array a -> Array b -> Array c -> Array ( a, b, c )
-zip3 =
-    map3 (\a b c -> ( a, b, c ))
+zip3 firstArray secondArray thirdArray =
+    map3 (\a b c -> ( a, b, c )) firstArray secondArray thirdArray
 
 
 {-| Split all tuple elements into a tuple of one `Array` with the first and one with the second values.
@@ -422,25 +422,24 @@ removeWhen shouldRemove array =
 
 -}
 resizelRepeat : Int -> a -> Array a -> Array a
-resizelRepeat lengthNew padding =
+resizelRepeat lengthNew padding array =
     if lengthNew <= 0 then
-        \_ -> Array.empty
+        Array.empty
 
     else
-        \array ->
-            let
-                arrayLength =
-                    array |> length
-            in
-            case compare arrayLength lengthNew of
-                GT ->
-                    array |> sliceUntil lengthNew
+        let
+            arrayLength =
+                array |> length
+        in
+        case compare arrayLength lengthNew of
+            GT ->
+                array |> sliceUntil lengthNew
 
-                LT ->
-                    append array (repeat (lengthNew - arrayLength) padding)
+            LT ->
+                append array (repeat (lengthNew - arrayLength) padding)
 
-                EQ ->
-                    array
+            EQ ->
+                array
 
 
 {-| Resize from the right, padding the left-hand side with a given value.
@@ -577,8 +576,8 @@ reverse array =
 
 
 reverseToList : Array a -> List a
-reverseToList =
-    Array.foldl (::) []
+reverseToList array =
+    Array.foldl (::) [] array
 
 
 {-| Split into two `Array`s, the first ending before and the second starting with a given index.
