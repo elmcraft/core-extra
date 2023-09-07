@@ -3,6 +3,7 @@ module OrderTests exposing (Card, Point, Suite(..), Value(..), all)
 import Dict
 import Expect
 import Fuzz exposing (Fuzzer)
+import List.Extra
 import Order.Extra
 import Test exposing (Test, describe, fuzz, fuzz2, test)
 
@@ -318,4 +319,143 @@ all =
                     sortCards [ Card Ten Spades, Card Four Hearts, Card Three Spades ]
                         |> Expect.equal [ Card Four Hearts, Card Three Spades, Card Ten Spades ]
             ]
+        , describe "breakTies"
+            [ test "order by manufacturer, model" <|
+                \() ->
+                    let
+                        sorted =
+                            [ bmw340i, dodgeViper, fordMustangEco, fordMustangShelby ]
+
+                        order : Car -> Car -> Order
+                        order =
+                            Order.Extra.breakTies
+                                [ Order.Extra.byField .manufacturer
+                                , Order.Extra.byField .model
+                                ]
+                    in
+                    Expect.all (orderedExpectations order) sorted
+            , test "order by model, manufacturer" <|
+                \() ->
+                    let
+                        sorted =
+                            [ bmw340i, fordMustangEco, fordMustangShelby, dodgeViper ]
+
+                        order : Car -> Car -> Order
+                        order =
+                            Order.Extra.breakTies
+                                [ Order.Extra.byField .model
+                                , Order.Extra.byField .manufacturer
+                                ]
+                    in
+                    Expect.all (orderedExpectations order) sorted
+            , test "order by color, cylinders, manufacturer, model" <|
+                \() ->
+                    let
+                        sorted =
+                            [ fordMustangShelby, dodgeViper, fordMustangEco, bmw340i ]
+
+                        order : Car -> Car -> Order
+                        order =
+                            Order.Extra.breakTies
+                                [ .color >> colorToComparable |> Order.Extra.byField
+                                , Order.Extra.byField .cylinders
+                                , Order.Extra.byField .manufacturer
+                                , Order.Extra.byField .model
+                                ]
+                    in
+                    Expect.all (orderedExpectations order) sorted
+            , test "breakTies with an empty list should preserve the original ordering of the list" <|
+                \() ->
+                    let
+                        thunkedExpectations : List (() -> Expect.Expectation)
+                        thunkedExpectations =
+                            List.map
+                                (\p ->
+                                    \() ->
+                                        List.sortWith (Order.Extra.breakTies []) p
+                                            |> Expect.equalLists p
+                                )
+                                carPermutations
+                    in
+                    Expect.all thunkedExpectations ()
+            ]
         ]
+
+
+orderedExpectations : (Car -> Car -> Order) -> List (List Car -> Expect.Expectation)
+orderedExpectations order =
+    List.map
+        (\p ->
+            List.sortWith order p |> Expect.equalLists
+        )
+        carPermutations
+
+
+type Color
+    = Red
+    | Black
+    | Blue
+
+
+colorToComparable : Color -> Int
+colorToComparable =
+    \c ->
+        case c of
+            Red ->
+                0
+
+            Black ->
+                1
+
+            Blue ->
+                2
+
+
+type alias Car =
+    { manufacturer : String
+    , model : String
+    , cylinders : Int
+    , color : Color
+    }
+
+
+fordMustangEco : Car
+fordMustangEco =
+    { manufacturer = "Ford"
+    , model = "Mustang EcoBoost"
+    , cylinders = 4
+    , color = Blue
+    }
+
+
+fordMustangShelby : Car
+fordMustangShelby =
+    { manufacturer = "Ford"
+    , model = "Mustang Shelby GT350"
+    , cylinders = 8
+    , color = Red
+    }
+
+
+dodgeViper : Car
+dodgeViper =
+    { manufacturer = "Dodge"
+    , model = "Viper ACR"
+    , cylinders = 10
+    , color = Black
+    }
+
+
+bmw340i : Car
+bmw340i =
+    { manufacturer = "BMW"
+    , model = "340i"
+    , cylinders = 6
+    , color = Blue
+    }
+
+
+carPermutations : List (List Car)
+carPermutations =
+    List.Extra.permutations
+        [ dodgeViper, fordMustangEco, bmw340i, fordMustangShelby ]

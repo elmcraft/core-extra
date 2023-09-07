@@ -2,6 +2,7 @@ module Float.Extra exposing
     ( aboutEqual
     , toFixedDecimalPlaces, toFixedSignificantDigits, boundaryValuesAsUnicode
     , range
+    , modBy
     )
 
 {-|
@@ -20,6 +21,11 @@ module Float.Extra exposing
 # Ranges
 
 @docs range
+
+
+# Modular arithmetic
+
+@docs modBy
 
 -}
 
@@ -385,3 +391,23 @@ range start stop step =
                     list
         in
         helper (n - 1) []
+
+
+{-| Perform [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic)
+involving floating point numbers.
+
+The sign of the result is the same as the sign of the `modulus`
+in `Float.Extra.modBy modulus x`.
+
+    Float.Extra.modBy 2.5 5 --> 0
+
+    Float.Extra.modBy 2 4.5 == 0.5
+
+    Float.Extra.modBy 2 -4.5 == 1.5
+
+    Float.Extra.modBy -2 4.5 == -1.5
+
+-}
+modBy : Float -> Float -> Float
+modBy modulus x =
+    x - modulus * toFloat (floor (x / modulus))

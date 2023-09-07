@@ -1,6 +1,6 @@
-module FloatTests exposing (testAboutEqual, testBoundaryValuesAsUnicode, testRange, testToFixedDecimalPlaces, testToFixedSignificantDigits)
+module FloatTests exposing (modByTests, testAboutEqual, testBoundaryValuesAsUnicode, testRange, testToFixedDecimalPlaces, testToFixedSignificantDigits)
 
-import Expect
+import Expect exposing (FloatingPointTolerance(..))
 import Float.Extra exposing (aboutEqual)
 import Fuzz exposing (Fuzzer)
 import List.Extra exposing (Step(..))
@@ -296,3 +296,19 @@ fuzzRangeArgs =
         Fuzz.float
         (Fuzz.intRange -10 10)
         (Fuzz.floatRange 0 1)
+
+
+modByTests : Test
+modByTests =
+    describe "modBy"
+        [ test "example 1" <|
+            \() -> Float.Extra.modBy 2 4.5 |> Expect.within (Absolute 1.0e-20) 0.5
+        , test "example 2" <|
+            \() -> Float.Extra.modBy 2 -4.5 |> Expect.within (Absolute 1.0e-20) 1.5
+        , test "example 3" <|
+            \() -> Float.Extra.modBy -2 4.5 |> Expect.within (Absolute 1.0e-20) -1.5
+        , fuzz2 (Fuzz.filter (\x -> x /= 0) Fuzz.int) Fuzz.int "behaves like modBy for int-like values" <|
+            \a b ->
+                Float.Extra.modBy (toFloat a) (toFloat b)
+                    |> Expect.within (Absolute 1.0e-20) (toFloat (modBy a b))
+        ]
