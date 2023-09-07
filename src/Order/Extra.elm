@@ -1,6 +1,6 @@
 module Order.Extra exposing
     ( explicit, byField, byFieldWith, byRank, ifStillTiedThen
-    , breakTiesWith, reverse
+    , breakTies, breakTiesWith, reverse
     , natural
     , isOrdered, greaterThanBy, lessThanBy
     )
@@ -82,7 +82,7 @@ to sort a deck of cards you can use `cardOrdering` directly:
 
 # Composition
 
-@docs breakTiesWith, reverse
+@docs breakTies, breakTiesWith, reverse
 
 
 # Strings
@@ -232,6 +232,55 @@ breakTiesWith tiebreaker mainOrdering x y =
 
         EQ ->
             tiebreaker x y
+
+
+{-| Create an ordering function that can be used to sort
+lists by multiple dimensions, by flattening multiple ordering functions into one.
+
+This is equivalent to `ORDER BY` in SQL. The ordering function will order
+its inputs based on the order that they appear in the `List (a -> a -> Order)` argument.
+
+    type alias Pen =
+        { model : String
+        , tipWidthInMillimeters : Float
+        }
+
+    pens : List Pen
+    pens =
+        [ Pen "Pilot Hi-Tec-C Gel" 0.4
+        , Pen "Morning Glory Pro Mach" 0.38
+        , Pen "Pilot Hi-Tec-C Coleto" 0.5
+        ]
+
+    order : Pen -> Pen -> Order
+    order =
+        breakTies [ byField .tipWidthInMillimeters, byField .model ]
+
+    List.sortWith order pens
+    --> [ Pen "Morning Glory Pro Mach" 0.38
+    --> , Pen "Pilot Hi-Tec-C Gel" 0.4
+    --> , Pen "Pilot Hi-Tec-C Coleto" 0.5
+    --> ]
+
+If our `Pen` type alias above was represented a row in a database table, our `order` function as defined above would be equivalent
+to this SQL clause:
+
+    ORDER BY tipWidthInMillimeters, model
+
+-}
+breakTies : List (a -> a -> Order) -> (a -> a -> Order)
+breakTies comparators a b =
+    case comparators of
+        [] ->
+            EQ
+
+        comparator :: rest ->
+            case comparator a b of
+                EQ ->
+                    breakTies rest a b
+
+                other ->
+                    other
 
 
 {-| Produces an ordering defined by an explicit ranking function combined with a

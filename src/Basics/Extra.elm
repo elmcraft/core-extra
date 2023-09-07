@@ -1,20 +1,13 @@
 module Basics.Extra exposing
-    ( swap
-    , maxSafeInteger, minSafeInteger, isSafeInteger
-    , atMost, atLeast
+    ( maxSafeInteger, minSafeInteger, isSafeInteger
     , safeDivide, safeIntegerDivide
-    , safeModBy, safeRemainderBy, fractionalModBy
+    , safeModBy, safeRemainderBy
     , inDegrees, inRadians, inTurns
     , flip, curry, uncurry
-    , orderBy, toOrder, toOrderDesc
+    , swap, atMost, atLeast, fractionalModBy, orderBy, toOrder, toOrderDesc
     )
 
 {-| Additional basic functions.
-
-
-# Tuples
-
-@docs swap
 
 
 # Numbers
@@ -24,9 +17,8 @@ module Basics.Extra exposing
 
 # Math
 
-@docs atMost, atLeast
 @docs safeDivide, safeIntegerDivide
-@docs safeModBy, safeRemainderBy, fractionalModBy
+@docs safeModBy, safeRemainderBy
 
 
 # Angles
@@ -39,16 +31,23 @@ module Basics.Extra exposing
 @docs flip, curry, uncurry
 
 
-# Comparison & Ordering
+# Deprecated functions
 
-@docs orderBy, toOrder, toOrderDesc
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs swap, atMost, atLeast, fractionalModBy, orderBy, toOrder, toOrderDesc
 
 -}
+
+import Float.Extra
+import Order.Extra
 
 
 {-| Swaps the elements in a pair.
 
     swap ( 1, 2 ) --> ( 2, 1 )
+
+@deprecated in favour of `Tuple.Extra.flip`.
 
 -}
 swap : ( a, b ) -> ( b, a )
@@ -99,6 +98,8 @@ isSafeInteger number =
 
     -42 |> atMost 0 --> -42
 
+@deprecated in favour of `min`
+
 -}
 atMost : comparable -> comparable -> comparable
 atMost =
@@ -110,6 +111,8 @@ atMost =
     -42 |> atLeast 0 --> 0
 
     42 |> atLeast 0 --> 42
+
+@deprecated in favour of `max`
 
 -}
 atLeast : comparable -> comparable -> comparable
@@ -220,10 +223,12 @@ in `fractionalModBy modulus x`.
 
     fractionalModBy -2 4.5 == -1.5
 
+@deprecated in favour of `Float.Extra.modBy`
+
 -}
 fractionalModBy : Float -> Float -> Float
-fractionalModBy modulus x =
-    x - modulus * toFloat (floor (x / modulus))
+fractionalModBy =
+    Float.Extra.modBy
 
 
 {-| Convert standard Elm angles (radians) to degrees.
@@ -318,20 +323,12 @@ to this SQL clause:
 
     ORDER BY tipWidthInMillimeters, model
 
+@deprected in favor of Order.Extra.breakTies
+
 -}
 orderBy : List (a -> a -> Order) -> (a -> a -> Order)
-orderBy comparators a b =
-    case comparators of
-        [] ->
-            EQ
-
-        comparator :: rest ->
-            case comparator a b of
-                EQ ->
-                    orderBy rest a b
-
-                other ->
-                    other
+orderBy =
+    Order.Extra.breakTies
 
 
 {-| Helper for multi-dimensional sort.
@@ -399,6 +396,8 @@ This is primarily a helper function for the `orderBy` function above.
 
 (Note that `List.sortWith colorOrder` above is identical to `List.sortBy colorToComparable`.)
 
+@deprecated in favour of Order.Extra.byField.
+
 -}
 toOrder : (a -> comparable) -> (a -> a -> Order)
 toOrder selector a b =
@@ -427,6 +426,8 @@ toOrder selector a b =
         colorToOrder
         [ Yellow, Yellow, Red, Green, Red ]
     --> [ Green, Yellow, Yellow, Red, Red ]
+
+@deprecated in favour of `Order.Extra.byField >> Order.Extra.reverse`
 
 -}
 toOrderDesc : (a -> comparable) -> (a -> a -> Order)
