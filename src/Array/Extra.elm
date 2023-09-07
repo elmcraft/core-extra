@@ -428,6 +428,7 @@ resizelRepeat lengthNew padding array =
 
     else
         let
+            arrayLength : Int
             arrayLength =
                 length array
         in
@@ -459,6 +460,7 @@ resizelRepeat lengthNew padding array =
 resizerRepeat : Int -> a -> Array a -> Array a
 resizerRepeat lengthNew defaultValue array =
     let
+        arrayLength : Int
         arrayLength =
             length array
     in
@@ -503,6 +505,7 @@ resizelIndexed lengthNew paddingElementForIndex array =
 
     else
         let
+            arrayLength : Int
             arrayLength =
                 length array
         in
@@ -542,6 +545,7 @@ resizelIndexed lengthNew paddingElementForIndex array =
 resizerIndexed : Int -> (Int -> a) -> Array a -> Array a
 resizerIndexed lengthNew paddingAtIndex array =
     let
+        arrayLength : Int
         arrayLength =
             length array
     in
@@ -625,6 +629,7 @@ removeAt index array =
             ( beforeIndex, startingAtIndex ) =
                 splitAt index array
 
+            lengthStartingAtIndex : Int
             lengthStartingAtIndex =
                 length startingAtIndex
         in
@@ -763,6 +768,7 @@ Extra elements of either `Array` are glued to the end without anything in betwee
 interweave : Array a -> Array a -> Array a
 interweave toInterweave array =
     let
+        untilArrayEnd : { toInterweave : List a, interwoven : List a }
         untilArrayEnd =
             Array.foldl
                 (\element soFar ->
