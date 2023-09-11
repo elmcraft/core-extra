@@ -2,6 +2,7 @@ module Dict.Extra exposing
     ( groupBy, filterGroupBy, fromListBy, fromListDedupe, fromListDedupeBy, frequencies
     , removeWhen, removeMany, keepOnly, insertDedupe, mapKeys, filterMap, invert
     , any, find
+    , unionWith
     )
 
 {-| Convenience functions for working with `Dict`
@@ -20,6 +21,11 @@ module Dict.Extra exposing
 # Utilities
 
 @docs any, find
+
+
+# Combine
+
+@docs unionWith
 
 -}
 
@@ -380,3 +386,33 @@ find predicate dict =
         )
         Nothing
         dict
+
+
+{-| Combine two dictionaries. If there is a collision, a combining function is
+used to combine the two values.
+
+    import Dict
+
+    unionWith (\k v1 v2 -> String.fromInt k ++ v1 ++ v2 )
+        (Dict.fromList [ ( 1, "123" ), ( 2, "abc" ) ])
+        (Dict.fromList [ ( 2, "def" ), ( 3, "xyz" ) ])
+        --> Dict.fromList [ ( 1, "123" ), ( 2, "2abcdef" ), ( 3, "xyz" ) ]
+
+Note that, like `Dict.union`, it is more efficient to have the larger `Dict` as
+the second argument, i.e. when possible, you should use `unionWith f new old`,
+if `old` has more keys than `new`.
+
+-}
+unionWith : (comparable -> a -> a -> a) -> Dict comparable a -> Dict comparable a -> Dict comparable a
+unionWith f d1 d2 =
+    Dict.foldl
+        (\k v1 acc ->
+            case Dict.get k acc of
+                Just v2 ->
+                    Dict.insert k (f k v1 v2) acc
+
+                Nothing ->
+                    Dict.insert k v1 acc
+        )
+        d2
+        d1
