@@ -2,7 +2,7 @@ module Dict.Extra exposing
     ( groupBy, filterGroupBy, fromListBy, fromListDedupe, fromListDedupeBy, frequencies
     , removeWhen, removeMany, keepOnly, insertDedupe, mapKeys, filterMap, invert
     , any, find
-    , unionWith, unionWithKey
+    , unionWith
     )
 
 {-| Convenience functions for working with `Dict`
@@ -25,7 +25,7 @@ module Dict.Extra exposing
 
 # Combine
 
-@docs unionWith, unionWithKey
+@docs unionWith
 
 -}
 
@@ -393,44 +393,18 @@ used to combine the two values.
 
     import Dict
 
-    unionWith (+)
-        (Dict.fromList [ ( "a", 2 ), ( "b", 3 ) ])
-        (Dict.fromList [ ( "b", 4 ), ( "c", 1 ) ])
-        --> Dict.fromList [ ( "a", 2 ), ( "b", 7 ), ( "c", 1 ) ]
-
-    unionWith (++)
+    unionWith (\k v1 v2 -> String.fromInt k ++ v1 ++ v2 )
         (Dict.fromList [ ( 1, "123" ), ( 2, "abc" ) ])
         (Dict.fromList [ ( 2, "def" ), ( 3, "xyz" ) ])
-        --> Dict.fromList [ ( 1, "123" ), ( 2, "abcdef" ), ( 3, "xyz" ) ]
+        --> Dict.fromList [ ( 1, "123" ), ( 2, "2abcdef" ), ( 3, "xyz" ) ]
 
 Note that, like `Dict.union`, it is more efficient to have the larger `Dict` as
 the second argument, i.e. when possible, you should use `unionWith f new old`,
 if `old` has more keys than `new`.
 
 -}
-unionWith : (a -> a -> a) -> Dict comparable a -> Dict comparable a -> Dict comparable a
-unionWith f =
-    unionWithKey (\_ -> f)
-
-
-{-| Combine two dictionaries. If there is a collision, a combining function is
-used to combine the two values. Unlike `unionWith`, the combining function also
-has access to the key.
-
-    import Dict
-
-    unionWithKey (\k v1 v2 -> String.fromInt k ++ v1 ++ v2 )
-        (Dict.fromList [ ( 1, "123" ), ( 2, "abc" ) ])
-        (Dict.fromList [ ( 2, "def" ), ( 3, "xyz" ) ])
-        --> Dict.fromList [ ( 1, "123" ), ( 2, "2abcdef" ), ( 3, "xyz" ) ]
-
-Note that, like `Dict.union`, it is more efficient to have the larger `Dict` as
-the second argument, i.e. when possible, you should use `unionWithKey f new old`,
-if `old` has more keys than `new`.
-
--}
-unionWithKey : (comparable -> a -> a -> a) -> Dict comparable a -> Dict comparable a -> Dict comparable a
-unionWithKey f d1 d2 =
+unionWith : (comparable -> a -> a -> a) -> Dict comparable a -> Dict comparable a -> Dict comparable a
+unionWith f d1 d2 =
     Dict.foldl
         (\k v1 acc ->
             case Dict.get k acc of
