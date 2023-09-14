@@ -191,9 +191,10 @@ listExtra =
 
 tupleExtra : Benchmark
 tupleExtra =
-    describe "Tuple.Extra" 
-        [ Benchmark.compare "construction" "literal" (\() -> (1, "a")) "function" (\() -> Tuple.pair 1 "a")
+    describe "Tuple.Extra"
+        [ Benchmark.compare "construction" "literal" (\() -> ( 1, "a" )) "function" (\() -> Tuple.pair 1 "a")
         ]
+
 
 subtractOneUntilZero : Int -> Maybe ( Int, Int )
 subtractOneUntilZero i =
