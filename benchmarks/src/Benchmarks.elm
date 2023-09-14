@@ -29,6 +29,7 @@ main =
         , array
         , arrayExtra
         , listExtra
+        , tupleExtra
         ]
         |> BenchmarkRunner.program
 
@@ -185,6 +186,13 @@ listExtra =
             [ ( "original", List.Extra.Unfoldr.nonTailRecursive )
             , ( "tail-recursive", List.Extra.Unfoldr.tailRecursive )
             ]
+        ]
+
+
+tupleExtra : Benchmark
+tupleExtra =
+    describe "Tuple.Extra"
+        [ Benchmark.compare "construction" "literal" (\() -> ( 1, "a" )) "function" (\() -> Tuple.pair 1 "a")
         ]
 
 
