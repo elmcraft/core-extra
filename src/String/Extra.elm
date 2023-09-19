@@ -213,18 +213,18 @@ clean string =
 
 {-| Test if a string is empty or only contains whitespace.
 
-    isBlank "" == True
+    isBlank "" --> True
 
-    isBlank "\n" == True
+    isBlank "\n" --> True
 
-    isBlank "  " == True
+    isBlank "  " --> True
 
-    isBlank " a" == False
+    isBlank " a" --> False
 
 -}
 isBlank : String -> Bool
 isBlank string =
-    Regex.contains (regexFromString "^\\s*$") string
+    String.trim string == ""
 
 
 {-| Convert an underscored or dasherized string to a camelized one.
