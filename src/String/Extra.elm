@@ -213,13 +213,13 @@ clean string =
 
 {-| Test if a string is empty or only contains whitespace.
 
-    isBlank "" == True
+    isBlank "" --> True
 
-    isBlank "\n" == True
+    isBlank "\n" --> True
 
-    isBlank "  " == True
+    isBlank "  " --> True
 
-    isBlank " a" == False
+    isBlank " a" --> False
 
 -}
 isBlank : String -> Bool
