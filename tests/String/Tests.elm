@@ -216,6 +216,37 @@ isBlankTest =
                 String.Extra.isBlank " Slartibartfast"
                     |> Expect.equal False
                     |> Expect.onFail "Did not return false"
+        , fuzz whitespaceHeavyStringFuzzer "Oracle test: ensure no behaviour change between implementations" <|
+            let
+                regexFromString =
+                    Regex.fromString >> Maybe.withDefault Regex.never
+
+                trimBased str =
+                    String.trim str == ""
+
+                regexBased str =
+                    Regex.contains (regexFromString "^\\s*$") str
+            in
+            \str ->
+                trimBased str
+                    |> Expect.equal (regexBased str)
+        ]
+
+
+whitespaceHeavyStringFuzzer : Fuzzer String
+whitespaceHeavyStringFuzzer =
+    Fuzz.list whitespaceHeavyCharFuzzer
+        |> Fuzz.map String.fromList
+
+
+whitespaceHeavyCharFuzzer : Fuzzer Char
+whitespaceHeavyCharFuzzer =
+    Fuzz.frequency
+        [ ( 3, Fuzz.constant ' ' )
+        , ( 3, Fuzz.constant '\n' )
+        , ( 3, Fuzz.constant '\t' )
+        , ( 3, Fuzz.constant '\u{000D}' ) -- \r
+        , ( 1, Fuzz.char )
         ]
 
 
