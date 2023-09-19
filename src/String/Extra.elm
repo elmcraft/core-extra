@@ -224,7 +224,7 @@ clean string =
 -}
 isBlank : String -> Bool
 isBlank string =
-    Regex.contains (regexFromString "^\\s*$") string
+    String.trim string == ""
 
 
 {-| Convert an underscored or dasherized string to a camelized one.
