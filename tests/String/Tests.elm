@@ -1,4 +1,4 @@
-module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, doubleReverse, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
+module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
 
 import Char.Extra
 import Expect
@@ -13,31 +13,6 @@ import Tuple exposing (first, second)
 tail : String -> String
 tail =
     uncons >> Maybe.map second >> Maybe.withDefault ""
-
-
-doubleReverse : Test
-doubleReverse =
-    Test.only <|
-        describe "simplify"
-            [ fuzz Fuzz.string "double reverse" <|
-                \str ->
-                    str
-                        |> String.reverse
-                        |> String.reverse
-                        |> Expect.equal str
-            , fuzz (Fuzz.list Fuzz.char) "fromList toList" <|
-                \charList ->
-                    charList
-                        |> String.fromList
-                        |> String.toList
-                        |> Expect.equal charList
-            , fuzz Fuzz.string "toList fromList " <|
-                \str ->
-                    str
-                        |> String.toList
-                        |> String.fromList
-                        |> Expect.equal str
-            ]
 
 
 toSentenceCaseTest : Test
