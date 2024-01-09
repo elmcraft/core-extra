@@ -119,7 +119,12 @@ decapitalize word =
 -}
 toTitleCase : String -> String
 toTitleCase ws =
-    Regex.replace (regexFromString "^([^\\s])|\\s[^\\s]") (.match >> String.toUpper) ws
+    Regex.replace titleCaseRegex (.match >> String.toUpper) ws
+
+
+titleCaseRegex : Regex
+titleCaseRegex =
+    regexFromString "^([^\\s])|\\s[^\\s]"
 
 
 {-| Replace text within a portion of a string given a substitution
@@ -189,12 +194,12 @@ softBreak width string =
 
     else
         string
-            |> Regex.find (softBreakRegexp width)
+            |> Regex.find (softBreakRegex width)
             |> List.map .match
 
 
-softBreakRegexp : Int -> Regex.Regex
-softBreakRegexp width =
+softBreakRegex : Int -> Regex
+softBreakRegex width =
     regexFromString <| ".{0," ++ String.fromInt (width - 1) ++ "}(\\s|$)|\\S+?(\\s|$)"
 
 
@@ -207,24 +212,29 @@ repeated whitespace internally to a single whitespace char.
 clean : String -> String
 clean string =
     string
-        |> Regex.replace (regexFromString "\\s+") (always " ")
+        |> Regex.replace cleanRegex (always " ")
         |> String.trim
+
+
+cleanRegex : Regex
+cleanRegex =
+    regexFromString "\\s+"
 
 
 {-| Test if a string is empty or only contains whitespace.
 
-    isBlank "" == True
+    isBlank "" --> True
 
-    isBlank "\n" == True
+    isBlank "\n" --> True
 
-    isBlank "  " == True
+    isBlank "  " --> True
 
-    isBlank " a" == False
+    isBlank " a" --> False
 
 -}
 isBlank : String -> Bool
 isBlank string =
-    Regex.contains (regexFromString "^\\s*$") string
+    String.trim string == ""
 
 
 {-| Convert an underscored or dasherized string to a camelized one.
@@ -235,7 +245,7 @@ isBlank string =
 camelize : String -> String
 camelize string =
     Regex.replace
-        (regexFromString "[-_\\s]+(.)?")
+        camelizeRegex
         (\{ submatches } ->
             case submatches of
                 (Just match) :: _ ->
@@ -245,6 +255,11 @@ camelize string =
                     ""
         )
         (String.trim string)
+
+
+camelizeRegex : Regex
+camelizeRegex =
+    regexFromString "[-_\\s]+(.)?"
 
 
 {-| Convert a string to a camelized string starting with an uppercase letter.
@@ -258,10 +273,15 @@ All non-word characters will be stripped out of the original string.
 classify : String -> String
 classify string =
     string
-        |> Regex.replace (regexFromString "[\\W_]") (always " ")
+        |> Regex.replace classifyRegex (always " ")
         |> camelize
         |> String.replace " " ""
         |> toSentenceCase
+
+
+classifyRegex : Regex
+classifyRegex =
+    regexFromString "[\\W_]"
 
 
 {-| Surround a string with another string.
@@ -329,9 +349,19 @@ underscored : String -> String
 underscored string =
     string
         |> String.trim
-        |> Regex.replace (regexFromString "([a-z\\d])([A-Z]+)") (.submatches >> List.filterMap identity >> String.join "_")
-        |> Regex.replace (regexFromString "[_\\-\\s]+") (always "_")
+        |> Regex.replace underscoredAlphaRegex (.submatches >> List.filterMap identity >> String.join "_")
+        |> Regex.replace underscoredDelimiterRegex (always "_")
         |> String.toLower
+
+
+underscoredAlphaRegex : Regex
+underscoredAlphaRegex =
+    regexFromString "([a-z\\d])([A-Z]+)"
+
+
+underscoredDelimiterRegex : Regex
+underscoredDelimiterRegex =
+    regexFromString "[_\\-\\s]+"
 
 
 {-| Return a string joined by dashes after separating it by its uppercase characters.
@@ -426,11 +456,21 @@ postfix '\_id'. The first character will be capitalized.
 humanize : String -> String
 humanize string =
     string
-        |> Regex.replace (regexFromString "[A-Z]+") (.match >> String.append "-")
-        |> Regex.replace (regexFromString "_id$|[-_\\s]+") (always " ")
+        |> Regex.replace humanizeAlphaRegex (.match >> String.append "-")
+        |> Regex.replace humanizeIgnoreRegex (always " ")
         |> String.trim
         |> String.toLower
         |> toSentenceCase
+
+
+humanizeAlphaRegex : Regex
+humanizeAlphaRegex =
+    regexFromString "[A-Z]+"
+
+
+humanizeIgnoreRegex : Regex
+humanizeIgnoreRegex =
+    regexFromString "_id$|[-_\\s]+"
 
 
 {-| Remove the shortest sequence of leading spaces or tabs on each line
@@ -573,11 +613,16 @@ softEllipsis howLong string =
 
     else
         string
-            |> Regex.findAtMost 1 (softBreakRegexp howLong)
+            |> Regex.findAtMost 1 (softBreakRegex howLong)
             |> List.map .match
             |> String.concat
-            |> Regex.replace (regexFromString "([\\.,;:\\s])+$") (always "")
+            |> Regex.replace softEllipsisRegex (always "")
             |> (\a -> String.append a "...")
+
+
+softEllipsisRegex : Regex
+softEllipsisRegex =
+    regexFromString "([\\.,;:\\s])+$"
 
 
 {-| Convert a list of strings into a human-readable list.
@@ -657,7 +702,12 @@ toSentenceHelper lastPart sentence list =
 stripTags : String -> String
 stripTags string =
     string
-        |> Regex.replace (regexFromString "<\\/?[^>]+>") (always "")
+        |> Regex.replace stripTagsRegex (always "")
+
+
+stripTagsRegex : Regex
+stripTagsRegex =
+    regexFromString "<\\/?[^>]+>"
 
 
 {-| Given a number, a singular string, and a plural string, return the number
@@ -1039,9 +1089,15 @@ accentRegex =
 
 regexEscape : String -> String
 regexEscape =
-    Regex.replace (regexFromString "[-/\\^$*+?.()|[\\]{}]") (\{ match } -> "\\" ++ match)
+    Regex.replace regexEscapeRegex (\{ match } -> "\\" ++ match)
+
+
+regexEscapeRegex : Regex
+regexEscapeRegex =
+    regexFromString "[-/\\^$*+?.()|[\\]{}]"
 
 
 regexFromString : String -> Regex
-regexFromString =
-    Regex.fromString >> Maybe.withDefault Regex.never
+regexFromString str =
+    Regex.fromString str
+        |> Maybe.withDefault Regex.never

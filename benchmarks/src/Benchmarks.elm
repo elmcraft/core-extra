@@ -20,6 +20,7 @@ import Benchmark.Runner.Alternative as BenchmarkRunner
 import List.Extra
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
+import String.Extra.IsBlank
 
 
 main : BenchmarkRunner.Program
@@ -29,6 +30,8 @@ main =
         , array
         , arrayExtra
         , listExtra
+        , tupleExtra
+        , stringExtra
         ]
         |> BenchmarkRunner.program
 
@@ -185,6 +188,47 @@ listExtra =
             [ ( "original", List.Extra.Unfoldr.nonTailRecursive )
             , ( "tail-recursive", List.Extra.Unfoldr.tailRecursive )
             ]
+        ]
+
+
+tupleExtra : Benchmark
+tupleExtra =
+    describe "Tuple.Extra"
+        [ Benchmark.compare "construction" "literal" (\() -> ( 1, "a" )) "function" (\() -> Tuple.pair 1 "a")
+        ]
+
+
+stringExtra : Benchmark
+stringExtra =
+    describe "String.Extra"
+        [ stringExtraIsBlank
+        ]
+
+
+stringExtraIsBlank : Benchmark
+stringExtraIsBlank =
+    let
+        bench label string =
+            rank label
+                (\isBlank -> isBlank string)
+                [ ( "regex based", String.Extra.IsBlank.regexBased )
+                , ( "regex based (with top-level regex)", String.Extra.IsBlank.regexBasedWithTopLevelRegex )
+                , ( "trim based", String.Extra.IsBlank.trimBased )
+                ]
+
+        emptyString =
+            ""
+
+        wsString =
+            String.repeat 10 " "
+
+        fullString =
+            String.repeat 10 "Hello World"
+    in
+    Benchmark.describe "isBlank"
+        [ bench "empty string" emptyString
+        , bench "whitespace string" wsString
+        , bench "full string" fullString
         ]
 
 
