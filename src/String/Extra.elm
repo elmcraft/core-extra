@@ -200,7 +200,7 @@ softBreak width string =
 
 softBreakRegex : Int -> Regex
 softBreakRegex width =
-    regexFromString <| ".{0," ++ String.fromInt (width - 1) ++ "}(\\s|$)|\\S+?(\\s|$)"
+    regexFromString <| ".{0," ++ String.fromInt (width - 1) ++ "}(\\s|.$)|\\S+?(\\s|$)"
 
 
 {-| Trim the whitespace of both sides of the string and compress
@@ -388,7 +388,7 @@ dasherize string =
 
 Look at `wrap` if you just want to wrap using newlines.
 
-    wrapWith 7 "\n" "My very long text" --> "My very\nlong text"
+    wrapWith 7 "\n" "My very long text" --> "My very\n long t\next"
 
     wrapWith 100 "\n" "Too short" --> "Too short"
 
@@ -403,7 +403,7 @@ wrapWith width separator string =
 {-| Chop a given string into parts of a given width, separating them with a
 new line.
 
-    wrap 7 "My very long text" --> "My very\nlong te\nxt"
+    wrap 7 "My very long text" --> "My very\n long t\next"
 
     wrap 100 "Too short" --> "Too short"
 
@@ -416,9 +416,9 @@ wrap width string =
 {-| Chop a given string into parts of a given width without breaking words apart,
 and then separate them using a new line.
 
-    softWrap 7 "My very long text" --> "My very\nlong text"
+    softWrap 9 "My very long text" --> "My very\nlong text"
 
-    softWrap 3 "Hello World" --> "Hello \nWorld"
+    softWrap 3 "Hello World" --> "Hello\nWorld"
 
     softWrap 100 "Too short" --> "Too short"
 
@@ -431,9 +431,9 @@ softWrap width string =
 {-| Chop a given string into parts of a given width without breaking words apart,
 and then separate them using the given separator.
 
-    softWrapWith 7 "..." "My very long text" --> "My very...long text"
+    softWrapWith 9 "..." "My very long text" --> "My very...long text"
 
-    softWrapWith 3 "\n" "Hello World" --> "Hello \nWorld"
+    softWrapWith 3 "\n" "Hello World" --> "Hello\nWorld"
 
     softWrapWith 100 "\t" "Too short" --> "Too short"
 
@@ -442,7 +442,18 @@ softWrapWith : Int -> String -> String -> String
 softWrapWith width separator string =
     string
         |> softBreak width
+        |> List.map trimEndSpace
         |> String.join separator
+
+
+trimEndSpace : String -> String
+trimEndSpace =
+    Regex.replace trimEndSpaceRegex (always "")
+
+
+trimEndSpaceRegex : Regex
+trimEndSpaceRegex =
+    regexFromString " ?$"
 
 
 {-| Convert an underscored, camelized, or dasherized string into one that can be
@@ -483,7 +494,7 @@ of the string, so that at least one of the lines will not have any
 leading spaces nor tabs and the rest of the lines will have the same
 amount of indentation removed.
 
-    unindent "  Hello\n    World " --> "Hello\n  World"
+    unindent "  Hello\n    World" --> "Hello\n  World"
 
     unindent "\t\tHello\n\t\t\t\tWorld" --> "Hello\n\t\tWorld"
 
