@@ -3,11 +3,12 @@ module Maybe.Extra exposing
     , withDefaultLazy, unwrap, unpack
     , or, orElse, orList, orLazy, orElseLazy, orListLazy, oneOf
     , values
-    , combine, traverse, combineArray, traverseArray
+    , combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
     , toList, toArray
     , cons
     , andThen2, andThen3, andThen4
     , andMap, next, prev
+    , traverse, traverseArray
     )
 
 {-| Convenience functions for [`Maybe`](https://package.elm-lang.org/packages/elm/core/latest/Maybe).
@@ -35,7 +36,11 @@ Take the first value that's present
 # Lists of `Maybe`s
 
 @docs values
-@docs combine, traverse, combineArray, traverseArray
+
+
+# Combining
+
+@docs combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
 
 
 # Transforming to collections
@@ -48,7 +53,7 @@ Take the first value that's present
 
 These functions are just like [`andThen`](https://package.elm-lang.org/packages/elm/core/latest/Maybe#andThen), except they take multiple arguments.
 
-All arguments must be `Just` and the function must return a `Just` for the result to be `Just`.
+All arguments must be `Just` and the function must return a `Just` for the maybe to be `Just`.
 
 If you need a version of `andThenN` that takes more than 4 arguments, you can chain together [`andMap`](#andMap) calls in a pipeline.
 
@@ -58,6 +63,13 @@ If you need a version of `andThenN` that takes more than 4 arguments, you can ch
 # Applicative Functions
 
 @docs andMap, next, prev
+
+
+# Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs traverse, traverseArray
 
 -}
 
@@ -501,19 +513,40 @@ If any function call fails (returns `Nothing`), `traverse` will return `Nothing`
     traverse List.head [ [1], [2, 3], [] ]
     --> Nothing
 
+@deprecated in favour of `Maybe.Extra.combineMap`.
+
 -}
 traverse : (a -> Maybe b) -> List a -> Maybe (List b)
-traverse f list =
-    traverseHelp f list []
+traverse =
+    combineMap
 
 
-traverseHelp : (a -> Maybe b) -> List a -> List b -> Maybe (List b)
-traverseHelp f list acc =
+{-| Like [`combine`](#combine), but map a function over each element of the list first.
+
+If every function call succeeds (returns `Just`), `combineMap` will return a list.
+If any function call fails (returns `Nothing`), `combineMap` will return `Nothing`.
+
+`combine` is equivalent to `combineMap identity`.
+
+    combineMap (\x -> Just (x * 10)) [ 1, 2, 3, 4, 5 ]
+    --> Just [ 10, 20, 30, 40, 50 ]
+
+    combineMap List.head [ [1], [2, 3], [] ]
+    --> Nothing
+
+-}
+combineMap : (a -> Maybe b) -> List a -> Maybe (List b)
+combineMap f list =
+    combineMapHelp f list []
+
+
+combineMapHelp : (a -> Maybe b) -> List a -> List b -> Maybe (List b)
+combineMapHelp f list acc =
     case list of
         head :: tail ->
             case f head of
                 Just a ->
-                    traverseHelp f tail (a :: acc)
+                    combineMapHelp f tail (a :: acc)
 
                 Nothing ->
                     Nothing
@@ -532,10 +565,85 @@ combineArray =
 
 {-| Like [`traverse`](#traverse),
 but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Array) instead of `List`.
+
+@deprecated in favour of `Maybe.Extra.combineMapArray`.
+
 -}
 traverseArray : (a -> Maybe b) -> Array.Array a -> Maybe (Array.Array b)
-traverseArray f =
+traverseArray =
+    combineMapArray
+
+
+{-| Like [`combineMap`](#combineMap),
+but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Array) instead of `List`.
+-}
+combineMapArray : (a -> Maybe b) -> Array.Array a -> Maybe (Array.Array b)
+combineMapArray f =
     Array.foldl (\x -> Maybe.map2 Array.push (f x)) (Just Array.empty)
+
+
+{-| Pull a maybe out of the _first_ element of a tuple
+and combine it into a maybe holding the tuple's values.
+-}
+combineFirst : ( Maybe a, c ) -> Maybe ( a, c )
+combineFirst ( mx, y ) =
+    Maybe.map (\x -> Tuple.pair x y) mx
+
+
+{-| Pull a result out of the _second_ element of a tuple
+and combine it into a result holding the tuple's values.
+Also known as `sequence` on tuples.
+-}
+combineSecond : ( c, Maybe a ) -> Maybe ( c, a )
+combineSecond ( x, my ) =
+    Maybe.map (Tuple.pair x) my
+
+
+{-| Combine all maybes in a tuple
+into a single maybe holding the tuple's values.
+-}
+combineBoth : ( Maybe a, Maybe b ) -> Maybe ( a, b )
+combineBoth ( mx, my ) =
+    Maybe.map2 Tuple.pair mx my
+
+
+{-| Map a function producing maybes on the _first_ element of a tuple
+and then pull it out using `combineFirst`.
+
+    combineMapFirst f ( x, y )
+        == combineFirst (Tuple.mapFirst f ( x, y ))
+        == Maybe.map (\newX -> ( newX, y )) (f x)
+
+-}
+combineMapFirst : (a -> Maybe b) -> ( a, c ) -> Maybe ( b, c )
+combineMapFirst f t =
+    combineFirst (Tuple.mapFirst f t)
+
+
+{-| Map a function producing maybes on the _second_ element of a tuple
+and then pull it out using `combineSecond`.
+
+    combineMapSecond f ( x, y )
+        == combineSecond (Tuple.mapSecond f ( x, y ))
+        == Maybe.map (Tuple.pair x) (f y)
+
+-}
+combineMapSecond : (a -> Maybe b) -> ( c, a ) -> Maybe ( c, b )
+combineMapSecond f t =
+    combineSecond (Tuple.mapSecond f t)
+
+
+{-| Map a function producing maybes on the _both_ elements of a tuple
+and then pull them out using `combineBoth`.
+
+    combineMapBoth f g ( x, y )
+        == combineBoth (Tuple.mapBoth f g ( x, y ))
+        == Maybe.map2 Tuple.pair (f x) (g y)
+
+-}
+combineMapBoth : (a -> Maybe c) -> (b -> Maybe d) -> ( a, b ) -> Maybe ( c, d )
+combineMapBoth f g t =
+    combineBoth (Tuple.mapBoth f g t)
 
 
 

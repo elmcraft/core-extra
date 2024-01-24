@@ -1,7 +1,7 @@
 module String.Extra exposing
     ( toSentenceCase, toTitleCase, decapitalize
     , camelize, classify, underscored, dasherize, humanize
-    , replaceSlice, insertAt, nonEmpty, nonBlank, removeAccents
+    , replaceSlice, insertAt, nonEmpty, nonBlank, removeDiacritics
     , break, softBreak
     , wrap, wrapWith, softWrap, softWrapWith, quote, surround
     , isBlank, countOccurrences
@@ -9,6 +9,7 @@ module String.Extra exposing
     , toSentence, toSentenceOxford
     , rightOf, leftOf, rightOfBack, leftOfBack
     , toCodePoints, fromCodePoints
+    , removeAccents
     )
 
 {-| Additional functions for working with Strings
@@ -28,7 +29,7 @@ Functions borrowed from the Rails Inflector class
 
 ## Replace and Splice
 
-@docs replaceSlice, insertAt, nonEmpty, nonBlank, removeAccents
+@docs replaceSlice, insertAt, nonEmpty, nonBlank, removeDiacritics
 
 
 ## Splitting
@@ -65,13 +66,22 @@ Functions borrowed from the Rails Inflector class
 
 @docs toCodePoints, fromCodePoints
 
+
+## Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs removeAccents
+
 -}
 
+import Array
 import Char exposing (toLower, toUpper)
 import List
 import Maybe exposing (Maybe(..))
 import Regex exposing (Regex)
 import String exposing (cons, uncons)
+import String.Diacritics as Diacritics
 import Tuple
 
 
@@ -720,6 +730,10 @@ or the plural string otherwise.
 
     pluralize "elf" "elves" 0 == "0 elves"
 
+**Note:** This will only work in English and if you anticipate needing to translate
+your application into multiple languages, you would be better served by adopting
+a [package better prepared to handle various languages](https://package.elm-lang.org/packages/GlobalWebIndex/elm-plural-rules/latest/PluralRules).
+
 -}
 pluralize : String -> String -> Int -> String
 pluralize singular plural count =
@@ -907,17 +921,51 @@ nonBlank string =
         Just string
 
 
+{-| Removes diactritics, it will expand
+known ligatures, thus changing the string glyph length.
+All non latin characters are untouched.
+
+    removeDiacritics "La liberté commence où l'ignorance finit."
+
+    --> "La liberte commence ou l'ignorance finit."
+    removeDiacritics "é()/& abc" --> "e()/& abc"
+
+    removeDiacritics "こんにちは" --> "こんにちは"
+
+-}
+removeDiacritics : String -> String
+removeDiacritics str =
+    let
+        replace c result =
+            if Char.toCode c < Diacritics.minCode then
+                result ++ String.fromChar c
+
+            else
+                case
+                    Array.get
+                        (Char.toCode c)
+                        Diacritics.lookupArray
+                of
+                    Just candidate ->
+                        result ++ candidate
+
+                    Nothing ->
+                        result ++ String.fromChar c
+    in
+    String.foldl replace "" str
+
+
 {-| Remove accents from string.
 
     removeAccents "andré" == "andre"
 
     removeAccents "Atenção" == "Atencao"
 
+@deprecated in favour of String.Extra.removeDiacritics
+
 -}
 removeAccents : String -> String
 removeAccents string =
-    -- TODO: I think the better implementation is in the String.Normalize.Diacritics module.
-    -- TODO: We should verify this is true and merge the implementations.
     if String.isEmpty string then
         string
 

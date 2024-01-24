@@ -62,4 +62,54 @@ foo =
     (Order.Extra.byField >> Order.Extra.reverse) String.length
 """
                         ]
+        , test "upgrades apply to andMap" <|
+            \() ->
+                """module A exposing (..)
+
+import Array exposing (Array)
+import Array.Extra
+
+foo : Array String
+foo =
+    Array.Extra.apply (Array.fromList [\\a -> String.fromInt]) (Array.fromList [ 1 ])
+"""
+                    |> Review.Test.run rule
+                    |> Review.Test.expectErrors
+                        [ Review.Test.error
+                            { message = "Module uses core-extra deprecated functions"
+                            , details = [ "These functions are deprecated and will be removed in the next release" ]
+                            , under = "Array.Extra.apply (Array.fromList [\\a -> String.fromInt]) (Array.fromList [ 1 ])"
+                            }
+                            |> Review.Test.whenFixed """module A exposing (..)
+
+import Array exposing (Array)
+import Array.Extra
+
+foo : Array String
+foo =
+    Array.Extra.andMap (Array.fromList [ 1 ]) (Array.fromList [ \\a -> String.fromInt ])
+"""
+                        ]
+        , test "makes error for apply that can't be upgraded" <|
+            \() ->
+                """module A exposing (..)
+
+import Array exposing (Array)
+import Array.Extra
+
+foo : Array String
+foo = Array.Extra.apply
+"""
+                    |> Review.Test.run rule
+                    |> Review.Test.expectErrors
+                        [ Review.Test.error
+                            { message = "Module uses core-extra deprecated functions"
+                            , details =
+                                [ "Array.Extra.apply is deprecated in favour of Array.Extra.andMap and will be removed."
+                                , "However, we cannot automatically upgrade this usage for you, so please update this manually."
+                                , "Note that the argument order is different."
+                                ]
+                            , under = "Array.Extra.apply"
+                            }
+                        ]
         ]

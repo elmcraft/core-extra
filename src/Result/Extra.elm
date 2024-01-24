@@ -1,9 +1,10 @@
 module Result.Extra exposing
     ( isOk, isErr, extract, unwrap, unpack, error, mapBoth, merge, join, partition, filter
-    , combine, combineMap, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
-    , singleton, andMap
+    , combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
+    , andMap
     , or, orLazy, orElseLazy, orElse
     , toTask
+    , singleton
     )
 
 {-| Convenience functions for working with `Result`.
@@ -16,12 +17,12 @@ module Result.Extra exposing
 
 # Combining
 
-@docs combine, combineMap, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
+@docs combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
 
 
 # Applying
 
-@docs singleton, andMap
+@docs andMap
 
 
 # Alternatives
@@ -33,8 +34,16 @@ module Result.Extra exposing
 
 @docs toTask
 
+
+# Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs singleton
+
 -}
 
+import Array
 import Task exposing (Task)
 
 
@@ -189,6 +198,22 @@ combineMapHelp f list acc =
             Ok (List.reverse acc)
 
 
+{-| Like [`combine`](#combine),
+but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Array) instead of `List`.
+-}
+combineArray : Array.Array (Result x a) -> Result x (Array.Array a)
+combineArray =
+    Array.foldl (Result.map2 Array.push) (Ok Array.empty)
+
+
+{-| Like [`combineMap`](#combineMap),
+but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Array) instead of `List`.
+-}
+combineMapArray : (a -> Result x b) -> Array.Array a -> Result x (Array.Array b)
+combineMapArray f =
+    Array.foldl (\x -> Result.map2 Array.push (f x)) (Ok Array.empty)
+
+
 {-| Pull a result out of the _first_ element of a tuple
 and combine it into a result holding the tuple's values.
 -}
@@ -266,6 +291,8 @@ of the same type. Also known as `pure`. You can use the `Err`
 constructor for a singleton of the `Err` variety.
 
     singleton 2 == Ok 2
+
+@deprecated Just use `Ok`. It's also a function and your readers will thank you.
 
 -}
 singleton : a -> Result e a

@@ -1,4 +1,4 @@
-module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
+module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, stripTagsTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
 
 import Char.Extra
 import Expect
@@ -13,6 +13,16 @@ import Tuple exposing (first, second)
 tail : String -> String
 tail =
     uncons >> Maybe.map second >> Maybe.withDefault ""
+
+
+stripTagsTest : Test
+stripTagsTest =
+    fuzz Fuzz.string "removes anything that could look like HTML" <|
+        \str ->
+            str
+                |> String.Extra.stripTags
+                |> Regex.contains (regexFromString "<\\/?[^>]+>")
+                |> Expect.equal False
 
 
 toSentenceCaseTest : Test
@@ -218,9 +228,6 @@ isBlankTest =
                     |> Expect.onFail "Did not return false"
         , fuzz whitespaceHeavyStringFuzzer "Oracle test: ensure no behaviour change between implementations" <|
             let
-                regexFromString =
-                    Regex.fromString >> Maybe.withDefault Regex.never
-
                 trimBased str =
                     String.trim str == ""
 
@@ -472,4 +479,10 @@ underscoredDasherizeTestHelper testFn testChar testLabel =
 consecutiveCharacterRegex : String -> Regex
 consecutiveCharacterRegex charStr =
     Regex.fromString (charStr ++ "{2,}")
+        |> Maybe.withDefault Regex.never
+
+
+regexFromString : String -> Regex
+regexFromString str =
+    Regex.fromString str
         |> Maybe.withDefault Regex.never

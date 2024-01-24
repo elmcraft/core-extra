@@ -97,7 +97,7 @@ to sort a deck of cards you can use `cardOrdering` directly:
 -}
 
 import Regex exposing (Regex)
-import String.Normalize
+import String.Extra
 
 
 {-| Creates an ordering that orders items in the order given in the input list.
@@ -529,7 +529,7 @@ chunkRegex =
 
 toComparableString : String -> String
 toComparableString =
-    String.toLower << String.Normalize.removeDiacritics
+    String.toLower << String.Extra.removeDiacritics
 
 
 toChunks : String -> List Chunk

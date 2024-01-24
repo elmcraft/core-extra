@@ -1,4 +1,4 @@
-module String.Normalize.Diacritics exposing (lookupArray, lookupTable, minCode)
+module String.Diacritics exposing (lookupArray, lookupTable, minCode)
 
 import Array exposing (Array)
 import Dict exposing (Dict)

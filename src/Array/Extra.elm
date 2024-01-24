@@ -1,51 +1,57 @@
 module Array.Extra exposing
     ( all, any, member
-    , reverse, intersperse
-    , update, pop, removeAt, insertAt
+    , reverse, intersperse, update, pop, removeAt, insertAt
     , removeWhen, filterMap
     , sliceFrom, sliceUntil, splitAt, unzip
-    , interweave, apply, map2, map3, map4, map5, zip, zip3
+    , interweave_, andMap, map2, map3, map4, map5, zip, zip3
     , resizelRepeat, resizerRepeat, resizelIndexed, resizerIndexed
     , mapToList, indexedMapToList
+    , apply, interweave
     )
 
 {-| Convenience functions for working with `Array`
 
 
-# observe
+# Predicates
 
 @docs all, any, member
 
 
-# alter
+# Alter
 
-@docs reverse, intersperse
-@docs update, pop, removeAt, insertAt
+@docs reverse, intersperse, update, pop, removeAt, insertAt
 
 
-## filter
+# Filtering
 
 @docs removeWhen, filterMap
 
 
-## part
+# Getting slices of an array
 
 @docs sliceFrom, sliceUntil, splitAt, unzip
 
 
-## combine
+# Combining arrays
 
-@docs interweave, apply, map2, map3, map4, map5, zip, zip3
+@docs interweave_, andMap, map2, map3, map4, map5, zip, zip3
 
 
-## resize
+# Resizing
 
 @docs resizelRepeat, resizerRepeat, resizelIndexed, resizerIndexed
 
 
-# transform
+# To List
 
 @docs mapToList, indexedMapToList
+
+
+# Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs apply, interweave
 
 -}
 
@@ -189,10 +195,34 @@ If one `Array` is longer, its extra elements are not used.
             )
     --> fromList [ -100, 100, 110 ]
 
+@deprecated in favour of `Array.Extra.andMap` (note the reversed argument order).
+
 -}
 apply : Array (a -> b) -> Array a -> Array b
 apply changes array =
     map2 (\map element -> map element) changes array
+
+
+{-| Map functions taking multiple arguments over multiple arrays. Each array should be of the same length; extra elements are dropped.
+
+    import Array exposing (Array)
+
+    toIntFunctions : Array (Float -> Int)
+    toIntFunctions =
+        Array.fromList [ round
+        , floor
+        , ceiling
+        , truncate
+        ]
+
+    toIntFunctions
+        |> andMap (Array.fromList [ -1.5, -1.5, -1.5, -1.5 ])
+        --> Array.fromList [ -1, -2, -1, -1 ]
+
+-}
+andMap : Array a -> Array (a -> b) -> Array b
+andMap =
+    map2 (|>)
 
 
 {-| Apply a function to the elements in the array and collect the result in a List.
@@ -767,9 +797,34 @@ Extra elements of either `Array` are glued to the end without anything in betwee
         |> interweave (repeat 1 "on")
     --> fromList [ "turtles", "on", "turtles", "turtles" ]
 
+@deprecated **Beware:** For historical reasons, this function takes it's arguments in the opposite order to `List.Extra.interweave`.
+As such, this function is deprecated in v1 and will be removed in v2. You should switch to `interweave_` which has the correct argument order. We plan to re-introduct `interweave` with the new argument order in a future release, but since the chance of subtle breakage is quite high, we will only do this gradually.
+
 -}
 interweave : Array a -> Array a -> Array a
 interweave toInterweave array =
+    interweave_ array toInterweave
+
+
+{-| Place all elements of a given `Array` between all current elements.
+Extra elements of either `Array` are glued to the end without anything in between.
+
+    import Array exposing (fromList, repeat)
+
+    interweave_ (fromList [ "turtles", "turtles", "turtles" ]) (repeat 2 "on")
+    --> fromList [ "turtles", "on", "turtles", "on", "turtles" ]
+
+    interweave_ (fromList [ "turtles", "turtles", "turtles" ]) (repeat 5 "on")
+    --> fromList [ "turtles", "on", "turtles", "on", "turtles", "on", "on", "on" ]
+
+    interweave_ (fromList [ "turtles", "turtles", "turtles" ]) (repeat 1 "on")
+    --> fromList [ "turtles", "on", "turtles", "turtles" ]
+
+See documentation for `interweave` to find out why the strange name.
+
+-}
+interweave_ : Array a -> Array a -> Array a
+interweave_ array toInterweave =
     let
         untilArrayEnd : { toInterweave : List a, interwoven : List a }
         untilArrayEnd =
