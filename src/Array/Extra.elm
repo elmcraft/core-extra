@@ -209,11 +209,12 @@ apply changes array =
 
     toIntFunctions : Array (Float -> Int)
     toIntFunctions =
-        Array.fromList [ round
-        , floor
-        , ceiling
-        , truncate
-        ]
+        Array.fromList
+            [ round
+            , floor
+            , ceiling
+            , truncate
+            ]
 
     toIntFunctions
         |> andMap (Array.fromList [ -1.5, -1.5, -1.5, -1.5 ])
@@ -798,7 +799,7 @@ Extra elements of either `Array` are glued to the end without anything in betwee
     --> fromList [ "turtles", "on", "turtles", "turtles" ]
 
 @deprecated **Beware:** For historical reasons, this function takes it's arguments in the opposite order to `List.Extra.interweave`.
-As such, this function is deprecated in v1 and will be removed in v2. You should switch to `interweave_` which has the correct argument order. We plan to re-introduct `interweave` with the new argument order in a future release, but since the chance of subtle breakage is quite high, we will only do this gradually.
+As such, this function is deprecated in v1 and will be removed in v2. You should switch to `interweave_` which has the correct argument order. We plan to re-introduce `interweave` with the new argument order in a future release, but since the chance of subtle breakage is quite high, we will only do this gradually.
 
 -}
 interweave : Array a -> Array a -> Array a
@@ -806,8 +807,8 @@ interweave toInterweave array =
     interweave_ array toInterweave
 
 
-{-| Place all elements of a given `Array` between all current elements.
-Extra elements of either `Array` are glued to the end without anything in between.
+{-| Return an array that contains elements from the two provided, in alternate order.
+If one array runs out of items, append the items from the remaining array.
 
     import Array exposing (fromList, repeat)
 
@@ -820,7 +821,7 @@ Extra elements of either `Array` are glued to the end without anything in betwee
     interweave_ (fromList [ "turtles", "turtles", "turtles" ]) (repeat 1 "on")
     --> fromList [ "turtles", "on", "turtles", "turtles" ]
 
-See documentation for `interweave` to find out why the strange name.
+See documentation for [`interweave`](#interweave) to find out why the strange name.
 
 -}
 interweave_ : Array a -> Array a -> Array a
