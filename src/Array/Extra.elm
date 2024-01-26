@@ -798,8 +798,8 @@ Extra elements of either `Array` are glued to the end without anything in betwee
         |> interweave (repeat 1 "on")
     --> fromList [ "turtles", "on", "turtles", "turtles" ]
 
-@deprecated **Beware:** For historical reasons, this function takes it's arguments in the opposite order to `List.Extra.interweave`.
-As such, this function is deprecated in v1 and will be removed in v2. You should switch to `interweave_` which has the correct argument order. We plan to re-introduce `interweave` with the new argument order in a future release, but since the chance of subtle breakage is quite high, we will only do this gradually.
+@deprecated **Beware:** For historical reasons, this function takes it's arguments in the opposite order to [`List.Extra.interweave`](List-Extra#interweave).
+As such, this function is deprecated in v1 and will be removed in v2. You should switch to [`interweave_`](#interweave_) which has the correct argument order. We plan to re-introduce `interweave` with the new argument order in a future release, but since the chance of subtle breakage is quite high, we will only do this gradually.
 
 -}
 interweave : Array a -> Array a -> Array a
