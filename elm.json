@@ -1,6 +1,6 @@
 {
     "type": "package",
-    "name": "gampleman/core-extra",
+    "name": "elmcraft/core-extra",
     "summary": "Utility functions for an improved experience with elm/core",
     "license": "BSD-3-Clause",
     "version": "1.0.0",

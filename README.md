@@ -17,7 +17,7 @@ npm i -g elm-json # if you don't already have it
 
 git checkout -b core-extra-upgrade # make sure you have a clean working tree, in case you want to revert
 
-elm-json install gampleman/core-extra@1 # v1 is a backwards compatible version
+elm-json install elmcraft/core-extra@1 # v1 is a backwards compatible version
 elm-json uninstall elm-community/array-extra elm-community/basics-extra elm-community/dict-extra elm-community/list-extra elm-community/maybe-extra elm-community/result-extra elm-community/string-extra GlobalWebIndex/cmd-extra hayleigh-dot-dev/tuple-extra stoeffel/set-extra
 
 elm make src/Main.elm # or whatever else you use to build your application
@@ -36,10 +36,10 @@ Since we combined a large number of source libraries, we have done some work to 
 ```bash
 git status # make sure you have a clean working tree, in case you want to revert
 
-npx elm-review --template gampleman/core-extra/elm-review-core-extra/preview --fix
+npx elm-review --template elmcraft/core-extra/upgrade#2.0.0 --fix
 # You can run this command multiple times, if you want to abort and fix stuff automatically
 
-elm-json install gampleman/core-extra@2 # upgrade to version 2, that no longer contains deprecated functions
+elm-json install elmcraft/core-extra@2 # upgrade to version 2, that no longer contains deprecated functions
 ```
 
 ## Contributing
