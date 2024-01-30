@@ -6,27 +6,29 @@ module Tuple.Extra exposing
     , sequenceMaybe, sequenceFirstMaybe, sequenceSecondMaybe
     )
 
-{-|
+{-| Convenience functions for 2-Tuples (also known as pairs).
 
 @docs Tuple
 
 
-## Paring
+# Paring
 
 @docs pairWith, from
 
 
-## Manipulating
+# Manipulating
 
 @docs apply, flip, join, joinBy, sum, product, sort, sortBy, sortWith
 
 
-## Mapping
+# Mapping
 
 @docs map
 
 
-## Maybes
+# Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
 
 @docs sequenceMaybe, sequenceFirstMaybe, sequenceSecondMaybe
 
@@ -235,6 +237,8 @@ values and make the tuple a `Maybe` instead.
     Tuple.Extra.sequenceMaybe ( Just 10, Just "Cat" )
         --> Just ( 10, "Cat" )
 
+@deprecated in favour of `Maybe.Extra.combineBoth`.
+
 -}
 sequenceMaybe : ( Maybe a, Maybe b ) -> Maybe ( a, b )
 sequenceMaybe t =
@@ -246,6 +250,8 @@ to check for nothingness.
 
     Tuple.Extra.sequenceFirstMaybe ( Just 10, "Cat" )
         --> Just ( 10, "Cat" )
+
+@deprecated in favour of `Maybe.Extra.combineFirst`.
 
 -}
 sequenceFirstMaybe : ( Maybe a, b ) -> Maybe ( a, b )
@@ -259,6 +265,8 @@ to check for nothingness.
 
     Tuple.Extra.sequenceSecondMaybe ( 10, Just "Cat" )
         --> Just ( 10, "Cat" )
+
+@deprecated in favour of `Maybe.Extra.combineSecond`.
 
 -}
 sequenceSecondMaybe : ( a, Maybe b ) -> Maybe ( a, b )

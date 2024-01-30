@@ -8,6 +8,7 @@ import Array exposing (Array)
 import Array.Extra as Array
 import Expect exposing (Expectation)
 import Fuzz
+import List.Extra
 import Random
 import Test exposing (Test, test)
 
@@ -868,6 +869,10 @@ suite =
                                 + (toInterweave |> Array.length)
                             )
                 )
+            , Test.fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "works the same as List.Extra.interweave (well, should but the arguments are reversed for some reason.)" <|
+                \a b ->
+                    Array.interweave (Array.fromList a) (Array.fromList b)
+                        |> Expect.equal (Array.fromList (List.Extra.interweave b a))
             , test "less to interweave"
                 (\() ->
                     Array.fromList [ "a0", "a1", "a2" ]

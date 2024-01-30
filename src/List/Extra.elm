@@ -1,5 +1,5 @@
 module List.Extra exposing
-    ( last, init, getAt, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, reverseFilter, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, filterNot, swapAt, stableSortWith
+    ( last, init, getAt, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, reverseFilter, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
     , intercalate, transpose, subsequences, permutations, interweave, cartesianProduct, uniquePairs
     , foldl1, foldr1, indexedFoldl, indexedFoldr, Step(..), stoppableFoldl
     , scanl, scanl1, scanr, scanr1, mapAccuml, mapAccumr, unfoldr, iterate, initialize, cycle, reverseRange
@@ -10,6 +10,7 @@ module List.Extra exposing
     , lift2, lift3, lift4
     , groupsOf, groupsOfWithStep, groupsOfVarying, greedyGroupsOf, greedyGroupsOfWithStep
     , joinOn
+    , filterNot
     )
 
 {-| Convenience functions for working with List
@@ -17,7 +18,7 @@ module List.Extra exposing
 
 # Basics
 
-@docs last, init, getAt, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, reverseFilter, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, filterNot, swapAt, stableSortWith
+@docs last, init, getAt, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, reverseFilter, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
 
 
 # List transformations
@@ -68,6 +69,13 @@ module List.Extra exposing
 # Joins
 
 @docs joinOn
+
+
+# Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs filterNot
 
 -}
 
@@ -451,6 +459,24 @@ uniqueBy f list =
     uniqueHelp f [] list []
 
 
+uniqueHelp : (a -> b) -> List b -> List a -> List a -> List a
+uniqueHelp f existing remaining accumulator =
+    case remaining of
+        [] ->
+            List.reverse accumulator
+
+        first :: rest ->
+            let
+                computedFirst =
+                    f first
+            in
+            if List.member computedFirst existing then
+                uniqueHelp f existing rest accumulator
+
+            else
+                uniqueHelp f (computedFirst :: existing) rest (first :: accumulator)
+
+
 {-| Indicate if list has duplicate values.
 
     allDifferent [ 0, 1, 1, 0, 1 ]
@@ -470,24 +496,6 @@ allDifferent list =
 allDifferentBy : (a -> b) -> List a -> Bool
 allDifferentBy f list =
     List.length list == List.length (uniqueBy f list)
-
-
-uniqueHelp : (a -> b) -> List b -> List a -> List a -> List a
-uniqueHelp f existing remaining accumulator =
-    case remaining of
-        [] ->
-            List.reverse accumulator
-
-        first :: rest ->
-            let
-                computedFirst =
-                    f first
-            in
-            if List.member computedFirst existing then
-                uniqueHelp f existing rest accumulator
-
-            else
-                uniqueHelp f (computedFirst :: existing) rest (first :: accumulator)
 
 
 {-| Map functions taking multiple arguments over multiple lists. Each list should be of the same length.
@@ -1011,9 +1019,27 @@ This is equivalent to `List.filter (not << predicate) list`.
     filterNot isEven [ 1, 2, 3, 4 ]
     --> [ 1, 3 ]
 
+@deprecated in favour of `List.Extra.removeWhen`.
+
 -}
 filterNot : (a -> Bool) -> List a -> List a
 filterNot pred list =
+    List.filter (not << pred) list
+
+
+{-| Take a predicate and a list, and return a list that contains elements which fails to satisfy the predicate.
+This is equivalent to `List.filter (not << predicate) list`.
+
+    isEven : Int -> Bool
+    isEven i =
+        modBy 2 i == 0
+
+    removeWhen isEven [ 1, 2, 3, 4 ]
+    --> [ 1, 3 ]
+
+-}
+removeWhen : (a -> Bool) -> List a -> List a
+removeWhen pred list =
     List.filter (not << pred) list
 
 
@@ -2152,6 +2178,8 @@ same applies to elements within each group.
 
     gatherEqualsBy .age [{age=25},{age=23},{age=25}]
     --> [({age=25},[{age=25}]),({age=23},[])]
+
+**See also:** [`Dict.Extra.groupBy`](./Dict-Extra#groupBy).
 
 -}
 gatherEqualsBy : (a -> b) -> List a -> List ( a, List a )

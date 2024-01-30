@@ -5,7 +5,7 @@ module Float.Extra exposing
     , modBy
     )
 
-{-|
+{-| Convenience functions for dealing with Floats.
 
 
 # Equality
