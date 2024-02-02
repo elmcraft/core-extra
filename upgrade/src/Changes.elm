@@ -20,6 +20,7 @@ refactors =
     , ( "Basics.Extra.toOrderDesc", CustomRename [ "Order", "Extra" ] "(Order.Extra.byField >> Order.Extra.reverse)" )
     , ( "Dict.Extra.fromListDedupe", BasicRename "Dict.Extra.fromListCombining" )
     , ( "Dict.Extra.fromListDedupeBy", BasicRename "Dict.Extra.fromListByCombining" )
+    , ( "Dict.Extra.insertDedupe", BasicRename "Dict.Extra.insertCombining" )
     , ( "List.Extra.filterNot", BasicRename "List.Extra.removeWhen" )
     , ( "Maybe.Extra.traverse", BasicRename "Maybe.Extra.combineMap" )
     , ( "Maybe.Extra.traverseArray", BasicRename "Maybe.Extra.combineMapArray" )
