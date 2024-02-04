@@ -1,3 +1,5 @@
 # Automating deprecations
 
-Add any direct renames to src/Changes.elm. More complex refactorings might need to be manually built.
+Add any [upgrades](https://dark.elm.dmy.fr/packages/lue-bird/elm-review-upgrade/latest/Upgrade#Upgrade) like renames to src/ReviewConfig.elm.
+
+Complex refactorings might need to be manually built.
