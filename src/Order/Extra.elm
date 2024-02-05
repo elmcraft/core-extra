@@ -7,7 +7,7 @@ module Order.Extra exposing
 
 {-| Library for building comparison functions.
 
-This library makes it easy to create comparison functions for arbitary types by composing
+This library makes it easy to create comparison functions for arbitrary types by composing
 smaller comparison functions. For instance, suppose you are defining a data type to represent
 a standard deck of cards. You might define it as:
 

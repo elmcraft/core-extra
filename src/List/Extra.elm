@@ -2214,9 +2214,9 @@ gatherWith testFn list =
     helper list []
 
 
-{-| Calculate the number of occurences for each element in a list. Elements
+{-| Calculate the number of occurrences for each element in a list. Elements
 will be ordered ascendingly, then grouped in a tuple with the number of
-occurences.
+occurrences.
 
     frequencies [2,1,3,2,3,3]
     --> [(1,1),(2,2),(3,3)]

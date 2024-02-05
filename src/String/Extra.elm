@@ -988,10 +988,10 @@ removeAccents string =
 
     else
         let
-            do_regex_to_remove_acents ( regex, replace_character ) =
+            do_regex_to_remove_accents ( regex, replace_character ) =
                 Regex.replace regex (\_ -> replace_character)
         in
-        List.foldl do_regex_to_remove_acents string accentRegex
+        List.foldl do_regex_to_remove_accents string accentRegex
 
 
 {-| Create list with regex and char to replace.

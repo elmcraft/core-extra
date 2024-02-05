@@ -437,7 +437,7 @@ merge r =
 
 {-| Join contained results with the same error into one result.
 
-Usefull if you have a "result in a result":
+Useful if you have a "result in a result":
 
     join <| Ok (Ok 4) == Ok 4
 
