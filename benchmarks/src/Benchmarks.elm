@@ -29,15 +29,13 @@ import String.Extra.IsBlank
 main : BenchmarkRunner.Program
 main =
     describe "for core-extra"
-        [ -- application
-          -- , array
-          -- , arrayExtra
-          -- , listExtra
-          -- , tupleExtra
-          -- ,
-          setExtra
-
-        -- , stringExtra
+        [ application
+        , array
+        , arrayExtra
+        , listExtra
+        , tupleExtra
+        , setExtra
+        , stringExtra
         ]
         |> BenchmarkRunner.program
 
