@@ -20,7 +20,7 @@ import Benchmark.Runner.Alternative as BenchmarkRunner
 import List.Extra
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
-import Set
+import Set exposing (Set)
 import Set.Extra.AreDisjoint
 import Set.Extra.SymmetricDifference
 import String.Extra.IsBlank
@@ -250,25 +250,44 @@ ints1To100 =
     Array.fromList (List.range 1 100)
 
 
-set1 =
-    Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 2 x == 0))
+
+-- Note for benchmarking:
+-- Since sets are ordered internally, you can get seriously distorted numbers
+-- if the sets happen to intersect and start/end, or are disjoint with no overlap
+-- in their ranges.
+--
+-- Hence the following sample data is carefully chosen such that even disjoint
+-- sets are for instance even/odd numbers.
+--
+-- That said, in my experience specific benchmark results can be highly dependant
+-- on exact choice of example data, so if you are getting particularly interesting
+-- results, play around with different data distributions.
 
 
-set2 =
-    set3
+evenNumberSet : Set Int
+evenNumberSet =
+    Set.fromList (List.range 50 1000 |> List.filter (\x -> modBy 2 x == 0))
+
+
+oddNumberSetPlus500 : Set Int
+oddNumberSetPlus500 =
+    oddNumberSet
         |> Set.insert 500
 
 
-set3 =
-    Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 2 x == 1))
+oddNumberSet : Set Int
+oddNumberSet =
+    Set.fromList (List.range 1 950 |> List.filter (\x -> modBy 2 x == 1))
 
 
-set4 =
+lowNumsAndDivisibleBy4Set : Set Int
+lowNumsAndDivisibleBy4Set =
     Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 4 x == 0))
         |> Set.union (Set.fromList (List.range 1 250))
 
 
-set5 =
+divisibleBy3and5Set : Set Int
+divisibleBy3and5Set =
     Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 3 x == 0))
         |> Set.union (Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 5 x == 0)))
 
@@ -277,28 +296,28 @@ setExtra : Benchmark
 setExtra =
     describe "Set.Extra"
         [ rank "areDisjoint == True"
-            (\areDisjoint -> areDisjoint set1 set3)
+            (\areDisjoint -> areDisjoint evenNumberSet oddNumberSet)
             [ ( "intersection", Set.Extra.AreDisjoint.intersection )
             , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
             , ( "foldr", Set.Extra.AreDisjoint.foldr )
             , ( "foldl", Set.Extra.AreDisjoint.foldl )
             ]
         , rank "areDisjoint == False (and small)"
-            (\areDisjoint -> areDisjoint set1 set2)
+            (\areDisjoint -> areDisjoint evenNumberSet oddNumberSetPlus500)
             [ ( "intersection", Set.Extra.AreDisjoint.intersection )
             , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
             , ( "foldr", Set.Extra.AreDisjoint.foldr )
             , ( "foldl", Set.Extra.AreDisjoint.foldl )
             ]
         , rank "areDisjoint == False (and large)"
-            (\areDisjoint -> areDisjoint set1 set4)
+            (\areDisjoint -> areDisjoint evenNumberSet lowNumsAndDivisibleBy4Set)
             [ ( "intersection", Set.Extra.AreDisjoint.intersection )
             , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
             , ( "foldr", Set.Extra.AreDisjoint.foldr )
             , ( "foldl", Set.Extra.AreDisjoint.foldl )
             ]
         , rank "symmetricDifference"
-            (\areDisjoint -> areDisjoint set1 set5)
+            (\areDisjoint -> areDisjoint evenNumberSet divisibleBy3and5Set)
             [ ( "naive", Set.Extra.SymmetricDifference.naive )
             , ( "orderExploiting", Set.Extra.SymmetricDifference.orderExploiting )
             ]
