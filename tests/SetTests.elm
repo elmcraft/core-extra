@@ -2,7 +2,7 @@ module SetTests exposing (all)
 
 import Basics.Extra exposing (flip)
 import Expect
-import Fuzz
+import Fuzz exposing (Fuzzer)
 import Set exposing (Set)
 import Set.Extra
 import Test exposing (Test, describe, fuzz, fuzz2, test)
@@ -45,23 +45,23 @@ all =
                                     )
                             )
             ]
-        , describe "#subset"
+        , describe "#isSubsetOf"
             [ fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "Same as List.Extra.isInfixOf" <|
                 \xs ys ->
                     Set.fromList xs
-                        |> flip Set.Extra.subset (Set.fromList ys)
+                        |> Set.Extra.isSubsetOf (Set.fromList ys)
                         |> Expect.equal
                             (List.all (flip List.member ys) xs)
             , test "checks if a set is a subset of another set" <|
                 \() ->
                     Set.fromList [ 2, 4, 6 ]
-                        |> flip Set.Extra.subset (Set.fromList [ 1, 2, 3, 4, 5, 6, 7, 8 ])
+                        |> Set.Extra.isSubsetOf (Set.fromList [ 1, 2, 3, 4, 5, 6, 7, 8 ])
                         |> Expect.equal True
                         |> Expect.onFail "Expected the Set to be a subset"
             , test "checks if a set isn't a subset of another set" <|
                 \() ->
                     Set.fromList [ 2, 4, 10 ]
-                        |> flip Set.Extra.subset (Set.fromList [ 1, 2, 3, 4, 5, 6, 7, 8 ])
+                        |> Set.Extra.isSubsetOf (Set.fromList [ 1, 2, 3, 4, 5, 6, 7, 8 ])
                         |> Expect.equal False
                         |> Expect.onFail "Expected the Set to not be a subset"
             ]
@@ -106,7 +106,25 @@ all =
                                 |> Set.fromList
                             )
             ]
+        , describe "#areDisjoint"
+            [ fuzz2 (fuzzSet Fuzz.int) (fuzzSet Fuzz.int) "disjoint is equivalent to empty intersection" <|
+                \a b ->
+                    Set.intersect a b
+                        |> Set.isEmpty
+                        |> Expect.equal (Set.Extra.areDisjoint a b)
+            ]
+        , describe "#symmetricDifference"
+            [ fuzz2 (fuzzSet Fuzz.int) (fuzzSet Fuzz.int) "equivalent to diff (union a b) (intersect a b)" <|
+                \a b ->
+                    Set.diff (Set.union a b) (Set.intersect a b)
+                        |> Expect.equal (Set.Extra.symmetricDifference a b)
+            ]
         ]
+
+
+fuzzSet : Fuzzer comparable -> Fuzzer (Set comparable)
+fuzzSet fuzz =
+    Fuzz.map Set.fromList (Fuzz.list fuzz)
 
 
 doubleList : Int -> List Int

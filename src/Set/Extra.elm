@@ -75,14 +75,13 @@ concatMap f s =
 
     import Set exposing (Set)
 
-    Set.Extra.isSubsetOf
-        (Set.fromList [1,2,3])
-        (Set.fromList [1,2,3,4,5])
+    Set.fromList [ 1, 2, 3 ]
+        |> Set.Extra.isSubsetOf (Set.fromList [1,2,3,4,5])
     --> True
 
 -}
 isSubsetOf : Set comparable -> Set comparable -> Bool
-isSubsetOf s1 s2 =
+isSubsetOf s2 s1 =
     Set.size s1
         <= Set.size s2
         && Set.foldl (\x acc -> acc && Set.member x s2) True s1
@@ -92,9 +91,9 @@ isSubsetOf s1 s2 =
 
     import Set exposing (Set)
 
-    Set.Extra.isSupersetOf
-        (Set.fromList [1,2,3])
-        (Set.fromList [1,2,3,4,5])
+
+    Set.fromList [ 1, 2, 3 ]
+        |> Set.Extra.isSupersetOf (Set.fromList [1,2,3,4,5])
     --> False
 
 Note: This is just isSubsetOf with arguments reversed. It can be handy for dealing with pipelines.
@@ -183,7 +182,7 @@ areDisjoint a b =
 -}
 subset : Set comparable -> Set comparable -> Bool
 subset =
-    isSubsetOf
+    isSupersetOf
 
 
 {-| The symmetric difference between two sets is a set that contains all the elements that are in one of the two sets, but not both.
