@@ -1,6 +1,7 @@
 module Set.Extra exposing
     ( toggle
     , isSupersetOf, isSubsetOf, areDisjoint
+    , symmetricDifference
     , concatMap, filterMap
     , subset
     )
@@ -16,6 +17,11 @@ module Set.Extra exposing
 # Predicates
 
 @docs isSupersetOf, isSubsetOf, areDisjoint
+
+
+# Set operations
+
+@docs symmetricDifference
 
 
 # Mapping
@@ -178,3 +184,37 @@ areDisjoint a b =
 subset : Set comparable -> Set comparable -> Bool
 subset =
     isSubsetOf
+
+
+{-| The symmetric difference between two sets is a set that contains all the elements that are in one of the two sets, but not both.
+
+    import Set exposing (Set)
+
+
+    Set.Extra.symmetricDifference
+        (Set.fromList [1,2,3])
+        (Set.fromList [3,4,5])
+        --> Set.fromList [1,2,4,5]
+
+-}
+symmetricDifference : Set comparable -> Set comparable -> Set comparable
+symmetricDifference a b =
+    symmetricDifferenceHelp (Set.toList a) (Set.toList b) Set.empty
+
+
+symmetricDifferenceHelp : List comparable -> List comparable -> Set comparable -> Set comparable
+symmetricDifferenceHelp a b soFar =
+    case ( a, b ) of
+        ( x :: xs, y :: ys ) ->
+            case compare x y of
+                EQ ->
+                    symmetricDifferenceHelp xs ys soFar
+
+                GT ->
+                    symmetricDifferenceHelp a ys (Set.insert y soFar)
+
+                LT ->
+                    symmetricDifferenceHelp xs b (Set.insert x soFar)
+
+        _ ->
+            Set.union (Set.union (Set.fromList a) (Set.fromList b)) soFar
