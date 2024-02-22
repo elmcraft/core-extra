@@ -15,6 +15,7 @@
         "Maybe.Extra",
         "Order.Extra",
         "Result.Extra",
+        "Set.Extra",
         "String.Extra",
         "Tuple.Extra"
     ],

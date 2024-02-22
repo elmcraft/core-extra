@@ -63,6 +63,7 @@ v1To2 =
     , Upgrade.reference { old = ( "Maybe.Extra", "traverseArray" ), new = ( "Maybe.Extra", "combineMapArray" ) }
     , Upgrade.reference { old = ( "Result.Extra", "singleton" ), new = ( "Result", "Ok" ) }
     , Upgrade.reference { old = ( "String.Extra", "removeAccents" ), new = ( "String.Extra", "removeDiacritics" ) }
+    , Upgrade.reference { old = ( "Set.Extra", "subset" ), new = ( "Set.Extra", "isSubsetOf" ) }
     , Upgrade.reference { old = ( "Tuple.Extra", "sequenceMaybe" ), new = ( "Maybe.Extra", "combineBoth" ) }
     , Upgrade.reference { old = ( "Tuple.Extra", "sequenceFirstMaybe" ), new = ( "Maybe.Extra", "combineFirst" ) }
     , Upgrade.reference { old = ( "Tuple.Extra", "sequenceSecondMaybe" ), new = ( "Maybe.Extra", "combineSecond" ) }

@@ -20,18 +20,24 @@ import Benchmark.Runner.Alternative as BenchmarkRunner
 import List.Extra
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
+import Set
+import Set.Extra.AreDisjoint
+import Set.Extra.SymmetricDifference
 import String.Extra.IsBlank
 
 
 main : BenchmarkRunner.Program
 main =
     describe "for core-extra"
-        [ application
-        , array
-        , arrayExtra
-        , listExtra
-        , tupleExtra
-        , stringExtra
+        [ -- application
+          -- , array
+          -- , arrayExtra
+          -- , listExtra
+          -- , tupleExtra
+          -- ,
+          setExtra
+
+        -- , stringExtra
         ]
         |> BenchmarkRunner.program
 
@@ -244,3 +250,58 @@ subtractOneUntilZero i =
 ints1To100 : Array Int
 ints1To100 =
     Array.fromList (List.range 1 100)
+
+
+set1 =
+    Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 2 x == 0))
+
+
+set2 =
+    set3
+        |> Set.insert 500
+
+
+set3 =
+    Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 2 x == 1))
+
+
+set4 =
+    Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 4 x == 0))
+        |> Set.union (Set.fromList (List.range 1 250))
+
+
+set5 =
+    Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 3 x == 0))
+        |> Set.union (Set.fromList (List.range 1 1000 |> List.filter (\x -> modBy 5 x == 0)))
+
+
+setExtra : Benchmark
+setExtra =
+    describe "Set.Extra"
+        [ rank "areDisjoint == True"
+            (\areDisjoint -> areDisjoint set1 set3)
+            [ ( "intersection", Set.Extra.AreDisjoint.intersection )
+            , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
+            , ( "foldr", Set.Extra.AreDisjoint.foldr )
+            , ( "foldl", Set.Extra.AreDisjoint.foldl )
+            ]
+        , rank "areDisjoint == False (and small)"
+            (\areDisjoint -> areDisjoint set1 set2)
+            [ ( "intersection", Set.Extra.AreDisjoint.intersection )
+            , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
+            , ( "foldr", Set.Extra.AreDisjoint.foldr )
+            , ( "foldl", Set.Extra.AreDisjoint.foldl )
+            ]
+        , rank "areDisjoint == False (and large)"
+            (\areDisjoint -> areDisjoint set1 set4)
+            [ ( "intersection", Set.Extra.AreDisjoint.intersection )
+            , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
+            , ( "foldr", Set.Extra.AreDisjoint.foldr )
+            , ( "foldl", Set.Extra.AreDisjoint.foldl )
+            ]
+        , rank "symmetricDifference"
+            (\areDisjoint -> areDisjoint set1 set5)
+            [ ( "naive", Set.Extra.SymmetricDifference.naive )
+            , ( "orderExploiting", Set.Extra.SymmetricDifference.orderExploiting )
+            ]
+        ]

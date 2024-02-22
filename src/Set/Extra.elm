@@ -1,8 +1,33 @@
-module Set.Extra exposing (concatMap, filterMap, subset, toggle)
+module Set.Extra exposing
+    ( toggle
+    , isSupersetOf, isSubsetOf, areDisjoint
+    , concatMap, filterMap
+    , subset
+    )
 
 {-| Convenience functions for working with Set.
 
-@docs concatMap, filterMap, subset, toggle
+
+# Toggling elements
+
+@docs toggle
+
+
+# Predicates
+
+@docs isSupersetOf, isSubsetOf, areDisjoint
+
+
+# Mapping
+
+@docs concatMap, filterMap
+
+
+# Deprecated functions
+
+These functions are deprecated and **will be removed** in the next major version of this library.
+
+@docs subset
 
 -}
 
@@ -40,21 +65,38 @@ concatMap f s =
     Set.foldl (Set.union << f) Set.empty s
 
 
-{-| Check if a Set is a subset of another Set.
+{-| A set is a subset of another set if all the elements in the first set appear in the second set.
 
     import Set exposing (Set)
 
-    Set.Extra.subset
+    Set.Extra.isSubsetOf
         (Set.fromList [1,2,3])
         (Set.fromList [1,2,3,4,5])
     --> True
 
 -}
-subset : Set comparable -> Set comparable -> Bool
-subset s1 s2 =
+isSubsetOf : Set comparable -> Set comparable -> Bool
+isSubsetOf s1 s2 =
     Set.size s1
         <= Set.size s2
         && Set.foldl (\x acc -> acc && Set.member x s2) True s1
+
+
+{-| A set is a superset of another set if all the elements in the second set appear in the first set.
+
+    import Set exposing (Set)
+
+    Set.Extra.isSupersetOf
+        (Set.fromList [1,2,3])
+        (Set.fromList [1,2,3,4,5])
+    --> False
+
+Note: This is just isSubsetOf with arguments reversed. It can be handy for dealing with pipelines.
+
+-}
+isSupersetOf : Set comparable -> Set comparable -> Bool
+isSupersetOf s1 s2 =
+    isSubsetOf s2 s1
 
 
 {-| If the set does not contain the element, add it. If it does contain the element, remove it.
@@ -99,3 +141,40 @@ maybeCons f mx xs =
 
         Nothing ->
             xs
+
+
+{-| A set is disjoint from another set if they have no elements in common.
+
+    import Set exposing (Set)
+
+    Set.Extra.areDisjoint
+        (Set.fromList [1,2,3])
+        (Set.fromList [3,4,5])
+    --> False
+
+    Set.Extra.areDisjoint
+        (Set.fromList [1,2,3])
+        (Set.fromList [4,5,6])
+    --> True
+
+-}
+areDisjoint : Set comparable -> Set comparable -> Bool
+areDisjoint a b =
+    not (Set.foldl (\x so -> so || Set.member x b) False a)
+
+
+{-| Check if a Set is a subset of another Set.
+
+    import Set exposing (Set)
+
+    Set.Extra.subset
+        (Set.fromList [1,2,3])
+        (Set.fromList [1,2,3,4,5])
+    --> True
+
+@deprecated in favour of isSubsetOf
+
+-}
+subset : Set comparable -> Set comparable -> Bool
+subset =
+    isSubsetOf
