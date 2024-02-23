@@ -26,7 +26,6 @@ import Result.Extra
         , orElseLazy
         , orLazy
         , partition
-        , singleton
         , toTask
         , unwrap
         )
@@ -233,10 +232,7 @@ combineMapTests =
 applyingTests : Test
 applyingTests =
     describe "Applying"
-        [ test "singleton" <|
-            \_ ->
-                Expect.equal (singleton 42) (Ok 42)
-        , andMapTests
+        [ andMapTests
         ]
 
 

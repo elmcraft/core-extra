@@ -9,7 +9,6 @@ module String.Extra exposing
     , toSentence, toSentenceOxford
     , rightOf, leftOf, rightOfBack, leftOfBack
     , toCodePoints, fromCodePoints
-    , removeAccents
     )
 
 {-| Additional functions for working with Strings
@@ -66,13 +65,6 @@ Functions borrowed from the Rails Inflector class
 
 @docs toCodePoints, fromCodePoints
 
-
-## Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs removeAccents
-
 -}
 
 import Array
@@ -82,7 +74,6 @@ import Maybe exposing (Maybe(..))
 import Regex exposing (Regex)
 import String exposing (cons, uncons)
 import String.Diacritics as Diacritics
-import Tuple
 
 
 {-| Change the case of the first letter of a string to either uppercase or
@@ -970,186 +961,6 @@ removeDiacritics str =
                         result ++ String.fromChar c
     in
     String.foldl replace "" str
-
-
-{-| Remove accents from string.
-
-    removeAccents "andré" --> "andre"
-
-    removeAccents "Atenção" --> "Atencao"
-
-@deprecated in favour of String.Extra.removeDiacritics
-
--}
-removeAccents : String -> String
-removeAccents string =
-    if String.isEmpty string then
-        string
-
-    else
-        let
-            do_regex_to_remove_acents ( regex, replace_character ) =
-                Regex.replace regex (\_ -> replace_character)
-        in
-        List.foldl do_regex_to_remove_acents string accentRegex
-
-
-{-| Create list with regex and char to replace.
--}
-accentRegex : List ( Regex.Regex, String )
-accentRegex =
-    let
-        matches =
-            [ ( "[à-æ]", "a" )
-            , ( "[À-Æ]", "A" )
-            , ( "ç", "c" )
-            , ( "Ç", "C" )
-            , ( "[è-ë]", "e" )
-            , ( "[È-Ë]", "E" )
-            , ( "[ì-ï]", "i" )
-            , ( "[Ì-Ï]", "I" )
-            , ( "ñ", "n" )
-            , ( "Ñ", "N" )
-            , ( "[ò-ö]", "o" )
-            , ( "[Ò-Ö]", "O" )
-            , ( "[ù-ü]", "u" )
-            , ( "[Ù-Ü]", "U" )
-            , ( "ý", "y" )
-            , ( "ÿ", "y" )
-            , ( "Ý", "Y" )
-
-            -- Latin Extended-A
-            , ( "Ā", "A" )
-            , ( "ā", "a" )
-            , ( "Ă", "A" )
-            , ( "ă", "a" )
-            , ( "Ą", "A" )
-            , ( "ą", "a" )
-            , ( "Ć", "C" )
-            , ( "ć", "c" )
-            , ( "Ĉ", "C" )
-            , ( "ĉ", "c" )
-            , ( "Ċ", "C" )
-            , ( "ċ", "c" )
-            , ( "Č", "C" )
-            , ( "č", "c" )
-            , ( "Ď", "D" )
-            , ( "ď", "d" )
-            , ( "Đ", "D" )
-            , ( "đ", "d" )
-            , ( "Ē", "e" )
-            , ( "ē", "e" )
-            , ( "Ĕ", "E" )
-            , ( "ĕ", "e" )
-            , ( "Ė", "E" )
-            , ( "ė", "e" )
-            , ( "Ę", "E" )
-            , ( "ę", "e" )
-            , ( "Ě", "E" )
-            , ( "ě", "e" )
-            , ( "Ĝ", "G" )
-            , ( "ĝ", "g" )
-            , ( "Ğ", "G" )
-            , ( "ğ", "g" )
-            , ( "Ġ", "G" )
-            , ( "ġ", "g" )
-            , ( "Ģ", "G" )
-            , ( "ģ", "g" )
-            , ( "Ĥ", "H" )
-            , ( "ĥ", "h" )
-            , ( "Ħ", "H" )
-            , ( "ħ", "h" )
-            , ( "Ĩ", "I" )
-            , ( "ĩ", "i" )
-            , ( "Ī", "I" )
-            , ( "ī", "i" )
-            , ( "Ĭ", "I" )
-            , ( "ĭ", "i" )
-            , ( "Į", "I" )
-            , ( "į", "i" )
-            , ( "İ", "I" )
-            , ( "ı", "i" )
-            , ( "Ĳ", "IJ" )
-            , ( "ĳ", "ij" )
-            , ( "Ĵ", "J" )
-            , ( "ĵ", "j" )
-            , ( "Ķ", "K" )
-            , ( "ķ", "k" )
-            , ( "ĸ", "K" )
-            , ( "Ĺ", "L" )
-            , ( "ĺ", "l" )
-            , ( "Ļ", "L" )
-            , ( "ļ", "l" )
-            , ( "Ľ", "L" )
-            , ( "ľ", "l" )
-            , ( "Ŀ", "L" )
-            , ( "ŀ", "l" )
-            , ( "Ł", "L" )
-            , ( "ł", "l" )
-            , ( "Ń", "N" )
-            , ( "ń", "n" )
-            , ( "Ņ", "N" )
-            , ( "ņ", "n" )
-            , ( "Ň", "N" )
-            , ( "ň", "n" )
-            , ( "ŉ", "n" )
-            , ( "Ŋ", "N" )
-            , ( "ŋ", "n" )
-            , ( "Ō", "O" )
-            , ( "ō", "o" )
-            , ( "Ŏ", "O" )
-            , ( "ŏ", "o" )
-            , ( "Ő", "O" )
-            , ( "ő", "o" )
-            , ( "Œ", "OE" )
-            , ( "œ", "oe" )
-            , ( "Ŕ", "R" )
-            , ( "ŕ", "r" )
-            , ( "Ŗ", "R" )
-            , ( "ŗ", "r" )
-            , ( "Ř", "R" )
-            , ( "ř", "r" )
-            , ( "Ś", "S" )
-            , ( "ś", "s" )
-            , ( "Ŝ", "S" )
-            , ( "ŝ", "s" )
-            , ( "Ş", "S" )
-            , ( "ş", "s" )
-            , ( "Š", "S" )
-            , ( "š", "s" )
-            , ( "Ţ", "T" )
-            , ( "ţ", "t" )
-            , ( "Ť", "T" )
-            , ( "ť", "t" )
-            , ( "Ŧ", "T" )
-            , ( "ŧ", "t" )
-            , ( "Ũ", "U" )
-            , ( "ũ", "u" )
-            , ( "Ū", "U" )
-            , ( "ū", "u" )
-            , ( "Ŭ", "U" )
-            , ( "ŭ", "u" )
-            , ( "Ů", "U" )
-            , ( "ů", "u" )
-            , ( "Ű", "U" )
-            , ( "ű", "u" )
-            , ( "Ų", "U" )
-            , ( "ų", "u" )
-            , ( "Ŵ", "W" )
-            , ( "ŵ", "w" )
-            , ( "Ŷ", "Y" )
-            , ( "ŷ", "y" )
-            , ( "Ÿ", "Y" )
-            , ( "Ź", "Z" )
-            , ( "ź", "z" )
-            , ( "Ż", "Z" )
-            , ( "ż", "z" )
-            , ( "Ž", "Z" )
-            , ( "ž", "z" )
-            , ( "ſ", "s" )
-            ]
-    in
-    List.map (Tuple.mapFirst regexFromString) matches
 
 
 regexEscape : String -> String

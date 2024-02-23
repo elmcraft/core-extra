@@ -4,7 +4,6 @@ module Dict.Extra exposing
     , any, all
     , find
     , unionWith
-    , fromListDedupe, fromListDedupeBy, insertDedupe
     )
 
 {-| Convenience functions for working with `Dict`
@@ -33,13 +32,6 @@ module Dict.Extra exposing
 # Combine
 
 @docs unionWith
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs fromListDedupe, fromListDedupeBy, insertDedupe
 
 -}
 
@@ -143,29 +135,6 @@ paired with the same key.
 
     import Dict
 
-    fromListDedupe
-        (\a b -> a ++ " " ++ b)
-        [ ( "class", "menu" ), ( "width", "100%" ), ( "class", "big" ) ]
-    --> Dict.fromList [ ( "class", "menu big" ), ( "width", "100%" ) ]
-
-@deprecated in favour of `Dict.Extra.fromListCombining`.
-
--}
-fromListDedupe : (a -> a -> a) -> List ( comparable, a ) -> Dict comparable a
-fromListDedupe combine xs =
-    List.foldl
-        (\( key, value ) acc -> insertDedupe combine key value acc)
-        Dict.empty
-        xs
-
-
-{-| Like `Dict.fromList`, but you provide a way to deal with
-duplicate keys. Create a dictionary from a list of pairs of keys and
-values, providing a function that is used to combine multiple values
-paired with the same key.
-
-    import Dict
-
     fromListCombining
         (\a b -> a ++ " " ++ b)
         [ ( "class", "menu" ), ( "width", "100%" ), ( "class", "big" ) ]
@@ -175,25 +144,7 @@ paired with the same key.
 fromListCombining : (a -> a -> a) -> List ( comparable, a ) -> Dict comparable a
 fromListCombining combine xs =
     List.foldl
-        (\( key, value ) acc -> insertDedupe combine key value acc)
-        Dict.empty
-        xs
-
-
-{-| `fromListBy` and `fromListDedupe` rolled into one.
-
-    import Dict
-
-    fromListDedupeBy (\first second -> first) String.length [ "tree" , "apple" , "leaf" ]
-    --> Dict.fromList [ ( 4, "tree" ), ( 5, "apple" ) ]
-
-@deprecated in favour of `Dict.Extra.fromListByCombining`.
-
--}
-fromListDedupeBy : (a -> a -> a) -> (a -> comparable) -> List a -> Dict comparable a
-fromListDedupeBy combine keyfn xs =
-    List.foldl
-        (\x acc -> insertDedupe combine (keyfn x) x acc)
+        (\( key, value ) acc -> insertCombining combine key value acc)
         Dict.empty
         xs
 
@@ -209,7 +160,7 @@ fromListDedupeBy combine keyfn xs =
 fromListByCombining : (a -> a -> a) -> (a -> comparable) -> List a -> Dict comparable a
 fromListByCombining combine keyfn xs =
     List.foldl
-        (\x acc -> insertDedupe combine (keyfn x) x acc)
+        (\x acc -> insertCombining combine (keyfn x) x acc)
         Dict.empty
         xs
 
@@ -262,27 +213,6 @@ removeWhen pred dict =
 removeMany : Set comparable -> Dict comparable v -> Dict comparable v
 removeMany set dict =
     Set.foldl Dict.remove dict set
-
-
-{-| Insert an element at the given key, providing a combining
-function that used in the case that there is already an
-element at that key. The combining function is called with
-original element and the new element as arguments and
-returns the element to be inserted.
-
-    import Dict
-
-    Dict.fromList [ ( "expenses", 38.25 ), ( "assets", 100.85 ) ]
-        |> insertDedupe (+) "expenses" 2.50
-        |> insertDedupe (+) "liabilities" -2.50
-    --> Dict.fromList [ ( "expenses", 40.75 ), ( "assets", 100.85 ), ( "liabilities", -2.50 ) ]
-
-@deprecated in favour of `Dict.Extra.insertCombining`.
-
--}
-insertDedupe : (v -> v -> v) -> comparable -> v -> Dict comparable v -> Dict comparable v
-insertDedupe =
-    insertCombining
 
 
 {-| Insert an element at the given key, providing a combining

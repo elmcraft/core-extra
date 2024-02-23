@@ -3,7 +3,6 @@ module Tuple.Extra exposing
     , pairWith, from
     , apply, flip, join, joinBy, sum, product, sort, sortBy, sortWith
     , map
-    , sequenceMaybe, sequenceFirstMaybe, sequenceSecondMaybe
     )
 
 {-| Convenience functions for 2-Tuples (also known as pairs).
@@ -24,13 +23,6 @@ module Tuple.Extra exposing
 # Mapping
 
 @docs map
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs sequenceMaybe, sequenceFirstMaybe, sequenceSecondMaybe
 
 -}
 
@@ -221,55 +213,3 @@ known as `mapBothWith` or `bimap`.
 map : (a -> b) -> ( a, a ) -> ( b, b )
 map f ( a, b ) =
     Tuple.pair (f a) (f b)
-
-
-
--- Maybes ----------------------------------------------------------------------
-
-
-{-| Occasionally you might find yourself in a situation where both values
-contained in a tuple are `Maybe`s. Sometimes it makes more sense to take those
-values and make the tuple a `Maybe` instead.
-
-    Tuple.Extra.sequenceMaybe ( Just 10, Nothing )
-        --> Nothing
-
-    Tuple.Extra.sequenceMaybe ( Just 10, Just "Cat" )
-        --> Just ( 10, "Cat" )
-
-@deprecated in favour of `Maybe.Extra.combineBoth`.
-
--}
-sequenceMaybe : ( Maybe a, Maybe b ) -> Maybe ( a, b )
-sequenceMaybe t =
-    apply (Maybe.map2 Tuple.pair) t
-
-
-{-| Similar to `sequenceMaybe` but only looks at the first value in a tuple
-to check for nothingness.
-
-    Tuple.Extra.sequenceFirstMaybe ( Just 10, "Cat" )
-        --> Just ( 10, "Cat" )
-
-@deprecated in favour of `Maybe.Extra.combineFirst`.
-
--}
-sequenceFirstMaybe : ( Maybe a, b ) -> Maybe ( a, b )
-sequenceFirstMaybe t =
-    Tuple.mapSecond Just t
-        |> sequenceMaybe
-
-
-{-| Similar to `sequenceMaybe` but only looks at the first value in a tuple
-to check for nothingness.
-
-    Tuple.Extra.sequenceSecondMaybe ( 10, Just "Cat" )
-        --> Just ( 10, "Cat" )
-
-@deprecated in favour of `Maybe.Extra.combineSecond`.
-
--}
-sequenceSecondMaybe : ( a, Maybe b ) -> Maybe ( a, b )
-sequenceSecondMaybe t =
-    Tuple.mapFirst Just t
-        |> sequenceMaybe

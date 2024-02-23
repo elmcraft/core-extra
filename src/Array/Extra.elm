@@ -6,7 +6,6 @@ module Array.Extra exposing
     , interweave_, andMap, map2, map3, map4, map5, zip, zip3
     , resizelRepeat, resizerRepeat, resizelIndexed, resizerIndexed
     , mapToList, indexedMapToList
-    , apply, interweave
     )
 
 {-| Convenience functions for working with `Array`
@@ -45,13 +44,6 @@ module Array.Extra exposing
 # To List
 
 @docs mapToList, indexedMapToList
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs apply, interweave
 
 -}
 
@@ -144,7 +136,7 @@ pop array =
     --> fromList
     -->     [ "turtles", "on", "turtles", "on", "turtles" ]
 
-To interlace an `Array`, [`interweave`](#interweave).
+To interlace an `Array`, [`interweave_`](#interweave_).
 
 -}
 intersperse : a -> Array a -> Array a
@@ -181,26 +173,6 @@ consTry maybeNewHead list =
 
         Nothing ->
             list
-
-
-{-| Apply a given `Array` of changes to all elements.
-If one `Array` is longer, its extra elements are not used.
-
-    import Array exposing (fromList, repeat)
-
-    repeat 5 100
-        |> apply
-            (fromList
-                [ \x -> -x, identity, (+) 10 ]
-            )
-    --> fromList [ -100, 100, 110 ]
-
-@deprecated in favour of `Array.Extra.andMap` (note the reversed argument order).
-
--}
-apply : Array (a -> b) -> Array a -> Array b
-apply changes array =
-    map2 (\map element -> map element) changes array
 
 
 {-| Map functions taking multiple arguments over multiple arrays. Each array should be of the same length; extra elements are dropped.
@@ -781,32 +753,6 @@ member needle array =
     any (\element -> element == needle) array
 
 
-{-| Place all elements of a given `Array` between all current elements.
-Extra elements of either `Array` are glued to the end without anything in between.
-
-    import Array exposing (fromList, repeat)
-
-    fromList [ "turtles", "turtles", "turtles" ]
-        |> interweave (repeat 2 "on")
-    --> fromList [ "turtles", "on", "turtles", "on", "turtles" ]
-
-    fromList [ "turtles", "turtles", "turtles" ]
-        |> interweave (repeat 5 "on")
-    --> fromList [ "turtles", "on", "turtles", "on", "turtles", "on", "on", "on" ]
-
-    fromList [ "turtles", "turtles", "turtles" ]
-        |> interweave (repeat 1 "on")
-    --> fromList [ "turtles", "on", "turtles", "turtles" ]
-
-@deprecated **Beware:** For historical reasons, this function takes it's arguments in the opposite order to [`List.Extra.interweave`](List-Extra#interweave).
-As such, this function is deprecated in v1 and will be removed in v2. You should switch to [`interweave_`](#interweave_) which has the correct argument order. We plan to re-introduce `interweave` with the new argument order in a future release, but since the chance of subtle breakage is quite high, we will only do this gradually.
-
--}
-interweave : Array a -> Array a -> Array a
-interweave toInterweave array =
-    interweave_ array toInterweave
-
-
 {-| Return an array that contains elements from the two provided, in alternate order.
 If one array runs out of items, append the items from the remaining array.
 
@@ -820,8 +766,6 @@ If one array runs out of items, append the items from the remaining array.
 
     interweave_ (fromList [ "turtles", "turtles", "turtles" ]) (repeat 1 "on")
     --> fromList [ "turtles", "on", "turtles", "turtles" ]
-
-See documentation for [`interweave`](#interweave) to find out why the strange name.
 
 -}
 interweave_ : Array a -> Array a -> Array a

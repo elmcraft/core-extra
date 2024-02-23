@@ -3,7 +3,6 @@ module Set.Extra exposing
     , isSupersetOf, isSubsetOf, areDisjoint
     , symmetricDifference
     , concatMap, filterMap
-    , subset
     )
 
 {-| Convenience functions for working with Set.
@@ -27,13 +26,6 @@ module Set.Extra exposing
 # Mapping
 
 @docs concatMap, filterMap
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs subset
 
 -}
 
@@ -166,23 +158,6 @@ maybeCons f mx xs =
 areDisjoint : Set comparable -> Set comparable -> Bool
 areDisjoint a b =
     not (Set.foldl (\x so -> so || Set.member x b) False a)
-
-
-{-| Check if a Set is a subset of another Set.
-
-    import Set exposing (Set)
-
-    Set.Extra.subset
-        (Set.fromList [1,2,3])
-        (Set.fromList [1,2,3,4,5])
-    --> True
-
-@deprecated in favour of isSubsetOf
-
--}
-subset : Set comparable -> Set comparable -> Bool
-subset =
-    isSupersetOf
 
 
 {-| The symmetric difference between two sets is a set that contains all the elements that are in one of the two sets, but not both.

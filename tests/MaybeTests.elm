@@ -90,19 +90,19 @@ suite =
             [ test "empty" <|
                 \() ->
                     Array.empty
-                        |> Maybe.Extra.traverseArray (\x -> Just (x * 10))
+                        |> Maybe.Extra.combineMapArray (\x -> Just (x * 10))
                         |> Expect.equal (Just Array.empty)
             , test "all Just" <|
                 \() ->
                     [ 1, 2, 3, 4, 5 ]
                         |> Array.fromList
-                        |> Maybe.Extra.traverseArray (\x -> Just (x * 10))
+                        |> Maybe.Extra.combineMapArray (\x -> Just (x * 10))
                         |> Expect.equal (Just (Array.fromList [ 10, 20, 30, 40, 50 ]))
             , test "one Nothing fails the whole function" <|
                 \() ->
                     [ [ 1 ], [ 2, 3 ], [] ]
                         |> Array.fromList
-                        |> Maybe.Extra.traverseArray List.head
+                        |> Maybe.Extra.combineMapArray List.head
                         |> Expect.equal Nothing
             ]
         , describe "combineArray"

@@ -8,7 +8,6 @@ module Maybe.Extra exposing
     , cons
     , andThen2, andThen3, andThen4
     , andMap, next, prev
-    , traverse, traverseArray
     )
 
 {-| Convenience functions for [`Maybe`](https://package.elm-lang.org/packages/elm/core/latest/Maybe).
@@ -63,13 +62,6 @@ If you need a version of `andThenN` that takes more than 4 arguments, you can ch
 # Applicative Functions
 
 @docs andMap, next, prev
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs traverse, traverseArray
 
 -}
 
@@ -502,27 +494,6 @@ combineHelp list acc =
 
 {-| Like [`combine`](#combine), but map a function over each element of the list first.
 
-If every function call succeeds (returns `Just`), `traverse` will return a list.
-If any function call fails (returns `Nothing`), `traverse` will return `Nothing`.
-
-`combine` is equivalent to `traverse identity`.
-
-    traverse (\x -> Just (x * 10)) [ 1, 2, 3, 4, 5 ]
-    --> Just [ 10, 20, 30, 40, 50 ]
-
-    traverse List.head [ [1], [2, 3], [] ]
-    --> Nothing
-
-@deprecated in favour of `Maybe.Extra.combineMap`.
-
--}
-traverse : (a -> Maybe b) -> List a -> Maybe (List b)
-traverse =
-    combineMap
-
-
-{-| Like [`combine`](#combine), but map a function over each element of the list first.
-
 If every function call succeeds (returns `Just`), `combineMap` will return a list.
 If any function call fails (returns `Nothing`), `combineMap` will return `Nothing`.
 
@@ -561,17 +532,6 @@ but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Arr
 combineArray : Array.Array (Maybe a) -> Maybe (Array.Array a)
 combineArray =
     Array.foldl (Maybe.map2 Array.push) (Just Array.empty)
-
-
-{-| Like [`traverse`](#traverse),
-but works on [`Array`](https://package.elm-lang.org/packages/elm/core/latest/Array) instead of `List`.
-
-@deprecated in favour of `Maybe.Extra.combineMapArray`.
-
--}
-traverseArray : (a -> Maybe b) -> Array.Array a -> Maybe (Array.Array b)
-traverseArray =
-    combineMapArray
 
 
 {-| Like [`combineMap`](#combineMap),

@@ -10,7 +10,6 @@ module List.Extra exposing
     , lift2, lift3, lift4
     , groupsOf, groupsOfWithStep, groupsOfVarying, greedyGroupsOf, greedyGroupsOfWithStep
     , joinOn
-    , filterNot
     )
 
 {-| Convenience functions for working with List
@@ -69,13 +68,6 @@ module List.Extra exposing
 # Joins
 
 @docs joinOn
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs filterNot
 
 -}
 
@@ -986,24 +978,6 @@ removeIfIndex predicate =
                 item :: acc
         )
         []
-
-
-{-| Take a predicate and a list, and return a list that contains elements which fails to satisfy the predicate.
-This is equivalent to `List.filter (not << predicate) list`.
-
-    isEven : Int -> Bool
-    isEven i =
-        modBy 2 i == 0
-
-    filterNot isEven [ 1, 2, 3, 4 ]
-    --> [ 1, 3 ]
-
-@deprecated in favour of `List.Extra.removeWhen`.
-
--}
-filterNot : (a -> Bool) -> List a -> List a
-filterNot pred list =
-    List.filter (not << pred) list
 
 
 {-| Take a predicate and a list, and return a list that contains elements which fails to satisfy the predicate.

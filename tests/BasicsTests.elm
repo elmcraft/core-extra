@@ -2,9 +2,7 @@ module BasicsTests exposing (suite)
 
 import Basics.Extra
     exposing
-        ( atLeast
-        , atMost
-        , curry
+        ( curry
         , flip
         , inDegrees
         , inRadians
@@ -16,7 +14,6 @@ import Basics.Extra
         , safeIntegerDivide
         , safeModBy
         , safeRemainderBy
-        , swap
         , uncurry
         )
 import Expect exposing (Expectation, FloatingPointTolerance(..))
@@ -26,8 +23,7 @@ import Test exposing (Test, describe, test)
 suite : Test
 suite =
     describe "Basics.Extra additional doc tests"
-        [ swapTest
-        , numbersTests
+        [ numbersTests
         , inDegreesTest
         , inRadiansDocTests
         , inTurnsDocTests
@@ -38,13 +34,6 @@ suite =
 expectAlmostEqual : Float -> Float -> Expectation
 expectAlmostEqual =
     Expect.within (Absolute 1.0e-20)
-
-
-swapTest : Test
-swapTest =
-    test "swap swaps" <|
-        \() ->
-            swap ( 2, 0 ) |> swap |> Expect.equal ( 2, 0 )
 
 
 numbersTests : Test
@@ -69,24 +58,6 @@ numbersTests =
                         minSafeInteger - 1 |> isSafeInteger |> Expect.equal False
                     , \() ->
                         maxSafeInteger + 1 |> isSafeInteger |> Expect.equal False
-                    ]
-                    ()
-        , test "defines an upper bound for a variable" <|
-            \() ->
-                Expect.all
-                    [ \() ->
-                        42 |> atMost 0 |> Expect.equal 0
-                    , \() ->
-                        -42 |> atMost 0 |> Expect.equal -42
-                    ]
-                    ()
-        , test "defines a lower bound for a variable" <|
-            \() ->
-                Expect.all
-                    [ \() ->
-                        -42 |> atLeast 0 |> Expect.equal 0
-                    , \() ->
-                        42 |> atLeast 0 |> Expect.equal 42
                     ]
                     ()
         , test "divides a floating point number safely" <|

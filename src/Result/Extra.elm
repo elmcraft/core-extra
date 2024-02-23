@@ -4,7 +4,6 @@ module Result.Extra exposing
     , andMap
     , or, orLazy, orElseLazy, orElse
     , toTask
-    , singleton
     )
 
 {-| Convenience functions for working with `Result`.
@@ -33,13 +32,6 @@ module Result.Extra exposing
 # Conversions
 
 @docs toTask
-
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs singleton
 
 -}
 
@@ -284,20 +276,6 @@ combineMapBoth f g t =
 
 
 -- Applying
-
-
-{-| Create a `singleton` from a value to an `Result` with a `Ok`
-of the same type. Also known as `pure`. You can use the `Err`
-constructor for a singleton of the `Err` variety.
-
-    singleton 2 == Ok 2
-
-@deprecated Just use `Ok`. It's also a function and your readers will thank you.
-
--}
-singleton : a -> Result e a
-singleton =
-    Ok
 
 
 {-| Apply the function that is inside `Result` to a value that is inside
