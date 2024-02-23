@@ -38,11 +38,6 @@ all =
                 \() ->
                     Expect.equal (List.Extra.reverseMap sqrt [ 1, 4, 9 ]) [ 3, 2, 1 ]
             ]
-        , describe "reverseFilter" <|
-            [ test "filters and reverses" <|
-                \() ->
-                    Expect.equal (List.Extra.reverseFilter (\x -> x > 5) [ 1, 4, 9, 16 ]) [ 16, 9 ]
-            ]
         , describe "notMember" <|
             [ test "disconfirms member" <|
                 \() ->

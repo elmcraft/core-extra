@@ -2,7 +2,6 @@ module Array.Extra.Map2 exposing (withGet, withListMap2, withUncons)
 
 import Array exposing (Array)
 import Array.Extra
-import Html exposing (b)
 
 
 withListMap2 : (a -> b -> c) -> Array a -> Array b -> Array c
