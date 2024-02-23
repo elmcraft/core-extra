@@ -49,8 +49,7 @@ If you are proposing a new function be added, please adhere to the following..
 1. Include [documentation](http://package.elm-lang.org/help/documentation-format) and make sure your documentation has a code snippet demonstrating what the function does. We use [elm-verify-examples](https://github.com/stoeffel/elm-verify-examples) in our CI set up which verifies our examples that our example code is correct, so please take advantage of that.
 2. Provide a detailed use case where your new function would be useful. Also, compare your new function to the best possible implementation that doesn't use your function.
 3. Add tests.
-
-If you are improving existing functions please demonstrate the performance gains in something like [Ellie](https://ellie-app.com/) and by using a benchmark library like [this one](https://github.com/elm-explorations/benchmark).
+4. For performance improvements write benchmarks into the benchmarks directory.
 
 ## Contributors
 
