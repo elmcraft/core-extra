@@ -4,8 +4,6 @@ This is a large collection of utility-style functions pertaining to the Elm stan
 
 ## Upgrading
 
-(This will work once we release this library)
-
 This library is a successor to all the elm-community/\*-extra packages, as well as several other community packages, such as GlobalWebIndex/cmd-extra, hayleigh-dot-dev/tuple-extra, stoeffel/set-extra, matthewsj/elm-ordering (albeit somewhat lossely that one).
 
 Since this single library subsumes all of these, we recommend using some of the following to update.
