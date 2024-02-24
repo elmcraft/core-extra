@@ -426,15 +426,13 @@ suite =
                 (Fuzz.array Fuzz.int)
                 "more elements than functions"
                 (\after4 ->
-                    Array.append (Array.repeat 4 100) after4
-                        |> Array.apply
-                            (Array.fromList
-                                [ negate
-                                , identity
-                                , \n -> n + 10
-                                , \_ -> 0
-                                ]
-                            )
+                    Array.fromList
+                        [ negate
+                        , identity
+                        , \n -> n + 10
+                        , \_ -> 0
+                        ]
+                        |> Array.andMap (Array.append (Array.repeat 4 100) after4)
                         |> expectEqualArrays
                             (Array.fromList [ -100, 100, 110, 0 ])
                 )
@@ -442,12 +440,10 @@ suite =
                 (Fuzz.array (Fuzz.constant (\_ -> 0)))
                 "more functions than elements"
                 (\after3 ->
-                    Array.repeat 3 100
-                        |> Array.apply
-                            (Array.append
-                                (Array.fromList [ negate, identity, \n -> n + 10 ])
-                                after3
-                            )
+                    Array.append
+                        (Array.fromList [ negate, identity, \n -> n + 10 ])
+                        after3
+                        |> Array.andMap (Array.repeat 3 100)
                         |> expectEqualArrays
                             (Array.fromList [ -100, 100, 110 ])
                 )
@@ -862,7 +858,7 @@ suite =
                 "lengths add up"
                 (\{ base, toInterweave } ->
                     base
-                        |> Array.interweave toInterweave
+                        |> Array.interweave_ toInterweave
                         |> Array.length
                         |> Expect.equal
                             ((base |> Array.length)
@@ -871,13 +867,13 @@ suite =
                 )
             , Test.fuzz2 (Fuzz.list Fuzz.int) (Fuzz.list Fuzz.int) "works the same as List.Extra.interweave (well, should but the arguments are reversed for some reason.)" <|
                 \a b ->
-                    Array.interweave (Array.fromList a) (Array.fromList b)
-                        |> Expect.equal (Array.fromList (List.Extra.interweave b a))
+                    Array.interweave_ (Array.fromList a) (Array.fromList b)
+                        |> Expect.equal (Array.fromList (List.Extra.interweave a b))
             , test "less to interweave"
                 (\() ->
-                    Array.fromList [ "a0", "a1", "a2" ]
-                        |> Array.interweave
-                            (Array.fromList [ "b0" ])
+                    Array.fromList [ "b0" ]
+                        |> Array.interweave_
+                            (Array.fromList [ "a0", "a1", "a2" ])
                         |> expectEqualArrays
                             (Array.fromList
                                 [ "a0", "b0", "a1", "a2" ]
@@ -885,9 +881,9 @@ suite =
                 )
             , test "more to interweave"
                 (\() ->
-                    Array.fromList [ "a0", "a1", "a2" ]
-                        |> Array.interweave
-                            (Array.fromList [ "b0", "b1", "b2", "b3", "b4" ])
+                    Array.fromList [ "b0", "b1", "b2", "b3", "b4" ]
+                        |> Array.interweave_
+                            (Array.fromList [ "a0", "a1", "a2" ])
                         |> expectEqualArrays
                             (Array.fromList
                                 [ "a0", "b0", "a1", "b1", "a2", "b2", "b3", "b4" ]

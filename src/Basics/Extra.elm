@@ -4,7 +4,6 @@ module Basics.Extra exposing
     , safeModBy, safeRemainderBy
     , inDegrees, inRadians, inTurns
     , flip, curry, uncurry
-    , swap, atMost, atLeast, fractionalModBy, orderBy, toOrder, toOrderDesc
     )
 
 {-| Additional basic functions.
@@ -30,29 +29,7 @@ module Basics.Extra exposing
 
 @docs flip, curry, uncurry
 
-
-# Deprecated functions
-
-These functions are deprecated and **will be removed** in the next major version of this library.
-
-@docs swap, atMost, atLeast, fractionalModBy, orderBy, toOrder, toOrderDesc
-
 -}
-
-import Float.Extra
-import Order.Extra
-
-
-{-| Swaps the elements in a pair.
-
-    swap ( 1, 2 ) --> ( 2, 1 )
-
-@deprecated in favour of `Tuple.Extra.flip`.
-
--}
-swap : ( a, b ) -> ( b, a )
-swap ( a, b ) =
-    ( b, a )
 
 
 {-| The maximum _safe_ value for an integer, defined as `2^53 - 1`. Anything
@@ -90,34 +67,6 @@ minSafeInteger =
 isSafeInteger : Int -> Bool
 isSafeInteger number =
     minSafeInteger <= number && maxSafeInteger >= number
-
-
-{-| Defines an upper bound for a variable.
-
-    42 |> atMost 0 --> 0
-
-    -42 |> atMost 0 --> -42
-
-@deprecated in favour of `min`
-
--}
-atMost : comparable -> comparable -> comparable
-atMost =
-    min
-
-
-{-| Defines a lower bound for a variable.
-
-    -42 |> atLeast 0 --> 0
-
-    42 |> atLeast 0 --> 42
-
-@deprecated in favour of `max`
-
--}
-atLeast : comparable -> comparable -> comparable
-atLeast =
-    max
 
 
 {-| Perform floating-point division (like Elm's `/` operator) that will never
@@ -209,28 +158,6 @@ safeRemainderBy divisor x =
         Just (remainderBy divisor x)
 
 
-{-| Perform [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic)
-involving floating point numbers.
-
-The sign of the result is the same as the sign of the `modulus`
-in `fractionalModBy modulus x`.
-
-    fractionalModBy 2.5 5 --> 0
-
-    fractionalModBy 2 4.5 == 0.5
-
-    fractionalModBy 2 -4.5 == 1.5
-
-    fractionalModBy -2 4.5 == -1.5
-
-@deprecated in favour of `Float.Extra.modBy`
-
--}
-fractionalModBy : Float -> Float -> Float
-fractionalModBy =
-    Float.Extra.modBy
-
-
 {-| Convert standard Elm angles (radians) to degrees.
 
     inDegrees (turns 2) --> 720
@@ -288,148 +215,3 @@ This combines two arguments into a single pair.
 uncurry : (a -> b -> c) -> ( a, b ) -> c
 uncurry f ( a, b ) =
     f a b
-
-
-{-| Create an ordering function that can be used to sort
-lists by multiple dimensions, by flattening multiple ordering functions into one.
-
-This is equivalent to `ORDER BY` in SQL. The ordering function will order
-its inputs based on the order that they appear in the `List (a -> a -> Order)` argument.
-
-    type alias Pen =
-        { model : String
-        , tipWidthInMillimeters : Float
-        }
-
-    pens : List Pen
-    pens =
-        [ Pen "Pilot Hi-Tec-C Gel" 0.4
-        , Pen "Morning Glory Pro Mach" 0.38
-        , Pen "Pilot Hi-Tec-C Coleto" 0.5
-        ]
-
-    order : Pen -> Pen -> Order
-    order =
-        orderBy [ toOrder .tipWidthInMillimeters, toOrder .model ]
-
-    List.sortWith order pens
-    --> [ Pen "Morning Glory Pro Mach" 0.38
-    --> , Pen "Pilot Hi-Tec-C Gel" 0.4
-    --> , Pen "Pilot Hi-Tec-C Coleto" 0.5
-    --> ]
-
-If our `Pen` type alias above was represented a row in a database table, our `order` function as defined above would be equivalent
-to this SQL clause:
-
-    ORDER BY tipWidthInMillimeters, model
-
-@deprected in favor of Order.Extra.breakTies
-
--}
-orderBy : List (a -> a -> Order) -> (a -> a -> Order)
-orderBy =
-    Order.Extra.breakTies
-
-
-{-| Helper for multi-dimensional sort.
-
-Takes a function that extracts a comparable value from a type `a` as a key,
-and returns a function `a -> a -> Order`.
-
-This is primarily a helper function for the `orderBy` function above.
-
-    {- Simple example: wrapping a function that turns
-       a custom type into an instance of `comparable`
-    -}
-
-    type Color
-        = Red
-        | Yellow
-        | Green
-
-    colorToComparable : Color -> Int
-    colorToComparable light =
-        case light of
-            Red -> 0
-            Yellow -> 1
-            Green -> 2
-
-    colorToOrder : Color -> Color -> Order
-    colorToOrder =
-        toOrder colorToComparable
-
-    List.sortWith
-        colorToOrder
-        [ Yellow, Yellow, Red, Green, Red ]
-    --> [ Red, Red, Yellow, Yellow, Green ]
-
-
-    {- More interesting example: using the property accessor
-       methods on a custom type with `toOrder`; we only need
-       this function when we want to combine multiple ordering functions into one.
-    -}
-
-    type alias Light =
-        { color : Color
-        , action : String
-        , timeActivatedSeconds : Float
-        }
-
-    lights : List Light
-    lights =
-        [ Light Green "Go" 60
-        , Light Yellow "Slow down" 5.5
-        , Light Red "Stop" 60
-        ]
-
-    List.sortWith
-        ( orderBy
-            [ toOrder .timeActivatedSeconds
-            , toOrder (.color >> colorToComparable)
-            ]
-        )
-        lights
-    --> [ Light Yellow "Slow down" 5.5
-    --> , Light Red "Stop" 60
-    --> , Light Green "Go" 60
-    --> ]
-
-(Note that `List.sortWith colorOrder` above is identical to `List.sortBy colorToComparable`.)
-
-@deprecated in favour of Order.Extra.byField.
-
--}
-toOrder : (a -> comparable) -> (a -> a -> Order)
-toOrder selector a b =
-    Basics.compare (selector a) (selector b)
-
-
-{-| Same as `toOrder`, with flipped comparisons to enable "sort by descending".
-
-    type Color
-        = Red
-        | Yellow
-        | Green
-
-    colorToComparable : Color -> Int
-    colorToComparable light =
-        case light of
-            Red -> 0
-            Yellow -> 1
-            Green -> 2
-
-    colorToOrder : Color -> Color -> Order
-    colorToOrder =
-        toOrderDesc colorToComparable
-
-    List.sortWith
-        colorToOrder
-        [ Yellow, Yellow, Red, Green, Red ]
-    --> [ Green, Yellow, Yellow, Red, Red ]
-
-@deprecated in favour of `Order.Extra.byField >> Order.Extra.reverse`
-
--}
-toOrderDesc : (a -> comparable) -> (a -> a -> Order)
-toOrderDesc selector a b =
-    Basics.compare (selector b) (selector a)
