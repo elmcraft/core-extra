@@ -4,7 +4,7 @@ This is a large collection of utility-style functions pertaining to the Elm stan
 
 ## Upgrading
 
-This library is a successor to all the elm-community/\*-extra packages, as well as several other community packages, such as GlobalWebIndex/cmd-extra, hayleigh-dot-dev/tuple-extra, stoeffel/set-extra, matthewsj/elm-ordering (albeit somewhat lossely that one).
+This library is a successor to all the elm-community/\*-extra packages, as well as several other community packages, such as GlobalWebIndex/cmd-extra, hayleigh-dot-dev/tuple-extra, stoeffel/set-extra, matthewsj/elm-ordering (albeit somewhat loosely that one).
 
 Since this single library subsumes all of these, we recommend using some of the following to update.
 
@@ -20,7 +20,7 @@ elm-json uninstall elm-community/array-extra elm-community/basics-extra elm-comm
 
 elm make src/Main.elm # or whatever else you use to build your application
 # There shouldn't be any errors, but if there somehow are any, now would be a good time to fix them.
-elm-test # Also, should work exactly the same. Please report any issues.
+elm-test # should also work exactly the same. Please report any issues.
 
 git commit -am "Completed step 1 in upgrade"
 ```
@@ -34,22 +34,22 @@ Since we combined a large number of source libraries, we have done some work to 
 ```bash
 git status # make sure you have a clean working tree, in case you want to revert
 
-npx elm-review --template elmcraft/core-extra/upgrade#2.0.0 --fix
-# You can run this command multiple times, if you want to abort and fix stuff automatically
+npx elm-review --template elmcraft/core-extra/upgrade/2.0.0 --fix
+# You can run this command multiple times if you want to abort and fix stuff manually
 
-elm-json install elmcraft/core-extra@2 # upgrade to version 2, that no longer contains deprecated functions
+elm-json install elmcraft/core-extra@2 # upgrade to version 2 which no longer contains deprecated functions
 ```
 
 ## Contributing
 
 Pull requests are welcome. You can expect some kind of response within 14 days.
 
-If you are proposing a new function be added, please adhere to the following..
+If you are proposing a new function be added, please adhere to the following:
 
-1. Include [documentation](http://package.elm-lang.org/help/documentation-format) and make sure your documentation has a code snippet demonstrating what the function does. We use [elm-verify-examples](https://github.com/stoeffel/elm-verify-examples) in our CI set up which verifies our examples that our example code is correct, so please take advantage of that.
+1. Include [documentation](http://package.elm-lang.org/help/documentation-format) and make sure your documentation has a code snippet demonstrating what the function does. We use [elm-verify-examples](https://github.com/stoeffel/elm-verify-examples) in our CI setup which verifies that our example code is correct, so please take advantage of that.
 2. Provide a detailed use case where your new function would be useful. Also, compare your new function to the best possible implementation that doesn't use your function.
 3. Add tests.
-4. For performance improvements write benchmarks into the benchmarks directory.
+4. To measure performance of different implementations, add benchmarks in the benchmarks directory.
 
 ## Contributors
 
