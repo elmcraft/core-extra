@@ -13,14 +13,14 @@ Since this single library subsumes all of these, we recommend using some of the 
 ```bash
 npm i -g elm-json # if you don't already have it
 
-git checkout -b core-extra-upgrade # make sure you have a clean working tree, in case you want to revert
+git checkout -b core-extra-upgrade # Make sure you have a clean working tree, in case you want to revert
 
 elm-json install elmcraft/core-extra@1 # v1 is a backwards compatible version
 elm-json uninstall elm-community/array-extra elm-community/basics-extra elm-community/dict-extra elm-community/list-extra elm-community/maybe-extra elm-community/result-extra elm-community/string-extra GlobalWebIndex/cmd-extra hayleigh-dot-dev/tuple-extra stoeffel/set-extra
 
 elm make src/Main.elm # or whatever else you use to build your application
 # There shouldn't be any errors, but if there somehow are any, now would be a good time to fix them.
-elm-test # should also work exactly the same. Please report any issues.
+elm-test # Should also work exactly the same. Please report any issues.
 
 git commit -am "Completed step 1 in upgrade"
 ```
