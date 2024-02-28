@@ -492,9 +492,9 @@ This can be helpful when the value of a succeeding Task needs to be decoded, but
 a failure to decode should result in a failing `Task`, not a succeeding Task
 containing a `Result.Err`:
 
-andThenDecode : (a -> Result x b) -> Task x a -> Task x b
-andThenDecode decode =
-Task.andThen (decode >> Result.Extra.toTask)
+    andThenDecode : (a -> Result x b) -> Task x a -> Task x b
+    andThenDecode decode =
+        Task.andThen (decode >> Result.Extra.toTask)
 
 -}
 toTask : Result x a -> Task x a
