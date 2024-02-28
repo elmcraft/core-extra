@@ -62,6 +62,8 @@ module List.Extra exposing
 
 # Split to groups of given size
 
+> Note that (due to their usage of `List.take` from _elm/core_) the following functions are not always **strictly tail recursive**. For some large tasks it is possible you may run into runtime errors by exceeding the maximum call stack size. For help in this look [here](https://github.com/elmcraft/core-extra.git) and [here](https://github.com/elmcraft/core-extra.git).
+
 @docs groupsOf, groupsOfWithStep, groupsOfVarying, greedyGroupsOf, greedyGroupsOfWithStep
 
 
