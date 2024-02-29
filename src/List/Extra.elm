@@ -2011,7 +2011,7 @@ groupsOfWithStep size step list =
                 else
                     let
                         thisGroup =
-                            List.take size xs
+                            takeTailRec size xs
                     in
                     if size == List.length thisGroup then
                         let
@@ -2024,6 +2024,45 @@ groupsOfWithStep size step list =
                         List.reverse acc
         in
         go list []
+
+
+{- List.take starts out non-tail-recursive and switches to a tail-recursive
+   implementation after the first 1000 iterations.  For functions which are themselves
+   recursive and use List.take on each call (e.g. List.Extra.groupsOf), this can result
+   in potential call stack overflow from the successive accumulation of up to 1000-long
+   non-recursive List.take calls.  Here we provide an always tail recursive version of
+   List.take to avoid this problem.  The code is taken directly from the implementation
+   of elm/core and carries the following copywrite:
+
+   Copyright 2014-present Evan Czaplicki
+
+   Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+   3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-}
+takeTailRec : Int -> List a -> List a
+takeTailRec n list =
+    List.reverse (takeReverse n list [])
+
+
+takeReverse : Int -> List a -> List a -> List a
+takeReverse n list kept =
+    if n <= 0 then
+        kept
+
+    else
+        case list of
+            [] ->
+                kept
+
+            x :: xs ->
+                takeReverse (n - 1) xs (x :: kept)
 
 
 {-| `groupsOfVarying ns` takes `n` elements from a list for each `n` in `ns`, splitting the list into variably sized segments
@@ -2105,7 +2144,7 @@ greedyGroupsOfWithStep size step list =
                 else
                     go
                         (List.drop step xs)
-                        (List.take size xs :: acc)
+                        (takeTailRec size xs :: acc)
         in
         go list []
 
