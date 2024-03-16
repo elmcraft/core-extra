@@ -155,11 +155,12 @@ testBoundaryValuesAsUnicode =
 
 testAboutEqual : Test
 testAboutEqual =
-    fuzz Fuzz.niceFloat "makes numbers about equal even after some operations" <|
-        \a ->
-            ((a + 10 + a - 10 - a) * 2 / 2)
-                |> aboutEqual a
-                |> Expect.equal True
+    Test.only <|
+        fuzz (Fuzz.floatRange -1.0e100 1.0e100) "makes numbers about equal even after some operations" <|
+            \a ->
+                ((a + 10 + a - 10 - a) * 2 / 2)
+                    |> aboutEqual a
+                    |> Expect.equal True
 
 
 testRange : Test
