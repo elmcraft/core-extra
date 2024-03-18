@@ -2026,6 +2026,7 @@ groupsOfWithStep size step list =
         go list []
 
 
+
 {- List.take starts out non-tail-recursive and switches to a tail-recursive
    implementation after the first 1000 iterations.  For functions which are themselves
    recursive and use List.take on each call (e.g. List.Extra.groupsOf), this can result
@@ -2035,6 +2036,8 @@ groupsOfWithStep size step list =
    of elm/core and carries the following copywrite:
 
 -}
+
+
 takeTailRec : Int -> List a -> List a
 takeTailRec n list =
     List.reverse (takeReverse n list [])
