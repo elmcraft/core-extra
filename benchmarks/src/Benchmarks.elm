@@ -20,6 +20,7 @@ import Benchmark.Runner.Alternative as BenchmarkRunner
 import List.Extra
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
+import List.Extra.GroupsOf
 import Set exposing (Set)
 import Set.Extra.AreDisjoint
 import Set.Extra.SymmetricDifference
@@ -29,13 +30,15 @@ import String.Extra.IsBlank
 main : BenchmarkRunner.Program
 main =
     describe "for core-extra"
-        [ application
-        , array
-        , arrayExtra
-        , listExtra
-        , tupleExtra
-        , setExtra
-        , stringExtra
+        [ 
+        --     application
+        -- , array
+        -- , arrayExtra
+        -- , 
+        listExtra
+        -- , tupleExtra
+        -- , setExtra
+        -- , stringExtra
         ]
         |> BenchmarkRunner.program
 
@@ -182,17 +185,40 @@ listExtra =
             List.range 1 100
     in
     describe "List.Extra"
-        [ rank "uniquePairs"
+        ([ rank "uniquePairs"
             (\uniquePairs -> uniquePairs intList)
             [ ( "original (++)", List.Extra.UniquePairs.originalConcat )
             , ( "tail-recursive", List.Extra.UniquePairs.tailRecursive )
             ]
-        , rank "unfoldr"
+         , rank "unfoldr"
             (\unfoldr -> unfoldr subtractOneUntilZero 100)
             [ ( "original", List.Extra.Unfoldr.nonTailRecursive )
             , ( "tail-recursive", List.Extra.Unfoldr.tailRecursive )
             ]
+         ]
+            ++ List.concatMap toComparisonsGroupsOfWithStep (List.range 1 4)
+        )
+
+toComparisonsGroupsOfWithStep : Int -> List Benchmark
+toComparisonsGroupsOfWithStep exponent =
+    let
+        listSize =
+            10 ^ exponent
+
+        range =
+            List.range 1 listSize
+    in
+    [ rank ("groupsOfWithStep 3 2 [1.." ++ String.fromInt listSize ++ "]")
+        (\impl -> impl 3 2 range)
+        [ ( "using elm-core's List.tail", List.Extra.GroupsOf.coreTailGroupsOfWithStep )
+        , ( "using fully tail-recursive List.tail", List.Extra.GroupsOf.tailRecGroupsOfWithStep )
         ]
+    , rank ("greedyGroupsOfWithStep 3 2 [1.." ++ String.fromInt listSize ++ "]")
+        (\impl -> impl 3 2 range)
+        [ ( "using elm-core's List.tail", List.Extra.GroupsOf.coreTailGreedyGroupsOfWithStep )
+        , ( "using fully tail-recursive List.tail", List.Extra.GroupsOf.tailRecGreedyGroupsOfWithStep )
+        ]
+    ]
 
 
 tupleExtra : Benchmark
