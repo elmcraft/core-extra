@@ -17,7 +17,8 @@
         "Result.Extra",
         "Set.Extra",
         "String.Extra",
-        "Tuple.Extra"
+        "Tuple.Extra",
+        "Triple.Extra"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
