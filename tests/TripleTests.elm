@@ -9,11 +9,11 @@ import Triple.Extra
 suite : Test
 suite =
     describe "Triple.Extra"
-        [ Test.fuzz (Fuzz.triple Fuzz.int Fuzz.int Fuzz.int) "behaves like list sort" <|
+        [ Test.fuzz (Fuzz.triple Fuzz.int Fuzz.int Fuzz.int) "sortWith behaves like list sort" <|
             \triple ->
                 triple
                     |> Triple.Extra.toList
                     |> List.sort
-                    |> Triple.Extra.fromListHead
-                    |> Expect.equal (Just (Triple.Extra.sort triple))
+                    |> Triple.Extra.fromList
+                    |> Expect.equal (Just (Triple.Extra.sortWith compare triple))
         ]
