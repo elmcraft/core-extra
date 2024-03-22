@@ -2033,7 +2033,7 @@ groupsOfWithStep size step list =
    in potential call stack overflow from the successive accumulation of up to 1000-long
    non-recursive List.take calls.  Here we provide an always tail recursive version of
    List.take to avoid this problem.  The code is taken directly from the implementation
-   of elm/core and carries the following copywrite:
+   of elm/core and shares its copyright (see LICENSE file).
 
 -}
 
