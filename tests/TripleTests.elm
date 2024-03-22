@@ -14,6 +14,5 @@ suite =
                 triple
                     |> Triple.Extra.toList
                     |> List.sort
-                    |> Triple.Extra.fromList
-                    |> Expect.equal (Just (Triple.Extra.sortWith compare triple))
+                    |> Expect.equal (Triple.Extra.sortWith compare triple |> Triple.Extra.toList)
         ]

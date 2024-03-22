@@ -4,7 +4,7 @@ module Triple.Extra exposing
     , first, second, third
     , apply, sortWith
     , map, mapFirst, mapSecond, mapThird
-    , toList, fromList
+    , toList
     )
 
 {-| Convenience functions for 3-Tuples (also known as Triple).
@@ -40,7 +40,7 @@ This is good advice! However triples do have their usecases for anonymous groupi
 
 # Lists
 
-@docs toList, fromList
+@docs toList
 
 -}
 
@@ -235,22 +235,3 @@ map f ( a, b, c ) =
 toList : ( a, a, a ) -> List a
 toList ( a, b, c ) =
     [ a, b, c ]
-
-
-{-| Creates a triple from the first three elements of a list.
-
-    Triple.Extra.fromList [ 1, 2, 3, 4 ]
-        --> Just ( 1, 2, 3 )
-
-    Triple.Extra.fromList [ 1, 2 ]
-        --> Nothing
-
--}
-fromList : List a -> Maybe ( a, a, a )
-fromList lst =
-    case lst of
-        a :: b :: c :: _ ->
-            Just ( a, b, c )
-
-        _ ->
-            Nothing
