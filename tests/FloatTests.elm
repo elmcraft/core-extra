@@ -1,7 +1,7 @@
 module FloatTests exposing (modByTests, testAboutEqual, testBoundaryValuesAsUnicode, testRange, testToFixedDecimalPlaces, testToFixedSignificantDigits)
 
 import Expect exposing (FloatingPointTolerance(..))
-import Float.Extra exposing (aboutEqual)
+import Float.Extra
 import Fuzz exposing (Fuzzer)
 import List.Extra exposing (Step(..))
 import Test exposing (Test, describe, fuzz, fuzz2, test)
@@ -155,11 +155,63 @@ testBoundaryValuesAsUnicode =
 
 testAboutEqual : Test
 testAboutEqual =
-    fuzz Fuzz.niceFloat "makes numbers about equal even after some operations" <|
-        \a ->
-            ((a + 10 + a - 10 - a) * 2 / 2)
-                |> aboutEqual a
-                |> Expect.equal True
+    describe "aboutEqual should compare numbers as equal within a reasonable tolerance"
+        [ fuzz Fuzz.niceFloat "makes numbers about equal even after some operations" <|
+            \a ->
+                ((a + 10 + a - 10 - a) * 2 / 2)
+                    |> Float.Extra.aboutEqual a
+                    |> Expect.equal True
+        , fuzz Fuzz.niceFloat "NaN is not equal to any 'nice' float" <|
+            \a ->
+                (0 / 0)
+                    |> Float.Extra.aboutEqual a
+                    |> Expect.equal False
+        , fuzz Fuzz.niceFloat "no 'nice' float is equal to NaN" <|
+            \a ->
+                a
+                    |> Float.Extra.aboutEqual (0 / 0)
+                    |> Expect.equal False
+        , test "positive infinity equals positive infinity" <|
+            \() ->
+                (1 / 0)
+                    |> Float.Extra.aboutEqual (2 / 0)
+                    |> Expect.equal True
+        , test "negative infinity equals negative infinity" <|
+            \() ->
+                (-1 / 0)
+                    |> Float.Extra.aboutEqual (-2 / 0)
+                    |> Expect.equal True
+        , test "positive infinity does not equal negative infinity" <|
+            \() ->
+                (1 / 0)
+                    |> Float.Extra.aboutEqual (-1 / 0)
+                    |> Expect.equal False
+        , test "positive infinity does not equal NaN" <|
+            \() ->
+                (1 / 0)
+                    |> Float.Extra.aboutEqual (0 / 0)
+                    |> Expect.equal False
+        , test "NaN does not equal positive infinity" <|
+            \() ->
+                (0 / 0)
+                    |> Float.Extra.aboutEqual (1 / 0)
+                    |> Expect.equal False
+        , test "negative infinity does not equal NaN" <|
+            \() ->
+                (-1 / 0)
+                    |> Float.Extra.aboutEqual (0 / 0)
+                    |> Expect.equal False
+        , test "NaN does not equal negative infinity" <|
+            \() ->
+                (0 / 0)
+                    |> Float.Extra.aboutEqual (-1 / 0)
+                    |> Expect.equal False
+        , test "NaN does not equal NaN" <|
+            \() ->
+                (0 / 0)
+                    |> Float.Extra.aboutEqual (0 / 0)
+                    |> Expect.equal False
+        ]
 
 
 testRange : Test

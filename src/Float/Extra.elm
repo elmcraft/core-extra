@@ -336,11 +336,8 @@ This value handles Infinity and NaN like so:
 -}
 aboutEqual : Float -> Float -> Bool
 aboutEqual a b =
-    if isInfinite a then
-        isInfinite b
-
-    else if isInfinite b then
-        False
+    if isInfinite a || isInfinite b then
+        a == b
 
     else
         abs (a - b) <= 1.0e-5 + 1.0e-8 * abs a

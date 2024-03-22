@@ -1,6 +1,6 @@
 module Set.Extra exposing
     ( toggle
-    , isSupersetOf, isSubsetOf, areDisjoint
+    , isSupersetOf, isSubsetOf, areDisjoint, any, all
     , symmetricDifference
     , concatMap, filterMap
     )
@@ -15,7 +15,7 @@ module Set.Extra exposing
 
 # Predicates
 
-@docs isSupersetOf, isSubsetOf, areDisjoint
+@docs isSupersetOf, isSubsetOf, areDisjoint, any, all
 
 
 # Set operations
@@ -158,6 +158,44 @@ maybeCons f mx xs =
 areDisjoint : Set comparable -> Set comparable -> Bool
 areDisjoint a b =
     not (Set.foldl (\x so -> so || Set.member x b) False a)
+
+
+{-| Determine if any elements satisfy some test.
+
+    import Set exposing (Set)
+
+    Set.Extra.any (\n -> modBy 2 n == 0) (Set.fromList [ 2, 3 ])
+    --> True
+
+    Set.Extra.any (\n -> modBy 2 n == 0) (Set.fromList [ 1, 3 ])
+    --> False
+
+    Set.Extra.any (\n -> modBy 2 n == 0) Set.empty
+    --> False
+
+-}
+any : (a -> Bool) -> Set a -> Bool
+any isOkay set =
+    Set.foldl (\x acc -> acc || isOkay x) False set
+
+
+{-| Determine if all elements satisfy some test.
+
+    import Set exposing (Set)
+
+    Set.Extra.all (\n -> modBy 2 n == 0) (Set.fromList [ 2, 4 ])
+    --> True
+
+    Set.Extra.all (\n -> modBy 2 n == 0) (Set.fromList [ 2, 3 ])
+    --> False
+
+    Set.Extra.all (\n -> modBy 2 n == 0) Set.empty
+    --> True
+
+-}
+all : (a -> Bool) -> Set a -> Bool
+all isOkay set =
+    Set.foldl (\x acc -> acc && isOkay x) True set
 
 
 {-| The symmetric difference between two sets is a set that contains all the elements that are in one of the two sets, but not both.
