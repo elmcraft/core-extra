@@ -2011,7 +2011,7 @@ groupsOfWithStep size step list =
                 else
                     let
                         thisGroup =
-                            List.take size xs
+                            takeTailRec size xs
                     in
                     if size == List.length thisGroup then
                         let
@@ -2024,6 +2024,37 @@ groupsOfWithStep size step list =
                         List.reverse acc
         in
         go list []
+
+
+
+{- List.take starts out non-tail-recursive and switches to a tail-recursive
+   implementation after the first 1000 iterations.  For functions which are themselves
+   recursive and use List.take on each call (e.g. List.Extra.groupsOf), this can result
+   in potential call stack overflow from the successive accumulation of up to 1000-long
+   non-recursive List.take calls.  Here we provide an always tail recursive version of
+   List.take to avoid this problem.  The code is taken directly from the implementation
+   of elm/core and shares its copyright (see LICENSE file).
+
+-}
+
+
+takeTailRec : Int -> List a -> List a
+takeTailRec n list =
+    List.reverse (takeReverse n list [])
+
+
+takeReverse : Int -> List a -> List a -> List a
+takeReverse n list kept =
+    if n <= 0 then
+        kept
+
+    else
+        case list of
+            [] ->
+                kept
+
+            x :: xs ->
+                takeReverse (n - 1) xs (x :: kept)
 
 
 {-| `groupsOfVarying ns` takes `n` elements from a list for each `n` in `ns`, splitting the list into variably sized segments
@@ -2105,7 +2136,7 @@ greedyGroupsOfWithStep size step list =
                 else
                     go
                         (List.drop step xs)
-                        (List.take size xs :: acc)
+                        (takeTailRec size xs :: acc)
         in
         go list []
 
