@@ -1,6 +1,15 @@
-module FloatTests exposing (modByTests, testAboutEqual, testBoundaryValuesAsUnicode, testRange, testToFixedDecimalPlaces, testToFixedSignificantDigits)
+module FloatTests exposing
+    ( modByTests
+    , testAboutEqual
+    , testBoundaryValuesAsUnicode
+    , testEqualWithin
+    , testInterpolateFrom
+    , testRange
+    , testToFixedDecimalPlaces
+    , testToFixedSignificantDigits
+    )
 
-import Expect exposing (FloatingPointTolerance(..))
+import Expect exposing (Expectation, FloatingPointTolerance(..))
 import Float.Extra
 import Fuzz exposing (Fuzzer)
 import List.Extra exposing (Step(..))
@@ -214,6 +223,32 @@ testAboutEqual =
         ]
 
 
+testEqualWithin : Test
+testEqualWithin =
+    describe "equalWithin should compare numbers as equal within a given tolerance"
+        [ test "small positive error" <|
+            \() ->
+                Float.Extra.equalWithin 0.01 1 1.001
+                    |> Expect.equal True
+        , test "small negative error" <|
+            \() ->
+                Float.Extra.equalWithin 0.01 1 0.999
+                    |> Expect.equal True
+        , test "large positive error" <|
+            \() ->
+                Float.Extra.equalWithin 0.01 1 1.1
+                    |> Expect.equal False
+        , test "large negative error" <|
+            \() ->
+                Float.Extra.equalWithin 0.01 1 0.9
+                    |> Expect.equal False
+        , test "infinity not equal to itself within any finite tolerance" <|
+            \() ->
+                Float.Extra.equalWithin 0.01 (1 / 0) (1 / 0)
+                    |> Expect.equal False
+        ]
+
+
 testRange : Test
 testRange =
     describe "range start stop step"
@@ -364,3 +399,26 @@ modByTests =
                 Float.Extra.modBy (toFloat a) (toFloat b)
                     |> Expect.within (Absolute 1.0e-20) (toFloat (modBy a b))
         ]
+
+
+testInterpolateFrom : Test
+testInterpolateFrom =
+    describe "interpolateFrom"
+        [ fuzz2 Fuzz.niceFloat Fuzz.niceFloat "should return the start value exactly if given 0" <|
+            \a b -> Float.Extra.interpolateFrom a b 0 |> expectExactly a
+        , fuzz2 Fuzz.niceFloat Fuzz.niceFloat "should return the end value exactly if given 1" <|
+            \a b -> Float.Extra.interpolateFrom a b 1 |> expectExactly b
+        , fuzz2 Fuzz.niceFloat Fuzz.niceFloat "should return the mean if given 0.5" <|
+            \a b ->
+                Float.Extra.interpolateFrom a b 0.5
+                    |> Float.Extra.aboutEqual ((a + b) / 2)
+                    |> Expect.equal True
+        ]
+
+
+{-| In some cases (like above in testInterpolateFrom)
+you _do_ actually want to check two floating-point numbers for equality
+-}
+expectExactly : Float -> Float -> Expectation
+expectExactly expected actual =
+    actual |> Expect.within (Expect.Absolute 0.0) expected

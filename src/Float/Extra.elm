@@ -1,8 +1,9 @@
 module Float.Extra exposing
-    ( aboutEqual
+    ( aboutEqual, equalWithin
     , toFixedDecimalPlaces, toFixedSignificantDigits, boundaryValuesAsUnicode
     , range
     , modBy
+    , interpolateFrom
     )
 
 {-| Convenience functions for dealing with Floats.
@@ -10,7 +11,7 @@ module Float.Extra exposing
 
 # Equality
 
-@docs aboutEqual
+@docs aboutEqual, equalWithin
 
 
 # Formatting Floats
@@ -26,6 +27,11 @@ module Float.Extra exposing
 # Modular arithmetic
 
 @docs modBy
+
+
+# Interpolation
+
+@docs interpolateFrom
 
 -}
 
@@ -310,7 +316,7 @@ boundaryValuesAsUnicode formatter value =
 
 
 
--- aboutEqual
+-- Equality
 
 
 {-| Comparing Floats with `==` is usually wrong, unless you basically care for reference equality, since floating point
@@ -341,6 +347,20 @@ aboutEqual a b =
 
     else
         abs (a - b) <= 1.0e-5 + 1.0e-8 * abs a
+
+
+{-| Check if two values are equal within a given tolerance.
+
+    Float.Extra.equalWithin 1e-6 1.9999 2.0001
+    --> False
+
+    Float.Extra.equalWithin 1e-3 1.9999 2.0001
+    --> True
+
+-}
+equalWithin : Float -> Float -> Float -> Bool
+equalWithin tolerance firstValue secondValue =
+    abs (secondValue - firstValue) <= tolerance
 
 
 
@@ -408,3 +428,42 @@ in `Float.Extra.modBy modulus x`.
 modBy : Float -> Float -> Float
 modBy modulus x =
     x - modulus * toFloat (floor (x / modulus))
+
+
+{-| Interpolate from the first value to the second, based on a parameter that
+ranges from zero to one. Passing a parameter value of zero will return the start
+value and passing a parameter value of one will return the end value.
+
+    Float.Extra.interpolateFrom 5 10 0
+    --> 5
+
+    Float.Extra.interpolateFrom 5 10 1
+    --> 10
+
+    Float.Extra.interpolateFrom 5 10 0.6
+    --> 8
+
+The end value can be less than the start value:
+
+    Float.Extra.interpolateFrom 10 5 0.1
+    --> 9.5
+
+Parameter values less than zero or greater than one can be used to extrapolate:
+
+    Float.Extra.interpolateFrom 5 10 1.5
+    --> 12.5
+
+    Float.Extra.interpolateFrom 5 10 -0.5
+    --> 2.5
+
+    Float.Extra.interpolateFrom 10 5 -0.2
+    --> 11
+
+-}
+interpolateFrom : Float -> Float -> Float -> Float
+interpolateFrom start end parameter =
+    if parameter <= 0.5 then
+        start + parameter * (end - start)
+
+    else
+        end + (1 - parameter) * (start - end)
