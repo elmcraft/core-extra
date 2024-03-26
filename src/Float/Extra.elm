@@ -351,9 +351,11 @@ aboutEqual a b =
 
 {-| Check if two values are equal within a given tolerance.
 
-    Float.Extra.equalWithin 1.0e-6 1.9999 2.0001 --> False
+    Float.Extra.equalWithin 1.0e-6 1.9999 2.0001
+    --> False
 
-    Float.Extra.equalWithin 1.0e-3 1.9999 2.0001 --> True
+    Float.Extra.equalWithin 1.0e-3 1.9999 2.0001
+    --> True
 
 -}
 equalWithin : Float -> Float -> Float -> Bool
@@ -432,23 +434,23 @@ modBy modulus x =
 ranges from zero to one. Passing a parameter value of zero will return the start
 value and passing a parameter value of one will return the end value.
 
-    Float.Extra.interpolateFrom 5 10 0 --> 5
+    Float.Extra.interpolateFrom 5 10 0 == 5
 
-    Float.Extra.interpolateFrom 5 10 1 --> 10
+    Float.Extra.interpolateFrom 5 10 1 == 10
 
-    Float.Extra.interpolateFrom 5 10 0.6 --> 8
+    Float.Extra.interpolateFrom 5 10 0.6 == 8
 
 The end value can be less than the start value:
 
-    Float.Extra.interpolateFrom 10 5 0.1 --> 9.5
+    Float.Extra.interpolateFrom 10 5 0.1 == 9.5
 
 Parameter values less than zero or greater than one can be used to extrapolate:
 
-    Float.Extra.interpolateFrom 5 10 1.5 --> 12.5
+    Float.Extra.interpolateFrom 5 10 1.5 == 12.5
 
-    Float.Extra.interpolateFrom 5 10 -0.5 --> 2.5
+    Float.Extra.interpolateFrom 5 10 -0.5 == 2.5
 
-    Float.Extra.interpolateFrom 10 5 -0.2 --> 11
+    Float.Extra.interpolateFrom 10 5 -0.2 == 11
 
 -}
 interpolateFrom : Float -> Float -> Float -> Float
