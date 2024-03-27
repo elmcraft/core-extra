@@ -360,7 +360,11 @@ aboutEqual a b =
 -}
 equalWithin : Float -> Float -> Float -> Bool
 equalWithin tolerance firstValue secondValue =
-    abs (secondValue - firstValue) <= tolerance
+    if isInfinite firstValue || isInfinite secondValue then
+        firstValue == secondValue
+
+    else
+        abs (secondValue - firstValue) <= tolerance
 
 
 
