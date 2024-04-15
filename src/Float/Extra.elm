@@ -456,11 +456,12 @@ Parameter values less than zero or greater than one can be used to extrapolate:
 
     Float.Extra.interpolateFrom 10 5 -0.2 == 11
 
+Note that in some cases, due to numerical roundoff, passing a parameter value of 1.0
+may not return _exactly_ the end value, e.g.
+
+    Float.Extra.interpolateFrom 1.0e6 1.0e-6 1.0 == 1.00000761449337e-6
+
 -}
 interpolateFrom : Float -> Float -> Float -> Float
 interpolateFrom start end parameter =
-    if parameter <= 0.5 then
-        start + parameter * (end - start)
-
-    else
-        end + (1 - parameter) * (start - end)
+    start + parameter * (end - start)
