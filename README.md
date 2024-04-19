@@ -35,7 +35,7 @@ Since we combined a large number of source libraries, we have done some work to 
 git status # make sure you have a clean working tree, in case you want to revert
 
 npx elm-review --template elmcraft/core-extra/upgrade/2.0.0 --fix
-# You can run this command multiple times if you' like to abort and make changes manually
+# You can run this command multiple times if you'd like to abort and make changes manually
 
 elm-json install elmcraft/core-extra@2 # upgrade to version 2 which no longer contains deprecated functions
 ```
