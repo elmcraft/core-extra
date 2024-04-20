@@ -4,7 +4,7 @@ This is a large collection of utility-style functions pertaining to the Elm stan
 
 ## Upgrading
 
-This library is a successor to all the elm-community/\*-extra packages, as well as several other community packages, such as GlobalWebIndex/cmd-extra, hayleigh-dot-dev/tuple-extra, stoeffel/set-extra, matthewsj/elm-ordering (albeit somewhat loosely that one).
+This library is a successor to all the elm-community/\*-extra packages related to elm/core, as well as several other community packages, such as GlobalWebIndex/cmd-extra, hayleigh-dot-dev/tuple-extra, stoeffel/set-extra, matthewsj/elm-ordering (albeit somewhat loosely that one).
 
 Since this single library subsumes all of these, we recommend using some of the following to update.
 
@@ -20,7 +20,7 @@ elm-json uninstall elm-community/array-extra elm-community/basics-extra elm-comm
 
 elm make src/Main.elm # or whatever else you use to build your application
 # There shouldn't be any errors, but if there somehow are any, now would be a good time to fix them.
-elm-test # Should also work exactly the same. Please report any issues.
+elm-test # Verify that everything went OK.
 
 git commit -am "Completed step 1 in upgrade"
 ```
@@ -35,7 +35,7 @@ Since we combined a large number of source libraries, we have done some work to 
 git status # make sure you have a clean working tree, in case you want to revert
 
 npx elm-review --template elmcraft/core-extra/upgrade/2.0.0 --fix
-# You can run this command multiple times if you want to abort and fix stuff manually
+# You can run this command multiple times if you'd like to abort and make changes manually
 
 elm-json install elmcraft/core-extra@2 # upgrade to version 2 which no longer contains deprecated functions
 ```
@@ -57,6 +57,8 @@ This package is based on an amalgamation of a number of open source packages in 
 This is a list of contributors to those original packages:
 
 @8n8, @abadi199, @acerempel, @ahstro, @akovari, @alex-tan, @AlienKevin, @andersk, @andys8, @annaghi, @Apanatshka, @armatures, @AyaMorisawa, @Bernardoow, @BrianHicks, @brianvanburken, @carolineartz, @cbenz, @ccapndave, @Chadtech, @cjoach, @cmditch, @cobalamin, @codedmart, @CristianIorga2000-ops, @CSchank, @cynic, @DanielCardonaRojas, @DanielJenkins, @dasch, @dependabot[bot], @eeue56, @EverybodyKurts, @frankschmitt, @fredcy, @gampleman, @garetht, @giladwo, @hsribei, @ianmackenzie, @iazel, @indique, @ingara, @jaapz, @jackfranklin, @jacob-tock, @Janiczek, @janjelinek, @jfmengels, @jhrcek, @jmpavlick, @jonboiser, @JordyMoos, @JoshuaHall, @JustusAdam, @jvoigtlaender, @jwoudenberg, @knuton, @kqr, @kraklin, @kuon, @kutyel, @loganmac, @lorenzo, @lue-bird, @m-shaka, @MartinSStewart, @martinsvalin, @matthewsj, @mdgriffith, @Menschenkindlein, @mgold, @miguel-vila, @Munksgaard, @myrho, @nibrivia, @nikolakasev, @opsb, @Orasund, @OvermindDL1, @paralax, @patrickdet, @Pilatch, @prikhi, @prozacchiwawa, @pzp1997, @r41d, @rehno-lindeque, @rlefevre, @robinheghan, @rogeriochaves, @seanhess, @shmookey, @sindikat, @skyqrose, @smucode, @sporto, @srid, @stil4m, @stoeffel, @tac-tics, @ThomasWeiser, @timjs, @tmcw, @tmsolber, @toastal, @TSFoster, @turboMaCk, @twopoint718, @txgruppi, @ursi, @wilcooo, @xtian, @ybakos, @z5h, @zwilias
+
+For contributors to this repository specifically, see [contributors](https://github.com/elmcraft/core-extra/graphs/contributors).
 
 ## License
 
