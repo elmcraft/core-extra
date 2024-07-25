@@ -1,6 +1,6 @@
 module Array.Extra exposing
     ( all, any, member
-    , reverse, intersperse, update, pop, removeAt, insertAt
+    , reverse, intersperse, update, pop, removeAt, insertAt, splice
     , removeWhen, filterMap
     , sliceFrom, sliceUntil, splitAt, unzip
     , interweave_, andMap, map2, map3, map4, map5, zip, zip3
@@ -18,7 +18,7 @@ module Array.Extra exposing
 
 # Alter
 
-@docs reverse, intersperse, update, pop, removeAt, insertAt
+@docs reverse, intersperse, update, pop, removeAt, insertAt, splice
 
 
 # Filtering
@@ -687,6 +687,40 @@ insertAt index elementToInsert array =
 
         else
             array
+
+
+{-| Start at an index, and remove a number of elements, and replace them with new elements.
+
+    import Array exposing (fromList)
+
+    fromList [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        |> splice 2 3 (always (fromList [ 10, 11, 12 ]))
+    --> fromList [ 1, 2, 10, 11, 12, 6, 7, 8, 9 ]
+
+Handy for mapping over a subset of an array.
+
+    fromList [ 1, 2, 3, 4, 5 ]
+        |> splice 2 100 (Array.map (\n -> n + 10))
+    --> fromList [ 1, 2, 13, 14, 15 ]
+
+The index can be negative, counting from the end.
+
+    fromList [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        |> splice -4 3 (always (fromList []))
+    --> fromList [ 1, 2, 3, 4, 5, 9]
+
+-}
+splice : Int -> Int -> (Array a -> Array a) -> Array a -> Array a
+splice startIndex removeCount spliceFunction array =
+    let
+        rc =
+            max 0 removeCount
+    in
+    Array.append
+        (Array.append (Array.slice 0 startIndex array)
+            (spliceFunction (Array.slice startIndex (startIndex + rc) array))
+        )
+        (Array.slice (startIndex + rc) (Array.length array) array)
 
 
 {-| Whether all elements satisfy a given test.
