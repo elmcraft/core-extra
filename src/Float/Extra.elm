@@ -329,15 +329,15 @@ due to floating point drift rather than a result of meaningful difference in cal
 
     (0.1 + 0.2) |> Float.Extra.aboutEqual 0.3 --> True
 
-Note: this is unlikely to be appropriate if you are performing computations much smaller than one.
-
-    (0.00001 + 0.00002) |> Float.Extra.aboutEqual 0.00003 --> True
-
 This value handles Infinity and NaN like so:
 
     (1 / 0) |> Float.Extra.aboutEqual (100 / 0) --> True
 
     (0 / 0) |> Float.Extra.aboutEqual (0 / 0) --> False
+
+**Warning:** This function is handy for casual usecases, where floats are giving you some modest trouble.
+But for serious usecases, you should transition to using `equalWithin` and specify a tolerance that is
+appropriate for your usecase.
 
 -}
 aboutEqual : Float -> Float -> Bool
@@ -349,13 +349,21 @@ aboutEqual a b =
         abs (a - b) <= 1.0e-5 + 1.0e-8 * abs a
 
 
-{-| Check if two values are equal within a given tolerance.
+{-| Check if two values are equal within a given (absolute) tolerance.
 
     Float.Extra.equalWithin 1.0e-6 1.9999 2.0001
     --> False
 
     Float.Extra.equalWithin 1.0e-3 1.9999 2.0001
     --> True
+
+**Picking a tolerance**
+
+`equalWithin` uses an absolute tolerance, meaning that the absolute difference between the two values should not exceed the tolerance.
+As such, you should choose a number based on the overall magnitude of the domain you are computing in. For instance,
+in a geometrical context, you can pick a value based on the size of the overall bounding box.
+If measuring sizes of people, perhaps you can pick a value based on the tallest person alive, etc. In that context,
+you may consider two persons equally tall, if they have the same number of millimeters in height.
 
 -}
 equalWithin : Float -> Float -> Float -> Bool

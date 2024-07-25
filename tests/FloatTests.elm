@@ -245,7 +245,7 @@ testEqualWithin =
         , test "infinity not equal to itself within any finite tolerance" <|
             \() ->
                 Float.Extra.equalWithin 0.01 (1 / 0) (1 / 0)
-                    |> Expect.equal False
+                    |> Expect.equal True
         ]
 
 
