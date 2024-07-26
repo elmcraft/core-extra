@@ -548,6 +548,11 @@ all =
                 \() ->
                     Expect.equal (List.Extra.tails [ 1, 2, 3 ]) [ [ 1, 2, 3 ], [ 2, 3 ], [ 3 ], [] ]
             ]
+        , describe "conditional"
+            [ test "returns all elements where the second value is true" <|
+                \() ->
+                    Expect.equal (List.Extra.conditional [ ( 1, True ), ( 2, False ), ( 3, True ), ( 4, False ) ]) [ 1, 3 ]
+            ]
         , describe "select" <|
             [ test "returns all variations with a single item removed" <|
                 \() ->
