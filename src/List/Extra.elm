@@ -1,9 +1,9 @@
 module List.Extra exposing
-    ( last, init, getAt, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+    ( last, init, getAt, cons, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
     , intercalate, transpose, subsequences, permutations, interweave, cartesianProduct, uniquePairs
     , foldl1, foldr1, indexedFoldl, indexedFoldr, Step(..), stoppableFoldl
     , scanl, scanl1, scanr, scanr1, mapAccuml, mapAccumr, unfoldr, iterate, initialize, cycle, reverseRange
-    , splitAt, splitWhen, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
+    , splitAt, splitWhen, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, conditional, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
     , isPrefixOf, isSuffixOf, isInfixOf, isSubsequenceOf, isPermutationOf
     , notMember, find, elemIndex, elemIndices, findIndex, findIndices, findMap, count
     , zip, zip3
@@ -17,7 +17,7 @@ module List.Extra exposing
 
 # Basics
 
-@docs last, init, getAt, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+@docs last, init, getAt, cons, uncons, unconsLast, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
 
 
 # List transformations
@@ -37,7 +37,7 @@ module List.Extra exposing
 
 # Sublists
 
-@docs splitAt, splitWhen, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
+@docs splitAt, splitWhen, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, conditional, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
 
 
 # Predicates
@@ -249,6 +249,19 @@ reverseRange =
                 list
     in
     helper []
+
+
+{-| Adds the first element of the tuple to the head of the list.
+
+    cons (1, [2, 3])
+    --> [1, 2, 3]
+
+Useful for dealing with non-empty lists such as produced by `group` and `groupWhile`.
+
+-}
+cons : ( a, List a ) -> List a
+cons ( x, xs ) =
+    x :: xs
 
 
 {-| Decompose a list into its head and tail. If the list is empty, return `Nothing`. Otherwise, return `Just (x, xs)`, where `x` is head and `xs` is tail.
@@ -1734,6 +1747,51 @@ tailsHelp e list =
 
         [] ->
             []
+
+
+{-| Primary useful with literals in view style code.
+
+Sometimes you want to include attributes conditionally:
+
+    Html.div
+        ((if isStylish then
+            [ Html.Attributes.class "foo" ]
+
+          else
+            [ Html.Attributes.id "bar" ]
+         )
+            ++ (if isFancy then
+                    [ Html.Attribute.attribute "aria-description" "A very fancy div" ]
+
+                else
+                    []
+               )
+        )
+        [ Html.text "Hello" ]
+
+But this is quite awkward and verbose. But with this helper you can write:
+
+    Html.div
+        (List.Extra.conditional
+            [ ( Html.Attributes.class "foo", isStylish )
+            , ( Html.Attributes.id "bar", not isStylish )
+            , ( Html.Attribute.attribute "aria-description" "A very fancy div", isFancy )
+            ]
+        )
+        [ Html.text "Hello" ]
+
+-}
+conditional : List ( a, Bool ) -> List a
+conditional list =
+    List.filterMap
+        (\( x, b ) ->
+            if b then
+                Just x
+
+            else
+                Nothing
+        )
+        list
 
 
 {-| Return all combinations in the form of (element, rest of the list). Read [Haskell Libraries proposal](https://mail.haskell.org/pipermail/libraries/2008-February/009270.html) for further ideas on how to use this function.
