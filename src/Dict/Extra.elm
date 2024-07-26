@@ -1,6 +1,7 @@
 module Dict.Extra exposing
     ( groupBy, filterGroupBy, fromListBy, fromListCombining, fromListByCombining, frequencies
-    , removeWhen, removeMany, keepOnly, insertCombining, mapKeys, filterMap, invert
+    , removeWhen, removeMany, keepOnly, insertCombining, updateIfExists, upsert, invert, invertAll
+    , mapKeys, filterMap
     , any, all
     , find
     , unionWith
@@ -16,7 +17,12 @@ module Dict.Extra exposing
 
 # Manipulation
 
-@docs removeWhen, removeMany, keepOnly, insertCombining, mapKeys, filterMap, invert
+@docs removeWhen, removeMany, keepOnly, insertCombining, updateIfExists, upsert, invert, invertAll
+
+
+# Maps
+
+@docs mapKeys, filterMap
 
 
 # Predicates
@@ -243,6 +249,46 @@ insertCombining combine key value dict =
     Dict.update key with dict
 
 
+{-| Updates a value if the key is present in the dictionary, leaves the dictionary untouched otherwise.
+
+    import Dict
+
+    Dict.fromList [ ( "expenses", 38.25 ), ( "assets", 100.85 ) ]
+        |> updateIfExists "expenses" (\amount -> amount + 2.50)
+        |> updateIfExists "liabilities" (\amount -> amount - 2.50)
+        --> Dict.fromList [ ( "expenses", 40.75 ), ( "assets", 100.85 ) ]
+
+-}
+updateIfExists : comparable -> (a -> a) -> Dict comparable a -> Dict comparable a
+updateIfExists key f dict =
+    case Dict.get key dict of
+        Just value ->
+            Dict.insert key (f value) dict
+
+        Nothing ->
+            dict
+
+
+{-| Updates a value if the key is present in the dictionary, inserts a new key-value pair otherwise.
+
+    import Dict
+
+    Dict.fromList [ ( "expenses", 38.25 ), ( "assets", 100.85 ) ]
+        |> upsert "expenses" 4.50 (\amount -> amount + 2.50)
+        |> upsert "liabilities" 2.50 (\amount -> amount - 2.50)
+        --> Dict.fromList [ ( "expenses", 40.75 ), ( "assets", 100.85 ), ( "liabilities", 2.50 ) ]
+
+-}
+upsert : comparable -> a -> (a -> a) -> Dict comparable a -> Dict comparable a
+upsert key value f dict =
+    case Dict.get key dict of
+        Just oldValue ->
+            Dict.insert key (f oldValue) dict
+
+        Nothing ->
+            Dict.insert key value dict
+
+
 {-| Keep a key-value pair if its key appears in the set.
 
     import Dict
@@ -332,6 +378,31 @@ invert dict =
     Dict.foldl
         (\k v acc ->
             Dict.insert v k acc
+        )
+        Dict.empty
+        dict
+
+
+{-| Like `invert`, it changes the keys and values. However, if one value maps to multiple keys, then all of the keys will be retained.
+
+    import Dict
+    import Set
+
+    Dict.fromList [ ( 1, "Jill" ), ( 2, "Jill" ), ( 3, "Jack" ) ]
+        |> invertAll
+    --> Dict.fromList [ ( "Jill", Set.fromList [ 1, 2 ] ), ( "Jack", Set.singleton 3 ) ]
+
+-}
+invertAll : Dict comparable1 comparable2 -> Dict comparable2 (Set comparable1)
+invertAll dict =
+    Dict.foldl
+        (\k v acc ->
+            case Dict.get v acc of
+                Just set ->
+                    Dict.insert v (Set.insert k set) acc
+
+                Nothing ->
+                    Dict.insert v (Set.singleton k) acc
         )
         Dict.empty
         dict
