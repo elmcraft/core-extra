@@ -254,8 +254,8 @@ insertCombining combine key value dict =
     import Dict
 
     Dict.fromList [ ( "expenses", 38.25 ), ( "assets", 100.85 ) ]
-        |> updateIfExists "expenses" ((+) 2.50)
-        |> updateIfExists "liabilities" ((-) 2.50)
+        |> updateIfExists "expenses" (\amount -> amount + 2.50)
+        |> updateIfExists "liabilities" (\amount -> amount - 2.50)
         --> Dict.fromList [ ( "expenses", 40.75 ), ( "assets", 100.85 ) ]
 
 -}
@@ -274,8 +274,8 @@ updateIfExists key f dict =
     import Dict
 
     Dict.fromList [ ( "expenses", 38.25 ), ( "assets", 100.85 ) ]
-        |> upsert "expenses" 4.50 ((+) 2.50)
-        |> upsert "liabilities" 2.50 ((-) 2.50)
+        |> upsert "expenses" 4.50 (\amount -> amount + 2.50)
+        |> upsert "liabilities" 2.50 (\amount -> amount - 2.50)
         --> Dict.fromList [ ( "expenses", 40.75 ), ( "assets", 100.85 ), ( "liabilities", 2.50 ) ]
 
 -}
