@@ -1,6 +1,6 @@
 module Cmd.Extra exposing
     ( perform, attempt, maybe, fromResult, fromMaybe
-    , pure, with, add, withTrigger, addTrigger, addIf, addTriggerMaybe, addMaybe
+    , pure, andThen, with, add, withTrigger, addTrigger, addIf, addTriggerMaybe, addMaybe
     )
 
 {-| Extra functions for working with Cmds.
@@ -13,7 +13,7 @@ module Cmd.Extra exposing
 
 # Chaining in update
 
-@docs pure, with, add, withTrigger, addTrigger, addIf, addTriggerMaybe, addMaybe
+@docs pure, andThen, with, add, withTrigger, addTrigger, addIf, addTriggerMaybe, addMaybe
 
 -}
 
@@ -137,6 +137,23 @@ pure : model -> ( model, Cmd msg )
 pure model =
     ( model, Cmd.none )
 
+{-| Allows chaining `update`-like functions.
+
+    sendNotification : Model -> (Model, Cmd Msg)
+    fireZeMissiles : Model -> (Model, Cmd Msg)
+
+    model
+        |> sendNotification -- we have (Model, Cmd Msg) now, but fireZeMissiles needs a Model
+        |> andThen fireZeMissiles
+
+-}
+andThen : (model1 -> ( model2, Cmd msg )) -> ( model1, Cmd msg ) -> ( model2, Cmd msg )
+andThen fn ( model, cmd ) =
+    let
+        ( newModel, newCmd ) =
+            fn model
+    in
+    (newModel, Cmd.batch [ cmd, newCmd ])
 
 {-| Add Cmd to model to create a pair.
 -}
