@@ -137,6 +137,7 @@ pure : model -> ( model, Cmd msg )
 pure model =
     ( model, Cmd.none )
 
+
 {-| Allows chaining `update`-like functions.
 
     sendNotification : Model -> (Model, Cmd Msg)
@@ -153,7 +154,8 @@ andThen fn ( model, cmd ) =
         ( newModel, newCmd ) =
             fn model
     in
-    (newModel, Cmd.batch [ cmd, newCmd ])
+    ( newModel, Cmd.batch [ cmd, newCmd ] )
+
 
 {-| Add Cmd to model to create a pair.
 -}
