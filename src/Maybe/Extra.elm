@@ -547,7 +547,7 @@ and combine it into a maybe holding the tuple's values.
 -}
 combineFirst : ( Maybe a, c ) -> Maybe ( a, c )
 combineFirst ( mx, y ) =
-    Maybe.map (\x -> Tuple.pair x y) mx
+    Maybe.map (\x -> ( x, y )) mx
 
 
 {-| Pull a result out of the _second_ element of a tuple

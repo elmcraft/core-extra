@@ -211,7 +211,7 @@ and combine it into a result holding the tuple's values.
 -}
 combineFirst : ( Result x a, c ) -> Result x ( a, c )
 combineFirst ( rx, y ) =
-    Result.map (\x -> Tuple.pair x y) rx
+    Result.map (\x -> ( x, y )) rx
 
 
 {-| Pull a result out of the _second_ element of a tuple
