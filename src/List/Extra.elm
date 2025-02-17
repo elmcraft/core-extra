@@ -2004,21 +2004,24 @@ All possible combinations will be explored.
 -}
 lift2 : (a -> b -> c) -> List a -> List b -> List c
 lift2 f la lb =
-    la |> andThen (\a -> lb |> andThen (\b -> [ f a b ]))
+    List.foldl (\a aacc -> List.foldl (\b bacc -> f a b :: bacc) aacc lb) [] la
+        |> List.reverse
 
 
 {-| Maps a function over three lists, exploring all possible combinations.
 -}
 lift3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
 lift3 f la lb lc =
-    la |> andThen (\a -> lb |> andThen (\b -> lc |> andThen (\c -> [ f a b c ])))
+    List.foldl (\a aacc -> List.foldl (\b bacc -> List.foldl (\c cacc -> f a b c :: cacc) bacc lc) aacc lb) [] la
+        |> List.reverse
 
 
 {-| Maps a function over four lists, exploring all possible combinations.
 -}
 lift4 : (a -> b -> c -> d -> e) -> List a -> List b -> List c -> List d -> List e
 lift4 f la lb lc ld =
-    la |> andThen (\a -> lb |> andThen (\b -> lc |> andThen (\c -> ld |> andThen (\d -> [ f a b c d ]))))
+    List.foldl (\a aacc -> List.foldl (\b bacc -> List.foldl (\c cacc -> List.foldl (\d dacc -> f a b c d :: dacc) cacc ld) bacc lc) aacc lb) [] la
+        |> List.reverse
 
 
 {-| Split list into groups of length `size`. If there are not enough elements
