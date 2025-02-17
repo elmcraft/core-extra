@@ -3,13 +3,13 @@
     "elm": "0.19.1-5",
     "elm-doc-preview": "^5.0.5",
     "elm-format": "^0.8.7",
-    "elm-review": "^2.10.2",
+    "elm-review": "^2.13.0",
     "elm-test": "0.19.1-revision12",
     "elm-verify-examples": "^6.0.3",
     "npm-run-all": "^4.1.5"
   },
   "scripts": {
-    "test": "npm-run-all --print-name  --sequential test:make test:format test:examples test:run test:review ",
+    "test": "npm-run-all --print-name  --sequential test:make test:format test:examples test:run fix:format-examples test:review ",
     "test:make": "elm make --docs=docs.json",
     "test:format": "elm-format src/ tests/*.elm tests/String review benchmarks upgrade --validate",
     "test:examples": "elm-verify-examples",
@@ -18,6 +18,7 @@
     "fix": "npm-run-all --print-name --sequential fix:format fix:review",
     "fix:format": "elm-format src/ tests/*.elm tests/String review benchmarks upgrade --yes",
     "fix:review": "elm-review --fix",
+    "fix:format-examples": "elm-format --yes tests/VerifyExamples/Set/Extra",
     "start": "npm-run-all -p -l start:docs start:bench",
     "start:docs": "elm-doc-preview",
     "start:bench": "cd benchmarks; elm make --optimize --output elm-stuff/bench.html src/Benchmarks.elm && open elm-stuff/bench.html",

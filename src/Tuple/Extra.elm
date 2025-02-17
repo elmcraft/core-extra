@@ -60,7 +60,7 @@ type alias Tuple a b =
 -}
 pairWith : b -> a -> ( a, b )
 pairWith b a =
-    Tuple.pair a b
+    ( a, b )
 
 
 {-| Occasionally you might want to create a Tuple from a single value. This does
@@ -71,7 +71,7 @@ just that.
 -}
 from : a -> ( a, a )
 from a =
-    Tuple.pair a a
+    ( a, a )
 
 
 
@@ -94,7 +94,7 @@ apply f ( a, b ) =
 -}
 flip : ( a, b ) -> ( b, a )
 flip ( a, b ) =
-    Tuple.pair b a
+    ( b, a )
 
 
 {-| Similar to String.join but for tuples instead of lists. Given some separator
@@ -155,10 +155,10 @@ in a tuple from lowest to highest
 sort : ( comparable, comparable ) -> ( comparable, comparable )
 sort ( a, b ) =
     if a <= b then
-        Tuple.pair a b
+        ( a, b )
 
     else
-        Tuple.pair b a
+        ( b, a )
 
 
 {-| Similar to List.sortBy but for tuples instead of lists. Sort values
@@ -172,10 +172,10 @@ values are sorted lowest to highest
 sortBy : (a -> comparable) -> ( a, a ) -> ( a, a )
 sortBy toComparable ( a, b ) =
     if toComparable a <= toComparable b then
-        Tuple.pair a b
+        ( a, b )
 
     else
-        Tuple.pair b a
+        ( b, a )
 
 
 {-| Similar to List.sortWith but for tuples instead of lists. Instead of
@@ -190,13 +190,13 @@ sortWith : (a -> a -> Order) -> ( a, a ) -> ( a, a )
 sortWith toOrder ( a, b ) =
     case toOrder a b of
         LT ->
-            Tuple.pair a b
+            ( a, b )
 
         EQ ->
-            Tuple.pair a b
+            ( a, b )
 
         GT ->
-            Tuple.pair b a
+            ( b, a )
 
 
 
@@ -212,4 +212,4 @@ known as `mapBothWith` or `bimap`.
 -}
 map : (a -> b) -> ( a, a ) -> ( b, b )
 map f ( a, b ) =
-    Tuple.pair (f a) (f b)
+    ( f a, f b )
