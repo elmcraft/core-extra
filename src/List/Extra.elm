@@ -318,7 +318,7 @@ push x xs =
 
 {-| Append with flipped arguments.
 
-    List.prepend [ 1, 2, 3 ] [ 4, 5, 6 ] --> [ 4, 5, 6, 1, 2, 3 ]
+    List.Extra.prepend [ 1, 2, 3 ] [ 4, 5, 6 ] --> [ 4, 5, 6, 1, 2, 3 ]
 
 Useful for pipelined code, where the argument order of `List.append` doesn't quite work.
 
