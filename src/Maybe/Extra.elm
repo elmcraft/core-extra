@@ -802,11 +802,16 @@ Advanced functional programmers will recognize this as the implementation of `<*
 -}
 andMap : Maybe a -> Maybe (a -> b) -> Maybe b
 andMap ma mb =
-    case ( ma, mb ) of
-        ( Just o, Just fn ) ->
-            Just (fn o)
+    case ma of
+        Just o ->
+            case mb of
+                Just fn ->
+                    Just (fn o)
 
-        _ ->
+                Nothing ->
+                    Nothing
+
+        Nothing ->
             Nothing
 
 
