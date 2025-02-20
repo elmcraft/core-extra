@@ -294,11 +294,14 @@ arguments is `Err e`, return `Err e`. Also known as `apply`.
 andMap : Result e a -> Result e (a -> b) -> Result e b
 andMap ra rb =
     case ( ra, rb ) of
-        ( _, Err x ) ->
+        ( Ok o, Ok fn ) ->
+            Ok (fn o)
+
+        ( Err x, _ ) ->
             Err x
 
-        ( o, Ok fn ) ->
-            Result.map fn o
+        ( _, Err x ) ->
+            Err x
 
 
 
