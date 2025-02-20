@@ -17,11 +17,11 @@ import Array.Extra.Unzip
 import Benchmark exposing (Benchmark, describe)
 import Benchmark.Alternative exposing (rank)
 import Benchmark.Runner.Alternative as BenchmarkRunner
-import List.Extra
 import List.Extra.GroupsOf
 import List.Extra.Lift
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
+import Result.Extra.AndMap
 import Set exposing (Set)
 import Set.Extra.AreDisjoint
 import Set.Extra.SymmetricDifference
@@ -38,6 +38,7 @@ main =
         , tupleExtra
         , setExtra
         , stringExtra
+        , resultExtra
         ]
         |> BenchmarkRunner.program
 
@@ -250,6 +251,36 @@ stringExtra : Benchmark
 stringExtra =
     describe "String.Extra"
         [ stringExtraIsBlank
+        ]
+
+
+resultExtra : Benchmark
+resultExtra =
+    describe "Result.Extra"
+        [ rank "andMap - Ok × Ok"
+            (\andMap -> Ok negate |> andMap (Ok 0))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
+            ]
+        , rank "andMap - Err × Ok"
+            (\andMap -> Err "e" |> andMap (Ok 0))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
+            ]
+        , rank "andMap - Ok × Err"
+            (\andMap -> Ok negate |> andMap (Err "e"))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
+            ]
+        , rank "andMap - Err × Err"
+            (\andMap -> Err "b" |> andMap (Err "e"))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
+            ]
         ]
 
 
