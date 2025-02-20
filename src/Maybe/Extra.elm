@@ -801,8 +801,16 @@ Advanced functional programmers will recognize this as the implementation of `<*
 
 -}
 andMap : Maybe a -> Maybe (a -> b) -> Maybe b
-andMap =
-    Maybe.map2 (|>)
+andMap ma mb =
+    case ( ma, mb ) of
+        ( Just o, Just fn ) ->
+            Just (fn o)
+
+        ( _, Nothing ) ->
+            Nothing
+
+        ( Nothing, _ ) ->
+            Nothing
 
 
 {-| Take two `Maybe` values. If the first one equals `Nothing`, return `Nothing`. Otherwise return the second value.

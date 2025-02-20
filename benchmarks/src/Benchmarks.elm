@@ -22,6 +22,7 @@ import List.Extra.GroupsOf
 import List.Extra.Lift
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
+import Maybe.Extra.AndMap
 import Set exposing (Set)
 import Set.Extra.AreDisjoint
 import Set.Extra.SymmetricDifference
@@ -38,6 +39,7 @@ main =
         , tupleExtra
         , setExtra
         , stringExtra
+        , maybeExtra
         ]
         |> BenchmarkRunner.program
 
@@ -250,6 +252,27 @@ stringExtra : Benchmark
 stringExtra =
     describe "String.Extra"
         [ stringExtraIsBlank
+        ]
+
+
+maybeExtra : Benchmark
+maybeExtra =
+    describe "Maybe.Extra"
+        [ rank "andMap - Just × Just"
+            (\andMap -> Just negate |> andMap (Just 0))
+            [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+            ]
+        , rank "andMap - Nothing × Just"
+            (\andMap -> Nothing |> andMap (Just 0))
+            [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+            ]
+        , rank "andMap - Just × Nothing"
+            (\andMap -> Just negate |> andMap Nothing)
+            [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+            ]
         ]
 
 
