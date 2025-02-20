@@ -23,6 +23,7 @@ import List.Extra.NotMember
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
 import Maybe.Extra.AndMap
+import Result.Extra.AndMap
 import Set exposing (Set)
 import Set.Extra.AreDisjoint
 import Set.Extra.SymmetricDifference
@@ -40,6 +41,7 @@ main =
         , setExtra
         , stringExtra
         , maybeExtra
+        , resultExtra
         ]
         |> BenchmarkRunner.program
 
@@ -304,6 +306,32 @@ maybeExtra =
             , ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
             , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
             , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
+            ]
+        ]
+
+
+resultExtra : Benchmark
+resultExtra =
+    describe "Result.Extra"
+        [ rank "andMap - Ok × Ok"
+            (\andMap -> Ok negate |> andMap (Ok 0))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            ]
+        , rank "andMap - Err × Ok"
+            (\andMap -> Err "e" |> andMap (Ok 0))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            ]
+        , rank "andMap - Ok × Err"
+            (\andMap -> Ok negate |> andMap (Err "e"))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            ]
+        , rank "andMap - Err × Err"
+            (\andMap -> Err "l" |> andMap (Err "e"))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
             ]
         ]
 
