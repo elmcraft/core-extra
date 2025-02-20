@@ -297,10 +297,10 @@ andMap ra rb =
         ( Ok o, Ok fn ) ->
             Ok (fn o)
 
-        ( Err x, _ ) ->
+        ( _, Err x ) ->
             Err x
 
-        ( _, Err x ) ->
+        ( Err x, _ ) ->
             Err x
 
 
