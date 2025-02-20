@@ -262,16 +262,19 @@ maybeExtra =
             (\andMap -> Just negate |> andMap (Just 0))
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+, ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
             ]
         , rank "andMap - Nothing × Just"
             (\andMap -> Nothing |> andMap (Just 0))
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+, ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
             ]
         , rank "andMap - Just × Nothing"
             (\andMap -> Just negate |> andMap Nothing)
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+, ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
             ]
         ]
 

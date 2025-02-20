@@ -17,3 +17,13 @@ andMapInlined ra rb =
 
         ( Nothing, _ ) ->
             Nothing
+
+
+andMapSimplified : Maybe a -> Maybe (a -> b) -> Maybe b
+andMapSimplified ra rb =
+    case ( ra, rb ) of
+        ( Just o, Just fn ) ->
+            Just (fn o)
+
+        _ ->
+            Nothing

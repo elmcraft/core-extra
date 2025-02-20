@@ -806,10 +806,7 @@ andMap ma mb =
         ( Just o, Just fn ) ->
             Just (fn o)
 
-        ( _, Nothing ) ->
-            Nothing
-
-        ( Nothing, _ ) ->
+        _ ->
             Nothing
 
 
