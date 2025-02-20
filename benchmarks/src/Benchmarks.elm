@@ -262,19 +262,33 @@ maybeExtra =
             (\andMap -> Just negate |> andMap (Just 0))
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
-, ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
+            , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
             ]
         , rank "andMap - Nothing × Just"
             (\andMap -> Nothing |> andMap (Just 0))
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
-, ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
+            , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
             ]
         , rank "andMap - Just × Nothing"
             (\andMap -> Just negate |> andMap Nothing)
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
-, ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
+            , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
+            ]
+        , rank "andMap - Nothing × Nothing"
+            (\andMap -> Nothing |> andMap Nothing)
+            [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
+            , ( "simplified", Maybe.Extra.AndMap.andMapSimplified )
+            , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
+            , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
             ]
         ]
 

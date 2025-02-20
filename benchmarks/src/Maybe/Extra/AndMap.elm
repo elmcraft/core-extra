@@ -27,3 +27,31 @@ andMapSimplified ra rb =
 
         _ ->
             Nothing
+
+andMapNestedCaseOfIgnoringNothing : Maybe a -> Maybe (a -> b) -> Maybe b
+andMapNestedCaseOfIgnoringNothing ra rb =
+    case ra of
+        Just o ->
+            case rb of
+                Just fn ->
+                    Just (fn o)
+
+                _ ->
+                    Nothing
+
+        _ ->
+            Nothing
+
+andMapNestedCaseOf : Maybe a -> Maybe (a -> b) -> Maybe b
+andMapNestedCaseOf ra rb =
+    case ra of
+        Just o ->
+            case rb of
+                Just fn ->
+                    Just (fn o)
+
+                Nothing ->
+                    Nothing
+
+        Nothing ->
+            Nothing
