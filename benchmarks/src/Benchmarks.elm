@@ -317,16 +317,25 @@ resultExtra =
             (\andMap -> Ok negate |> andMap (Ok 0))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
         , rank "andMap - Err × Ok"
             (\andMap -> Err "e" |> andMap (Ok 0))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
         , rank "andMap - Ok × Err"
             (\andMap -> Ok negate |> andMap (Err "e"))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
+            ]
+        , rank "andMap - Err × Err"
+            (\andMap -> Err "b" |> andMap (Err "e"))
+            [ ( "original", Result.Extra.AndMap.andMapOriginal )
+            , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
         , rank "andMap - Err × Err"
             (\andMap -> Err "l" |> andMap (Err "e"))
