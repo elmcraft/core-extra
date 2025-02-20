@@ -28,6 +28,7 @@ andMapSimplified ra rb =
         _ ->
             Nothing
 
+
 andMapNestedCaseOfIgnoringNothing : Maybe a -> Maybe (a -> b) -> Maybe b
 andMapNestedCaseOfIgnoringNothing ra rb =
     case ra of
@@ -41,6 +42,7 @@ andMapNestedCaseOfIgnoringNothing ra rb =
 
         _ ->
             Nothing
+
 
 andMapNestedCaseOf : Maybe a -> Maybe (a -> b) -> Maybe b
 andMapNestedCaseOf ra rb =
