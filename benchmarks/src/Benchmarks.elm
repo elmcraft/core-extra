@@ -17,9 +17,9 @@ import Array.Extra.Unzip
 import Benchmark exposing (Benchmark, describe)
 import Benchmark.Alternative exposing (rank)
 import Benchmark.Runner.Alternative as BenchmarkRunner
-import List.Extra
 import List.Extra.GroupsOf
 import List.Extra.Lift
+import List.Extra.NotMember
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
 import Maybe.Extra.AndMap
@@ -213,6 +213,21 @@ listExtra =
             (\lift4 -> lift4 (\a b c d -> a + b + c + d) shortList shortList shortList shortList)
             [ ( "original", List.Extra.Lift.liftAndThen4 )
             , ( "foldl", List.Extra.Lift.liftFold4 )
+            ]
+         , rank "notMember 1"
+            (\notMember -> notMember 1 intList)
+            [ ( "Original", List.Extra.NotMember.notMemberOriginal )
+            , ( "Simplified", List.Extra.NotMember.notMemberSimple )
+            ]
+         , rank "notMember 99"
+            (\notMember -> notMember 99 intList)
+            [ ( "Original", List.Extra.NotMember.notMemberOriginal )
+            , ( "Simplified", List.Extra.NotMember.notMemberSimple )
+            ]
+         , rank "notMember 101"
+            (\notMember -> notMember 101 intList)
+            [ ( "Original", List.Extra.NotMember.notMemberOriginal )
+            , ( "Simplified", List.Extra.NotMember.notMemberSimple )
             ]
          ]
             ++ List.concatMap toComparisonsGroupsOfWithStep (List.range 1 4)

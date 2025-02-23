@@ -589,8 +589,8 @@ reverseMap f xs =
 
 -}
 notMember : a -> List a -> Bool
-notMember x =
-    not << List.member x
+notMember x list =
+    not (List.member x list)
 
 
 {-| Find the first element that satisfies a predicate and return
