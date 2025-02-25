@@ -2,7 +2,7 @@ module Array.Extra exposing
     ( all, any, member
     , reverse, intersperse, update, pop, removeAt, insertAt
     , removeWhen, filterMap
-    , sliceFrom, sliceUntil, splitAt, unzip
+    , sliceFrom, sliceUntil, splitAt, unzip, last
     , interweave_, andMap, map2, map3, map4, map5, zip, zip3
     , resizelRepeat, resizerRepeat, resizelIndexed, resizerIndexed
     , mapToList, indexedMapToList
@@ -28,7 +28,7 @@ module Array.Extra exposing
 
 # Getting slices of an array
 
-@docs sliceFrom, sliceUntil, splitAt, unzip
+@docs sliceFrom, sliceUntil, splitAt, unzip, last
 
 
 # Combining arrays
@@ -393,6 +393,22 @@ unzip arrayOfTuple =
     ( Array.map Tuple.first arrayOfTuple
     , Array.map Tuple.second arrayOfTuple
     )
+
+
+{-| Get the last element in an `Array` if it exists.
+
+    import Array exposing (fromList)
+
+    last (fromList [ 'a', 'b', 'c' ])
+    --> Just 'c'
+
+    last (fromList [])
+    --> Nothing
+
+-}
+last : Array a -> Maybe a
+last array =
+    Array.get (Array.length array - 1) array
 
 
 {-| Only keep elements which fail to satisfy a given predicate.
