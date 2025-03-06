@@ -760,10 +760,12 @@ consisting of the characters in the string that are to the right of the pattern.
 -}
 rightOf : String -> String -> String
 rightOf pattern string =
-    string
-        |> Regex.findAtMost 1 (regexFromString <| regexEscape pattern ++ "(.*)$")
-        |> List.map (.submatches >> firstResult)
-        |> String.concat
+    case String.indexes pattern string of
+        [] ->
+            ""
+
+        firstIndex :: _ ->
+            String.slice (String.length pattern + firstIndex) (String.length string) string
 
 
 {-| Search a string from left to right for a pattern and return a substring
@@ -775,7 +777,7 @@ consisting of the characters in the string that are to the left of the pattern.
 leftOf : String -> String -> String
 leftOf pattern string =
     string
-        |> Regex.findAtMost 1 (regexFromString <| "^(.*?)" ++ regexEscape pattern)
+        |> Regex.findAtMost 1 (regexFromString <| "^((?:.|\\s)*?)" ++ regexEscape pattern)
         |> List.map (.submatches >> firstResult)
         |> String.concat
 

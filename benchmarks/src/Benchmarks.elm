@@ -17,6 +17,7 @@ import Array.Extra.Unzip
 import Benchmark exposing (Benchmark, describe)
 import Benchmark.Alternative exposing (rank)
 import Benchmark.Runner.Alternative as BenchmarkRunner
+import List.Extra
 import List.Extra.GroupsOf
 import List.Extra.Lift
 import List.Extra.NotMember
@@ -28,6 +29,7 @@ import Set exposing (Set)
 import Set.Extra.AreDisjoint
 import Set.Extra.SymmetricDifference
 import String.Extra.IsBlank
+import String.Extra.RightOfLeftOf
 
 
 main : BenchmarkRunner.Program
@@ -269,6 +271,28 @@ stringExtra : Benchmark
 stringExtra =
     describe "String.Extra"
         [ stringExtraIsBlank
+        , rank "rightOf"
+            (let
+                a =
+                    List.Extra.initialize 1000 String.fromInt
+                        |> String.join "___"
+             in
+             \rightOf -> rightOf "___" a
+            )
+            [ ( "regex", String.Extra.RightOfLeftOf.rightOfRegex )
+            , ( "List.indexes", String.Extra.RightOfLeftOf.rightOfIndexes )
+            ]
+        , rank "leftOf"
+            (let
+                a =
+                    List.Extra.initialize 1000 String.fromInt
+                        |> String.join "___"
+             in
+             \leftOf -> leftOf "___" a
+            )
+            [ ( "regex", String.Extra.RightOfLeftOf.leftOfRegex )
+            , ( "List.indexes", String.Extra.RightOfLeftOf.leftOfIndexes )
+            ]
         ]
 
 
