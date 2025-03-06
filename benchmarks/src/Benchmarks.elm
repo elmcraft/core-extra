@@ -271,29 +271,32 @@ stringExtra : Benchmark
 stringExtra =
     describe "String.Extra"
         [ stringExtraIsBlank
-        , rank "rightOf"
-            (let
-                a =
-                    List.Extra.initialize 1000 String.fromInt
-                        |> String.join "___"
-             in
-             \rightOf -> rightOf "___" a
-            )
-            [ ( "regex", String.Extra.RightOfLeftOf.rightOfRegex )
-            , ( "List.indexes", String.Extra.RightOfLeftOf.rightOfIndexes )
-            ]
-        , rank "leftOf"
-            (let
-                a =
-                    List.Extra.initialize 1000 String.fromInt
-                        |> String.join "___"
-             in
-             \leftOf -> leftOf "___" a
-            )
-            [ ( "regex", String.Extra.RightOfLeftOf.leftOfRegex )
-            , ( "List.indexes", String.Extra.RightOfLeftOf.leftOfIndexes )
+        , describe "String.Extra.{rightOf,leftOf}"
+            [ describe "1 match" (rightLeft 1)
+            , describe "10 matches" (rightLeft 10)
+            , describe "100 matches" (rightLeft 100)
+            , describe "1000 matches" (rightLeft 1000)
             ]
         ]
+
+
+rightLeft matches =
+    let
+        a =
+            List.Extra.initialize matches String.fromInt
+                |> String.join "___"
+    in
+    [ rank "rightOf"
+        (\rightOf -> rightOf "___" a)
+        [ ( "regex", String.Extra.RightOfLeftOf.rightOfRegex )
+        , ( "String.indexes", String.Extra.RightOfLeftOf.rightOfIndexes )
+        ]
+    , rank "leftOf"
+        (\leftOf -> leftOf "___" a)
+        [ ( "regex", String.Extra.RightOfLeftOf.leftOfRegex )
+        , ( "String.indexes", String.Extra.RightOfLeftOf.leftOfIndexes )
+        ]
+    ]
 
 
 maybeExtra : Benchmark
