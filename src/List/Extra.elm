@@ -1,5 +1,5 @@
 module List.Extra exposing
-    ( last, init, getAt, cons, uncons, unconsLast, push, prepend, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+    ( last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
     , intercalate, transpose, subsequences, permutations, interweave, cartesianProduct, uniquePairs
     , foldl1, foldr1, indexedFoldl, indexedFoldr, Step(..), stoppableFoldl
     , scanl, scanl1, scanr, scanr1, mapAccuml, mapAccumr, unfoldr, iterate, initialize, cycle, reverseRange
@@ -17,7 +17,7 @@ module List.Extra exposing
 
 # Basics
 
-@docs last, init, getAt, cons, uncons, unconsLast, push, prepend, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+@docs last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
 
 
 # List transformations
@@ -316,16 +316,30 @@ push x xs =
     xs ++ [ x ]
 
 
-{-| Append with flipped arguments.
+{-| Append with arguments optimised for pipelines.
 
-    List.Extra.prepend [ 1, 2, 3 ] [ 4, 5, 6 ] --> [ 4, 5, 6, 1, 2, 3 ]
+    [ 4, 5, 6 ]
+        |> List.Extra.appendTo [ 1, 2, 3 ]
+        --> [ 4, 5, 6, 1, 2, 3 ]
 
 Useful for pipelined code, where the argument order of `List.append` doesn't quite work.
 
 -}
-prepend : List a -> List a -> List a
-prepend a b =
+appendTo : List a -> List a -> List a
+appendTo a b =
     List.append b a
+
+
+{-| Prepends a list.
+
+    [ 4, 5, 6 ]
+        |> List.Extra.prependTo [ 1, 2, 3 ]
+        --> [ 1, 2, 3, 4, 5, 6 ]
+
+-}
+prependTo : List a -> List a -> List a
+prependTo =
+    List.append
 
 
 {-| Find the first maximum element in a list using a comparable transformation
