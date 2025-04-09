@@ -1,6 +1,7 @@
 module Result.Extra exposing
     ( isOk, isErr, extract, unwrap, unpack, error, mapBoth, merge, join, partition, filter
     , combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
+    , filterArray, filterList, foldl, foldlArray, map2, map2Array
     , andMap
     , or, orLazy, orElseLazy, orElse
     , toTask
@@ -17,6 +18,13 @@ module Result.Extra exposing
 # Combining
 
 @docs combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
+
+
+# Containers (`List` / `Array`)
+
+`Result`'s `andThen` behavior (monadic) is that it terminates execution immediately on first error. Projecting that into various operations on lists and arrays yields operations that terminate on first error.
+
+@docs filterArray, filterList, foldl, foldlArray, map2, map2Array
 
 
 # Applying
@@ -161,6 +169,174 @@ combineHelp list acc =
 
         [] ->
             Ok (List.reverse acc)
+
+
+{-| Filter a list using a predicate function that can fail.
+-}
+filterList : (a -> Result error Bool) -> List a -> Result error (List a)
+filterList pred =
+    let
+        go : List a -> List a -> Result error (List a)
+        go returnList current =
+            case current of
+                [] ->
+                    Ok <| List.reverse returnList
+
+                head :: tail ->
+                    case pred head of
+                        Err err ->
+                            Err err
+
+                        Ok b ->
+                            go
+                                (if b then
+                                    head :: returnList
+
+                                 else
+                                    returnList
+                                )
+                                tail
+    in
+    go []
+
+
+{-| Filter an array using a predicate function that can fail.
+-}
+filterArray : (a -> Result error Bool) -> Array.Array a -> Result error (Array.Array a)
+filterArray pred arr =
+    let
+        go : List a -> Int -> Result error (Array.Array a)
+        go returnList index =
+            case Array.get index arr of
+                Nothing ->
+                    Ok <| Array.fromList <| List.reverse returnList
+
+                Just head ->
+                    case pred head of
+                        Err err ->
+                            Err err
+
+                        Ok b ->
+                            go
+                                (if b then
+                                    head :: returnList
+
+                                 else
+                                    returnList
+                                )
+                                (index + 1)
+    in
+    go [] 0
+
+
+{-| Map two lists together with a function that produces a Result and which terminates on the first `Err` in either list.
+
+Known as `zipWithM` in Haskell / PureScript.
+
+-}
+map2 : (a -> b -> Result e c) -> List a -> List b -> Result e (List c)
+map2 zip aList bList =
+    let
+        go : Result e (List c) -> List a -> List b -> Result e (List c)
+        go resultList a b =
+            case resultList of
+                Err _ ->
+                    resultList
+
+                Ok list ->
+                    case ( a, b ) of
+                        ( aHead :: aTail, bHead :: bTail ) ->
+                            go (zip aHead bHead |> Result.map (\c -> c :: list)) aTail bTail
+
+                        _ ->
+                            Ok <| List.reverse list
+    in
+    go (Ok []) aList bList
+
+
+{-| Map two arrays together with a function that produces a `Result` and which terminates on the first `Err` in either array.
+
+Known as `zipWithM` in Haskell / PureScript.
+
+-}
+map2Array : (a -> b -> Result e c) -> Array.Array a -> Array.Array b -> Result e (Array.Array c)
+map2Array zip aArray bArray =
+    let
+        go : Result e (Array.Array c) -> Int -> Result e (Array.Array c)
+        go resultArray index =
+            case resultArray of
+                Err _ ->
+                    resultArray
+
+                Ok array ->
+                    case ( Array.get index aArray, Array.get index bArray ) of
+                        ( Just aHead, Just bHead ) ->
+                            go (zip aHead bHead |> Result.map (\c -> Array.push c array)) (index + 1)
+
+                        _ ->
+                            resultArray
+    in
+    go (Ok <| Array.empty) 0
+
+
+{-| Like `List.foldl` but the step function produces a `Result` and the folding terminates the moment an `Err` is encountered. This function provides early termination like `List.Extra.stoppableFoldl` but has
+the following benefits
+
+  - `Step state` used by `stoppableFoldl` supports only a **one** type for both the `Stop` and `Continue` cases. This function uses `Result` such that the terminated type (`Err terminated`) can differ from the continue type (`Ok state`).
+  - By using `Result` this function has improved ergonomics as `Result` is a rich type used throughout all of Elm. It is very likely you already have functions that return `Result` or return `Maybe` which can be converted easily to `Result` with `Result.fromMaybe`.
+
+One can think of `foldl` as a functional for-loop where the `accumulator` is some local state that will be read and returned (likely updated) on each iteration over the container (`List`). By returning `Result` and
+supporting early termination this is like a for-loop with a break or early exit condition.
+
+Similar to `foldM :: (Foldable foldable, Monad m) => (b -> a -> m b) -> b -> foldable a -> m b` in Haskell / PureScript where the `m` is `Result` and `foldable` is `List`.
+
+-}
+foldl : (item -> state -> Result terminated state) -> state -> List item -> Result terminated state
+foldl step initialState =
+    let
+        go : Result terminated state -> List item -> Result terminated state
+        go stateResult list =
+            case stateResult of
+                Err _ ->
+                    stateResult
+
+                Ok state ->
+                    case list of
+                        [] ->
+                            stateResult
+
+                        head :: rest ->
+                            go (step head state) rest
+    in
+    go (Ok initialState)
+
+
+{-| Like `Array.foldl` except that the step function produces a `Result` and the folding terminates the moment an `Err` is encountered.
+
+One can think of `foldl` as a functional for-loop where the `accumulator` is some local state that will be read and returned (likely updated) on each iteration over the container (`Array`). By returning `Result` and
+supporting early termination this is like a for-loop with a break or early exit condition.
+
+Similar to `foldM :: (Foldable foldable, Monad m) => (b -> a -> m b) -> b -> foldable a -> m b` in Haskell / PureScript where the `m` is `Result` and `foldable` is `Array`.
+
+-}
+foldlArray : (item -> state -> Result terminated state) -> state -> Array.Array item -> Result terminated state
+foldlArray step initialState arr =
+    let
+        go : Result terminated state -> Int -> Result terminated state
+        go stateResult index =
+            case stateResult of
+                Err _ ->
+                    stateResult
+
+                Ok currentState ->
+                    case Array.get index arr of
+                        Nothing ->
+                            stateResult
+
+                        Just head ->
+                            go (step head currentState) (index + 1)
+    in
+    go (Ok initialState) 0
 
 
 {-| Map a function producing results on a list

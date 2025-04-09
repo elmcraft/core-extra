@@ -1,5 +1,7 @@
 module ResultTests exposing (all)
 
+import Array
+import Dict
 import Expect
 import Fuzz
 import Result.Extra
@@ -16,9 +18,15 @@ import Result.Extra
         , error
         , extract
         , filter
+        , filterArray
+        , filterList
+        , foldl
+        , foldlArray
         , isErr
         , isOk
         , join
+        , map2
+        , map2Array
         , mapBoth
         , merge
         , or
@@ -38,6 +46,7 @@ all =
     describe "Result.Extra"
         [ commonHelperTests
         , combiningTests
+        , monadHelperTests
         , applyingTests
         , alternativesTests
         , toTaskTests
@@ -175,6 +184,141 @@ combiningTests =
           <|
             \r1 r2 ->
                 Expect.equal (combineMapBoth identity identity ( r1, r2 )) <| combineBoth ( r1, r2 )
+        ]
+
+
+{-| The number of iterations to run to test for stack safety. Set this very high while testing but then lower before checking in to avoid slowing down all tests in CI.
+-}
+stackSafetyCount : Int
+stackSafetyCount =
+    -- 500000
+    500
+
+
+foldlTests : Test
+foldlTests =
+    let
+        foldlTest foldl mkFromList =
+            let
+                peopleDict =
+                    Dict.fromList
+                        [ ( 1, { name = "Alice", isCool = True } )
+                        , ( 2, { name = "Bob", isCool = False } )
+                        , ( 3, { name = "Cherry", isCool = True } )
+                        ]
+
+                step current state =
+                    Dict.get current peopleDict
+                        |> Result.fromMaybe ("Unable to find person for " ++ String.fromInt current)
+                        |> Result.map (\v -> { state | people = v.name :: state.people, allAreCool = state.allAreCool && v.isCool })
+
+                expect lst expected =
+                    Expect.equal (foldl step { people = [], allAreCool = True } <| mkFromList lst) expected
+            in
+            [ test "empty" <| \_ -> expect [] <| Ok { people = [], allAreCool = True }
+            , test "singleton success" <| \_ -> expect [ 1 ] <| Ok { people = [ "Alice" ], allAreCool = True }
+            , test "singleton failure" <| \_ -> expect [ 11 ] <| Err "Unable to find person for 11"
+            , test "long success" <| \_ -> expect [ 1, 2, 3, 2 ] <| Ok { people = [ "Bob", "Cherry", "Bob", "Alice" ], allAreCool = False }
+            , test "long failure" <| \_ -> expect [ 1, 2, 3, 2, 1, 33 ] <| Err "Unable to find person for 33"
+            , test "extra long success to prove stack safety" <| \_ -> expect (List.repeat stackSafetyCount 1) <| Ok { people = List.repeat stackSafetyCount "Alice", allAreCool = True }
+            ]
+    in
+    describe "foldl*"
+        [ describe "foldl" <| foldlTest foldl identity
+        , describe "foldlArray" <| foldlTest foldlArray Array.fromList
+        ]
+
+
+isEven : Int -> Bool
+isEven n =
+    modBy 2 n == 0
+
+
+map2Tests : Test
+map2Tests =
+    let
+        errorMsg a b =
+            "Only even numbers can be added but we found " ++ String.fromInt a ++ " and " ++ String.fromInt b
+
+        map2Test map2 mkFromList =
+            let
+                zipper a b =
+                    if isEven a && isEven b then
+                        Ok <| a + b
+
+                    else
+                        Err <| errorMsg a b
+
+                expect a b expected =
+                    Expect.equal (map2 zipper (mkFromList a) (mkFromList b)) <| Result.map mkFromList expected
+            in
+            [ test "empty" <| \_ -> expect [] [] <| Ok []
+            , test "one empty" <| \_ -> expect [] [ 0 ] <| Ok []
+            , test "other empty" <| \_ -> expect [ 0 ] [] <| Ok []
+            , test "singleton success" <| \_ -> expect [ 0 ] [ 0 ] <| Ok [ 0 ]
+            , test "singleton failure" <| \_ -> expect [ 0 ] [ 1 ] <| Err <| errorMsg 0 1
+            , test "long success" <| \_ -> expect [ 0, 10, 20, 30, 40, 50 ] [ 0, 2, 4, 6, 8, 10 ] <| Ok [ 0, 12, 24, 36, 48, 60 ]
+            , test "long failure" <| \_ -> expect [ 0, 10, 20, 30, 40, 50 ] [ 0, 2, 4, 6, 8, 11 ] <| Err <| errorMsg 50 11
+            , test "extra long success to prove stack safety" <|
+                \_ ->
+                    let
+                        list =
+                            List.repeat stackSafetyCount 0
+                    in
+                    expect list list <| Ok list
+            ]
+    in
+    describe "map2*"
+        [ describe "map2" <| map2Test map2 identity
+        , describe "map2Array" <| map2Test map2Array Array.fromList
+        ]
+
+
+filterContainerTests : Test
+filterContainerTests =
+    let
+        over100 a =
+            "Only numbers <= 100. Found " ++ String.fromInt a
+
+        filterTest filter mkFromList =
+            let
+                pred a =
+                    if a <= 100 then
+                        Ok <| isEven a
+
+                    else
+                        Err <| over100 a
+
+                expect container expected =
+                    Expect.equal (filter pred (mkFromList container)) <| Result.map mkFromList expected
+            in
+            [ test "empty" <| \_ -> expect [] <| Ok []
+            , test "singleton success" <| \_ -> expect [ 4 ] <| Ok [ 4 ]
+            , test "singleton success returning empty" <| \_ -> expect [ 5 ] <| Ok []
+            , test "singleton failure" <| \_ -> expect [ 102 ] <| Err <| over100 102
+            , test "long success" <| \_ -> expect [ 0, 2, 5, 4, 6, 8, 33, 10 ] <| Ok [ 0, 2, 4, 6, 8, 10 ]
+            , test "long failure" <| \_ -> expect [ 0, 10, 20, 30, 40, 105 ] <| Err <| over100 105
+            , test "extra long success to prove stack safety" <|
+                \_ ->
+                    let
+                        list =
+                            List.repeat stackSafetyCount 0
+                    in
+                    expect list <| Ok list
+            ]
+    in
+    describe "filter*"
+        [ describe "filterArray" <| filterTest filterArray Array.fromList
+        , describe "filterList" <| filterTest filterList identity
+        ]
+
+
+monadHelperTests : Test
+monadHelperTests =
+    describe "List Helpers"
+        [ filterContainerTests
+        , foldlTests
+        , map2Tests
         ]
 
 
