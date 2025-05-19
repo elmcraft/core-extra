@@ -1,4 +1,4 @@
-module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, nonBlankTest, pluralizeTest, rightOfBackTest, softBreakTest, stripTagsTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
+module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, leftOfTest, nonBlankTest, pluralizeTest, rightOfBackTest, rightOfTest, softBreakTest, stripTagsTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
 
 import Char.Extra
 import Expect
@@ -428,12 +428,58 @@ leftOfBackTest =
                 |> Expect.equal "This_is_a_test"
 
 
+leftOfTest : Test
+leftOfTest =
+    describe "leftOf"
+        [ test "basic contains multiple" <|
+            \() ->
+                String.Extra.leftOf "___" "This___is_a___test___string"
+                    |> Expect.equal "This"
+        , test "not contains" <|
+            \() ->
+                String.Extra.leftOf "-" "This_is_a_test_string"
+                    |> Expect.equal ""
+        , test "newlines" <|
+            \() ->
+                String.Extra.leftOf "_" "This\ntest_string_foo"
+                    |> Expect.equal "This\ntest"
+        ]
+
+
 rightOfBackTest : Test
 rightOfBackTest =
-    test "rightOfBack" <|
-        \() ->
-            String.Extra.rightOfBack "_" "This_is_a_test_string"
-                |> Expect.equal "string"
+    describe "rightOfBack"
+        [ test "basic contains multiple" <|
+            \() ->
+                String.Extra.rightOfBack "___" "This___is_a___test___string"
+                    |> Expect.equal "string"
+        , test "not contains" <|
+            \() ->
+                String.Extra.rightOfBack "-" "This_is_a_test_string"
+                    |> Expect.equal ""
+        , test "newlines" <|
+            \() ->
+                String.Extra.rightOfBack "_" "This_is_a\ntest_string"
+                    |> Expect.equal "string"
+        ]
+
+
+rightOfTest : Test
+rightOfTest =
+    describe "rightOf"
+        [ test "basic contains multiple" <|
+            \() ->
+                String.Extra.rightOf "___" "This___is_a___test___string"
+                    |> Expect.equal "is_a___test___string"
+        , test "not contains" <|
+            \() ->
+                String.Extra.rightOf "-" "This_is_a_test_string"
+                    |> Expect.equal ""
+        , test "newlines" <|
+            \() ->
+                String.Extra.rightOf "_" "This_is_a\ntest_string"
+                    |> Expect.equal "is_a\ntest_string"
+        ]
 
 
 underscoredTest : Test
