@@ -776,28 +776,12 @@ consisting of the characters in the string that are to the left of the pattern.
 -}
 leftOf : String -> String -> String
 leftOf pattern string =
-    string
-        |> Regex.findAtMost 1 (regexFromString <| "^((?:.|\\s)*?)" ++ regexEscape pattern)
-        |> List.map (.submatches >> firstResult)
-        |> String.concat
-
-
-firstResult : List (Maybe String) -> String
-firstResult list =
-    firstResultHelp "" list
-
-
-firstResultHelp : String -> List (Maybe String) -> String
-firstResultHelp default list =
-    case list of
+    case String.indexes pattern string of
         [] ->
-            default
+            ""
 
-        (Just a) :: _ ->
-            a
-
-        Nothing :: rest ->
-            firstResultHelp default rest
+        firstIndex :: _ ->
+            String.slice 0 firstIndex string
 
 
 {-| Search a string from right to left for a pattern and return a substring
@@ -963,16 +947,6 @@ removeDiacritics str =
                         result ++ String.fromChar c
     in
     String.foldl replace "" str
-
-
-regexEscape : String -> String
-regexEscape =
-    Regex.replace regexEscapeRegex (\{ match } -> "\\" ++ match)
-
-
-regexEscapeRegex : Regex
-regexEscapeRegex =
-    regexFromString "[-/\\^$*+?.()|[\\]{}]"
 
 
 regexFromString : String -> Regex
