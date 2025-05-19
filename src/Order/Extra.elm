@@ -2,6 +2,7 @@ module Order.Extra exposing
     ( explicit, byField, byFieldWith, byRank, ifStillTiedThen
     , breakTies, breakTiesWith, reverse
     , natural
+    , nothingLast, nothingFirst
     , isOrdered, greaterThanBy, lessThanBy
     )
 
@@ -88,6 +89,11 @@ to sort a deck of cards you can use `cardOrdering` directly:
 # Strings
 
 @docs natural
+
+
+# Maybes
+
+@docs nothingLast, nothingFirst
 
 
 # Utility
@@ -459,6 +465,56 @@ greaterThanBy ordering x y =
 
         _ ->
             False
+
+
+
+--- Maybe
+
+
+{-| Returns an ordering that treats `Nothing` as greater than `Just a`.
+
+    [ Just 1, Nothing, Just 2 ]
+        |> List.sortWith (Order.Extra.nothingLast compare)
+        --> [ Just 1, Just 2, Nothing ]
+
+-}
+nothingLast : (a -> a -> Order) -> Maybe a -> Maybe a -> Order
+nothingLast ordering x y =
+    case ( x, y ) of
+        ( Nothing, Nothing ) ->
+            EQ
+
+        ( Nothing, Just _ ) ->
+            GT
+
+        ( Just _, Nothing ) ->
+            LT
+
+        ( Just a, Just b ) ->
+            ordering a b
+
+
+{-| Returns an ordering that treats `Nothing` as less than `Just a`.
+
+    [ Just 1, Nothing, Just 2 ]
+        |> List.sortWith (Order.Extra.nothingFirst compare)
+        --> [ Nothing, Just 1, Just 2 ]
+
+-}
+nothingFirst : (a -> a -> Order) -> Maybe a -> Maybe a -> Order
+nothingFirst ordering x y =
+    case ( x, y ) of
+        ( Nothing, Nothing ) ->
+            EQ
+
+        ( Nothing, Just _ ) ->
+            LT
+
+        ( Just _, Nothing ) ->
+            GT
+
+        ( Just a, Just b ) ->
+            ordering a b
 
 
 
