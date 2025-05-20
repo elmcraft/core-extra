@@ -1,5 +1,4 @@
 {
-  "root": "../src",
   "tests": [
     "Array.Extra",
     "Basics.Extra",
