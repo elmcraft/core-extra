@@ -3,7 +3,7 @@ module Maybe.Extra exposing
     , withDefaultLazy, unwrap, unpack
     , or, orElse, orList, orLazy, orElseLazy, orListLazy, oneOf
     , values
-    , combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
+    , combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth, unionWith
     , toList, toArray
     , cons
     , andThen2, andThen3, andThen4
@@ -39,7 +39,7 @@ Take the first value that's present
 
 # Combining
 
-@docs combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
+@docs combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth, unionWith
 
 
 # Transforming to collections
@@ -604,6 +604,76 @@ and then pull them out using `combineBoth`.
 combineMapBoth : (a -> Maybe c) -> (b -> Maybe d) -> ( a, b ) -> Maybe ( c, d )
 combineMapBoth f g t =
     combineBoth (Tuple.mapBoth f g t)
+
+
+{-| Combine two maybes of the same type with a function that returns that type.
+Kind of like Maybe.map2 but
+
+1.  more restrictive on the mapping function in exchange for being
+2.  glass-half-full when it comes to encountering _any_ `Just`s.
+
+Please be careful when the combining function is not commutative!
+See how string prepending (not appending) is used to build up the last example.
+
+Good other names could have been
+
+    - `merge` because it's like [`Dict.merge`](https://package.elm-lang.org/packages/elm/core/latest/Dict#merge)
+    - `concat` because it's like [`sconcat` for `Maybe` in Haskell](https://www.stackage.org/haddock/lts-23.23/base-4.19.2.0/src/GHC.Base.html#line-513)
+    (the semigroup `<>` operator is also called `sconcat`).
+    - `union` because there's no default way to combine two things so the "with" adds no information.
+
+
+### Prior art
+
+The name comes from [Agda.Utils.Maybe](https://hackage.haskell.org/package/Agda-2.7.0.1/docs/src/Agda.Utils.Maybe.html#unionMaybeWith)
+This is also basically exactly the same as [the `Semigroup` instance of `Maybe` (copied below).]()
+
+```haskell
+instance Semigroup a => Semigroup (Maybe a) where
+    Nothing <> b       = b
+    a       <> Nothing = a
+    Just a  <> Just b  = Just (a <> b)
+```
+
+
+### Examples
+
+    unionWith (+) (Just 1) (Just 2)
+    --> Just 3
+
+    unionWith (+) (Just 1) Nothing
+    --> Just 1
+
+    unionWith (+) Nothing (Just 2)
+    --> Just 2
+
+    unionWith (+) Nothing Nothing
+    --> Nothing
+
+    let
+        prepend : String -> String -> String
+        prepend a b =
+            b ++ a
+    in
+    Just "hello"
+        |> unionWith prepend Nothing
+        |> unionWith prepend (Just " ")
+        |> unionWith prepend Nothing
+        |> unionWith prepend (Just "world!")
+        --> Just "hello world!"
+
+-}
+unionWith : (a -> a -> a) -> Maybe a -> Maybe a -> Maybe a
+unionWith fn a b =
+    case ( a, b ) of
+        ( Just first, Just second ) ->
+            fn first second |> Just
+
+        ( first, Nothing ) ->
+            first
+
+        ( Nothing, second ) ->
+            second
 
 
 
