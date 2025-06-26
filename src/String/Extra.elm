@@ -264,11 +264,13 @@ camelizeRegex =
 
 
 {-| Convert a string to a camelized string starting with an uppercase letter.
-All non-word characters will be stripped out of the original string.
+All non-alphanumeric characters will be stripped out of the original string.
 
     classify "some_class_name" --> "SomeClassName"
 
     classify "myLittleCamel.class.name" --> "MyLittleCamelClassName"
+
+    classify "München" --> "MNchen"
 
 -}
 classify : String -> String
