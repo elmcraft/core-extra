@@ -584,15 +584,15 @@ chunkRegex =
 
 
 toComparableString : String -> String
-toComparableString =
-    String.toLower << String.Extra.removeDiacritics
+toComparableString str =
+    String.toLower (String.Extra.removeDiacritics str)
 
 
 toChunks : String -> List Chunk
 toChunks str =
     str
         |> Regex.find chunkRegex
-        |> List.map (toChunk << .match)
+        |> List.map (\{ match } -> toChunk match)
 
 
 toChunk : String -> Chunk

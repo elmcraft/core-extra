@@ -51,8 +51,8 @@ Useful when you want to artificially emit Cmd from update function.
 
 -}
 perform : msg -> Cmd msg
-perform =
-    Task.perform identity << Task.succeed
+perform msg =
+    Task.perform identity (Task.succeed msg)
 
 
 {-| Similar to perform but takes `Result msg` and performs action only on `Ok`.
@@ -66,8 +66,8 @@ perform =
 
 -}
 attempt : Result x msg -> Cmd msg
-attempt =
-    Result.withDefault Cmd.none << Result.map perform
+attempt result =
+    Result.withDefault Cmd.none (Result.map perform result)
 
 
 {-| Similar to attempt but works with `Maybe` instead

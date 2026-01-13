@@ -60,7 +60,14 @@ groupBy : (a -> comparable) -> List a -> Dict comparable (List a)
 groupBy keyfn list =
     List.foldr
         (\x acc ->
-            Dict.update (keyfn x) (Maybe.map ((::) x) >> Maybe.withDefault [ x ] >> Just) acc
+            Dict.update (keyfn x)
+                (\value ->
+                    value
+                        |> Maybe.map ((::) x)
+                        |> Maybe.withDefault [ x ]
+                        |> Just
+                )
+                acc
         )
         Dict.empty
         list
@@ -72,7 +79,7 @@ where key-fn returns `Nothing`
 
     import Dict
 
-    filterGroupBy (String.uncons >> Maybe.map Tuple.first) [ "tree" , "", "tweet", "apple" , "leaf", "" ]
+    filterGroupBy (\v -> v |> String.uncons |> Maybe.map Tuple.first) [ "tree" , "", "tweet", "apple" , "leaf", "" ]
     --> Dict.fromList [ ( 't', [ "tree", "tweet" ] ), ( 'a', [ "apple" ] ), ( 'l', [ "leaf" ] ) ]
 
     filterGroupBy
@@ -108,7 +115,14 @@ filterGroupBy keyfn list =
         (\x acc ->
             case keyfn x of
                 Just key ->
-                    Dict.update key (Maybe.map ((::) x) >> Maybe.withDefault [ x ] >> Just) acc
+                    Dict.update key
+                        (\value ->
+                            value
+                                |> Maybe.map ((::) x)
+                                |> Maybe.withDefault [ x ]
+                                |> Just
+                        )
+                        acc
 
                 Nothing ->
                     acc
