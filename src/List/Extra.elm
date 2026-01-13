@@ -1685,23 +1685,21 @@ break p ls =
 -}
 stripPrefix : List a -> List a -> Maybe (List a)
 stripPrefix prefix xs =
-    let
-        step e m =
-            case m of
-                Nothing ->
+    case prefix of
+        [] ->
+            Just xs
+
+        prefixHead :: prefixTail ->
+            case xs of
+                [] ->
                     Nothing
 
-                Just [] ->
-                    Nothing
-
-                Just (x :: xs_) ->
-                    if e == x then
-                        Just xs_
+                xsHead :: xsTail ->
+                    if prefixHead == xsHead then
+                        stripPrefix prefixTail xsTail
 
                     else
                         Nothing
-    in
-    List.foldl step (Just xs) prefix
 
 
 {-| Group similar elements together. `group` is equivalent to `groupWhile (==)`.
