@@ -305,13 +305,15 @@ surround wrapper string =
 unsurround : String -> String -> String
 unsurround wrapper string =
     if String.startsWith wrapper string && String.endsWith wrapper string then
-        let
-            length =
-                String.length wrapper
-        in
-        string
-            |> String.dropLeft length
-            |> String.dropRight length
+        if String.isEmpty wrapper then
+            string
+
+        else
+            let
+                length =
+                    String.length wrapper
+            in
+            String.slice length -length string
 
     else
         string
@@ -534,14 +536,24 @@ unindent multilineSting =
 
         minLead =
             lines
-                |> List.filter (String.any isNotWhitespace)
-                |> List.map (countLeadingWhitespace 0)
+                |> List.filterMap
+                    (\s ->
+                        if String.any isNotWhitespace s then
+                            Just (countLeadingWhitespace 0 s)
+
+                        else
+                            Nothing
+                    )
                 |> List.minimum
                 |> Maybe.withDefault 0
     in
-    lines
-        |> List.map (String.dropLeft minLead)
-        |> String.join "\n"
+    if minLead == 0 then
+        multilineSting
+
+    else
+        lines
+            |> List.map (String.dropLeft minLead)
+            |> String.join "\n"
 
 
 {-| Return the number of occurrences of a substring in another string.

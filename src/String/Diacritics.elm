@@ -2,6 +2,7 @@ module String.Diacritics exposing (lookupArray, lookupTable, minCode)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
+import List.Extra
 
 
 lookupTable : Dict Char String
@@ -14,28 +15,27 @@ the strings to replace them with.
 -}
 lookupArray : Array String
 lookupArray =
-    List.range 0 maxCode
-        |> List.map
-            (\i ->
-                case Dict.get (Char.fromCode i) lookupTable of
-                    Nothing ->
-                        String.fromChar (Char.fromCode i)
+    Array.initialize (maxCode + 1)
+        (\i ->
+            case Dict.get (Char.fromCode i) lookupTable of
+                Nothing ->
+                    String.fromChar (Char.fromCode i)
 
-                    Just str ->
-                        str
-            )
-        |> Array.fromList
+                Just str ->
+                    str
+        )
 
 
 {-| The highest Unicode code point of all the diacritics.
 -}
 maxCode : Int
 maxCode =
-    lookupList
-        |> List.map Tuple.first
-        |> List.map Char.toCode
-        |> List.maximum
-        |> Maybe.withDefault maxUnicode
+    case List.Extra.maximumBy (\( c, _ ) -> Char.toCode c) lookupList of
+        Just ( c, _ ) ->
+            Char.toCode c
+
+        Nothing ->
+            maxUnicode
 
 
 {-| The highest Unicode code point, see
@@ -50,11 +50,12 @@ maxUnicode =
 -}
 minCode : Int
 minCode =
-    lookupList
-        |> List.map Tuple.first
-        |> List.map Char.toCode
-        |> List.minimum
-        |> Maybe.withDefault 0
+    case List.Extra.minimumBy (\( c, _ ) -> Char.toCode c) lookupList of
+        Just ( c, _ ) ->
+            Char.toCode c
+
+        Nothing ->
+            0
 
 
 lookupList : List ( Char, String )
