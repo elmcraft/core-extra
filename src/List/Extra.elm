@@ -1045,7 +1045,7 @@ This is equivalent to `List.filter (not << predicate) list`.
 -}
 removeWhen : (a -> Bool) -> List a -> List a
 removeWhen pred list =
-    List.filter (not << pred) list
+    List.filter (\x -> not (pred x)) list
 
 
 {-| Take a list and a list of lists, insert that list between every list in the list of lists, concatenate the result. `intercalate xs xss` is equivalent to `concat (intersperse xs xss)`.
@@ -1055,8 +1055,8 @@ removeWhen pred list =
 
 -}
 intercalate : List a -> List (List a) -> List a
-intercalate xs =
-    List.concat << List.intersperse xs
+intercalate small big =
+    List.concat (List.intersperse small big)
 
 
 {-| Transpose rows and columns of the list of lists.
@@ -1599,7 +1599,7 @@ splitWhen predicate list =
 
 -}
 takeWhileRight : (a -> Bool) -> List a -> List a
-takeWhileRight p =
+takeWhileRight p ls =
     let
         step x ( xs, free ) =
             if p x && free then
@@ -1608,7 +1608,7 @@ takeWhileRight p =
             else
                 ( xs, False )
     in
-    Tuple.first << List.foldr step ( [], True )
+    Tuple.first (List.foldr step ( [], True ) ls)
 
 
 {-| Drop elements from the right, while predicate still holds.
@@ -1618,7 +1618,7 @@ takeWhileRight p =
 
 -}
 dropWhileRight : (a -> Bool) -> List a -> List a
-dropWhileRight p =
+dropWhileRight p ls =
     List.foldr
         (\x xs ->
             if p x && List.isEmpty xs then
@@ -1628,6 +1628,7 @@ dropWhileRight p =
                 x :: xs
         )
         []
+        ls
 
 
 {-| Take a predicate and a list, return a tuple. The first part of the tuple is the longest prefix of that list, for each element of which the predicate holds. The second part of the tuple is the remainder of the list. `span p xs` is equivalent to `(takeWhile p xs, dropWhile p xs)`.
@@ -1660,8 +1661,8 @@ span p xs =
 
 -}
 break : (a -> Bool) -> List a -> ( List a, List a )
-break p =
-    span (not << p)
+break p ls =
+    span (\x -> not (p x)) ls
 
 
 {-| Drop the given prefix from the list. If the list doesn't start with that prefix, return `Nothing`.
@@ -1710,8 +1711,8 @@ stripPrefix prefix xs =
 
 -}
 group : List a -> List ( a, List a )
-group =
-    groupWhile (==)
+group list =
+    groupWhile (==) list
 
 
 {-| Group elements together, using a custom comparison test (`a -> a -> Bool`). Start a new group each time the comparison test doesn't hold for two adjacent elements.

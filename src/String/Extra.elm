@@ -120,7 +120,7 @@ decapitalize word =
 -}
 toTitleCase : String -> String
 toTitleCase ws =
-    Regex.replace titleCaseRegex (.match >> String.toUpper) ws
+    Regex.replace titleCaseRegex (\{ match } -> String.toUpper match) ws
 
 
 titleCaseRegex : Regex
@@ -354,7 +354,12 @@ underscored : String -> String
 underscored string =
     string
         |> String.trim
-        |> Regex.replace underscoredAlphaRegex (.submatches >> List.filterMap identity >> String.join "_")
+        |> Regex.replace underscoredAlphaRegex
+            (\{ submatches } ->
+                submatches
+                    |> List.filterMap identity
+                    |> String.join "_"
+            )
         |> Regex.replace underscoredDelimiterRegex (always "_")
         |> String.toLower
 
@@ -475,7 +480,7 @@ postfix '\_id'. The first character will be capitalized.
 humanize : String -> String
 humanize string =
     string
-        |> Regex.replace humanizeAlphaRegex (.match >> String.append "-")
+        |> Regex.replace humanizeAlphaRegex (\{ match } -> "-" ++ match)
         |> Regex.replace humanizeIgnoreRegex (always " ")
         |> String.trim
         |> String.toLower

@@ -60,7 +60,7 @@ import Set exposing (Set)
 -}
 concatMap : (comparable -> Set comparable2) -> Set comparable -> Set comparable2
 concatMap f s =
-    Set.foldl (Set.union << f) Set.empty s
+    Set.foldl (\x acc -> Set.union (f x) acc) Set.empty s
 
 
 {-| A set is a subset of another set if all the elements in the first set appear in the second set.
