@@ -267,20 +267,12 @@ roundToDecimal places value =
             exp : Float
             exp =
                 10.0 ^ toFloat places
-
-            multiplyByExp : Float -> Float
-            multiplyByExp =
-                (*) exp
-
-            divByExp : Float -> Float
-            divByExp v =
-                v / exp
         in
-        value
-            |> multiplyByExp
+        ((value * exp)
             |> round
             |> toFloat
-            |> divByExp
+        )
+            / exp
 
 
 

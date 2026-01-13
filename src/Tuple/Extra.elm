@@ -105,8 +105,8 @@ string, join together two strings in a tuple.
 
 -}
 join : appendable -> ( appendable, appendable ) -> appendable
-join =
-    joinBy identity identity
+join s ( a, b ) =
+    a ++ s ++ b
 
 
 {-| Works just like join, but first converts the values of the tuple to strings.

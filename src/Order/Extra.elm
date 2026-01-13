@@ -186,8 +186,8 @@ field selected by the given function.
 
 -}
 byField : (a -> comparable) -> a -> a -> Order
-byField =
-    byFieldWith Basics.compare
+byField x y =
+    byFieldWith Basics.compare x y
 
 
 {-| Produces an ordering that orders its elements using the given ordering on the

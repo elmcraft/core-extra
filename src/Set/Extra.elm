@@ -127,14 +127,14 @@ toggle elem set =
 -}
 filterMap : (comparable -> Maybe comparable2) -> Set comparable -> Set comparable2
 filterMap f xs =
-    Set.fromList <| Set.foldr (maybeCons f) [] xs
+    Set.foldr (maybeInsert f) Set.empty xs
 
 
-maybeCons : (comparable -> Maybe comparable2) -> comparable -> List comparable2 -> List comparable2
-maybeCons f mx xs =
+maybeInsert : (a -> Maybe comparable) -> a -> Set comparable -> Set comparable
+maybeInsert f mx xs =
     case f mx of
         Just x ->
-            x :: xs
+            Set.insert x xs
 
         Nothing ->
             xs

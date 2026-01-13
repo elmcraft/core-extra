@@ -194,8 +194,8 @@ consTry maybeNewHead list =
 
 -}
 andMap : Array a -> Array (a -> b) -> Array b
-andMap =
-    map2 (|>)
+andMap x f =
+    map2 (|>) x f
 
 
 {-| Apply a function to the elements in the array and collect the result in a List.

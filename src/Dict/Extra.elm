@@ -60,14 +60,17 @@ groupBy : (a -> comparable) -> List a -> Dict comparable (List a)
 groupBy keyfn list =
     List.foldr
         (\x acc ->
-            Dict.update (keyfn x)
-                (\value ->
-                    value
-                        |> Maybe.map ((::) x)
-                        |> Maybe.withDefault [ x ]
-                        |> Just
-                )
-                acc
+            let
+                key : comparable
+                key =
+                    keyfn x
+            in
+            case Dict.get key acc of
+                Nothing ->
+                    Dict.insert key [ x ] acc
+
+                Just found ->
+                    Dict.insert key (x :: found) acc
         )
         Dict.empty
         list
@@ -115,14 +118,12 @@ filterGroupBy keyfn list =
         (\x acc ->
             case keyfn x of
                 Just key ->
-                    Dict.update key
-                        (\value ->
-                            value
-                                |> Maybe.map ((::) x)
-                                |> Maybe.withDefault [ x ]
-                                |> Just
-                        )
-                        acc
+                    case Dict.get key acc of
+                        Nothing ->
+                            Dict.insert key [ x ] acc
+
+                        Just found ->
+                            Dict.insert key (x :: found) acc
 
                 Nothing ->
                     acc
@@ -195,15 +196,17 @@ fromListByCombining combine keyfn xs =
 -}
 frequencies : List comparable -> Dict comparable Int
 frequencies list =
-    list
-        |> List.foldl
-            (\el counter ->
-                Dict.get el counter
-                    |> Maybe.withDefault 0
-                    |> (\count -> count + 1)
-                    |> (\count -> Dict.insert el count counter)
-            )
-            Dict.empty
+    List.foldl
+        (\el counter ->
+            case Dict.get el counter of
+                Just count ->
+                    Dict.insert el (count + 1) counter
+
+                Nothing ->
+                    Dict.insert el 1 counter
+        )
+        Dict.empty
+        list
 
 
 {-| Remove elements which satisfies the predicate.
@@ -251,16 +254,12 @@ returns the element to be inserted.
 -}
 insertCombining : (v -> v -> v) -> comparable -> v -> Dict comparable v -> Dict comparable v
 insertCombining combine key value dict =
-    let
-        with mbValue =
-            case mbValue of
-                Just oldValue ->
-                    Just <| combine oldValue value
+    case Dict.get key dict of
+        Nothing ->
+            Dict.insert key value dict
 
-                Nothing ->
-                    Just value
-    in
-    Dict.update key with dict
+        Just oldValue ->
+            Dict.insert key (combine oldValue value) dict
 
 
 {-| Updates a value if the key is present in the dictionary, leaves the dictionary untouched otherwise.
@@ -317,7 +316,12 @@ keepOnly : Set comparable -> Dict comparable v -> Dict comparable v
 keepOnly set dict =
     Set.foldl
         (\k acc ->
-            Maybe.withDefault acc <| Maybe.map (\v -> Dict.insert k v acc) (Dict.get k dict)
+            case Dict.get k dict of
+                Just found ->
+                    Dict.insert k found acc
+
+                Nothing ->
+                    acc
         )
         Dict.empty
         set
