@@ -230,11 +230,11 @@ cycleHelp acc n list =
 You give the highest and lowest number that should be in the list.
 More efficient than calling `List.reverse (List.range lo hi)`
 
-    range 6 3 == [ 6, 5, 4, 3 ]
+    reverseRange 6 3 == [ 6, 5, 4, 3 ]
 
-    range 3 3 == [ 3 ]
+    reverseRange 3 3 == [ 3 ]
 
-    range 3 6 == []
+    reverseRange 3 6 == []
 
 -}
 reverseRange : Int -> Int -> List Int
