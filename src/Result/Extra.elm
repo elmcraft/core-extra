@@ -1,5 +1,6 @@
 module Result.Extra exposing
     ( isOk, isErr, extract, unwrap, unpack, error, mapBoth, merge, join, partition, filter
+    , foldlWhileOk
     , combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
     , andMap
     , or, orLazy, orElseLazy, orElse
@@ -16,6 +17,7 @@ module Result.Extra exposing
 
 # Combining
 
+@docs foldlWhileOk
 @docs combine, combineMap, combineArray, combineMapArray, combineFirst, combineSecond, combineBoth, combineMapFirst, combineMapSecond, combineMapBoth
 
 
@@ -134,6 +136,30 @@ mapBoth errFunc okFunc result =
 
         Err err ->
             Err <| errFunc err
+
+
+{-| Folds over a list but stops at the first Err if one is encountered.
+
+The two following function calls are equivalent, but `foldlWhileOk` will be more performant.
+
+    Result.Extra.foldlWhileOk (\x res -> f x res) initial list
+
+    List.foldl (\x res -> Result.andThen (f x) res) (Ok initial) list
+
+-}
+foldlWhileOk : (a -> value -> Result error value) -> value -> List a -> Result error value
+foldlWhileOk f value list =
+    case list of
+        [] ->
+            Ok value
+
+        a :: rest ->
+            case f a value of
+                (Err _) as err_ ->
+                    err_
+
+                Ok newValue ->
+                    foldlWhileOk f newValue rest
 
 
 

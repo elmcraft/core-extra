@@ -24,6 +24,7 @@ import List.Extra.NotMember
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
 import Maybe.Extra.AndMap
+import Result.Extra
 import Result.Extra.AndMap
 import Set exposing (Set)
 import Set.Extra.AreDisjoint
@@ -339,6 +340,24 @@ maybeExtra =
 
 resultExtra : Benchmark
 resultExtra =
+    let
+        integers =
+            List.range 0 100
+
+        foldFnAllOk a sum =
+            if sum < 0 then
+                Err ()
+
+            else
+                Ok (a + sum)
+
+        foldFnFirstError a sum =
+            if sum <= 0 then
+                Err ()
+
+            else
+                Ok (a + sum)
+    in
     describe "Result.Extra"
         [ rank "andMap - Ok × Ok"
             (\andMap -> Ok negate |> andMap (Ok 0))
@@ -368,6 +387,16 @@ resultExtra =
             (\andMap -> Err "l" |> andMap (Err "e"))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
+            ]
+        , rank "foldlWhileOk - Err at the first element"
+            (\foldlWhileOk -> foldlWhileOk foldFnFirstError 0 integers)
+            [ ( "Using List.foldl", \f initial list -> List.foldl (\n acc -> Result.andThen (f n) acc) (Ok initial) list )
+            , ( "foldlWhileOk", \f initial list -> Result.Extra.foldlWhileOk f initial list )
+            ]
+        , rank "foldlWhileOk - all Ok"
+            (\foldlWhileOk -> foldlWhileOk foldFnAllOk 0 integers)
+            [ ( "Using List.foldl", \f initial list -> List.foldl (\n acc -> Result.andThen (f n) acc) (Ok initial) list )
+            , ( "foldlWhileOk", \f initial list -> Result.Extra.foldlWhileOk f initial list )
             ]
         ]
 
