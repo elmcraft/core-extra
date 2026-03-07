@@ -3,7 +3,7 @@
     "name": "elmcraft/core-extra",
     "summary": "Utility functions for an improved experience with elm/core",
     "license": "BSD-3-Clause",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "exposed-modules": [
         "Array.Extra",
         "Basics.Extra",
@@ -27,7 +27,7 @@
     },
     "test-dependencies": {
         "elm/html": "1.0.0 <= v < 2.0.0",
-        "elm-explorations/test": "2.0.0 <= v < 3.0.0",
-        "elm/random": "1.0.0 <= v < 2.0.0"
+        "elm/random": "1.0.0 <= v < 2.0.0",
+        "elm-explorations/test": "2.0.0 <= v < 3.0.0"
     }
 }
