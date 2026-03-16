@@ -1405,18 +1405,15 @@ Examples:
 
 -}
 scanr : (a -> b -> b) -> b -> List a -> List b
-scanr f acc xs_ =
-    case xs_ of
-        [] ->
-            [ acc ]
+scanr f b xs_ =
+    let
+        scan1 x ( accHead, accTail ) =
+            ( f x accHead, accHead :: accTail )
 
-        x :: xs ->
-            case scanr f acc xs of
-                (q :: _) as qs ->
-                    f x q :: qs
-
-                [] ->
-                    []
+        ( h, t ) =
+            List.foldl scan1 ( b, [] ) (List.reverse xs_)
+    in
+    h :: t
 
 
 {-| `scanr1` is a variant of `scanr` that has no starting value argument.
@@ -1430,20 +1427,19 @@ scanr f acc xs_ =
 -}
 scanr1 : (a -> a -> a) -> List a -> List a
 scanr1 f xs_ =
-    case xs_ of
+    case List.reverse xs_ of
         [] ->
             []
 
-        [ x ] ->
-            [ x ]
+        b :: xs ->
+            let
+                scan1 x ( accHead, accTail ) =
+                    ( f x accHead, accHead :: accTail )
 
-        x :: xs ->
-            case scanr1 f xs of
-                (q :: _) as qs ->
-                    f x q :: qs
-
-                [] ->
-                    []
+                ( h, t ) =
+                    List.foldl scan1 ( b, [] ) xs
+            in
+            h :: t
 
 
 {-| The mapAccuml function behaves like a combination of map and foldl; it applies a
