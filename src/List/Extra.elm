@@ -1232,12 +1232,17 @@ In this example, everybody shakes hands with three other people.
 -}
 uniquePairs : List a -> List ( a, a )
 uniquePairs xs =
-    case xs of
-        [] ->
-            []
+    let
+        go : List a -> List ( a, a ) -> List ( a, a )
+        go queue acc =
+            case queue of
+                [] ->
+                    List.reverse acc
 
-        x :: xs_ ->
-            List.map (\y -> ( x, y )) xs_ ++ uniquePairs xs_
+                h :: t ->
+                    go t (List.foldl (\o a -> ( h, o ) :: a) acc t)
+    in
+    go xs []
 
 
 reverseAppend : List a -> List a -> List a
