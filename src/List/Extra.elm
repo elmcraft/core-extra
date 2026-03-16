@@ -1535,12 +1535,17 @@ mapAccumr f acc0 list =
 -}
 unfoldr : (b -> Maybe ( a, b )) -> b -> List a
 unfoldr f seed =
-    case f seed of
-        Nothing ->
-            []
+    let
+        go : b -> List a -> List a
+        go x acc =
+            case f x of
+                Nothing ->
+                    List.reverse acc
 
-        Just ( a, b ) ->
-            a :: unfoldr f b
+                Just ( a, b ) ->
+                    go b (a :: acc)
+    in
+    go seed []
 
 
 {-| Take a number and a list, return a tuple of lists, where first part is prefix of the list of length equal the number, and second part is the remainder of the list. `splitAt n xs` is equivalent to `(take n xs, drop n xs)`.
