@@ -1355,17 +1355,13 @@ stoppableFoldl func acc list =
 scanl : (a -> b -> b) -> b -> List a -> List b
 scanl f b xs =
     let
-        scan1 x accAcc =
-            case accAcc of
-                acc :: _ ->
-                    f x acc :: accAcc
+        scan1 x ( accHead, accTail ) =
+            ( f x accHead, accHead :: accTail )
 
-                [] ->
-                    []
-
-        -- impossible
+        ( h, t ) =
+            List.foldl scan1 ( b, [] ) xs
     in
-    List.reverse (List.foldl scan1 [ b ] xs)
+    List.reverse (h :: t)
 
 
 {-| `scanl1` is a variant of `scanl` that has no starting value argument.
