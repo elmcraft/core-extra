@@ -18,9 +18,11 @@ import Benchmark exposing (Benchmark, describe)
 import Benchmark.Alternative exposing (rank)
 import Benchmark.Runner.Alternative as BenchmarkRunner
 import List.Extra
+import List.Extra.DropRight
 import List.Extra.GroupsOf
 import List.Extra.Lift
 import List.Extra.NotMember
+import List.Extra.TakeRight
 import List.Extra.Unfoldr
 import List.Extra.UniquePairs
 import Maybe.Extra.AndMap
@@ -192,6 +194,9 @@ listExtra =
 
         intList =
             List.range 1 100
+
+        longList =
+            List.range 1 1000
     in
     describe "List.Extra"
         ([ rank "uniquePairs"
@@ -233,6 +238,42 @@ listExtra =
             (\notMember -> notMember 101 intList)
             [ ( "Original", List.Extra.NotMember.notMemberOriginal )
             , ( "Simplified", List.Extra.NotMember.notMemberSimple )
+            ]
+         , rank "dropRight 5 10"
+            (\dropRight -> dropRight 5 shortList)
+            [ ( "foldr", List.Extra.DropRight.dropRightFoldr )
+            , ( "reverse", List.Extra.DropRight.dropRightReverse )
+            , ( "length", List.Extra.DropRight.dropRightLength )
+            ]
+         , rank "takeRight 5 10"
+            (\takeRight -> takeRight 5 shortList)
+            [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
+            , ( "reverse", List.Extra.TakeRight.takeRightReverse )
+            , ( "length", List.Extra.TakeRight.takeRightLength )
+            ]
+         , rank "dropRight 50 100"
+            (\dropRight -> dropRight 50 intList)
+            [ ( "foldr", List.Extra.DropRight.dropRightFoldr )
+            , ( "reverse", List.Extra.DropRight.dropRightReverse )
+            , ( "length", List.Extra.DropRight.dropRightLength )
+            ]
+         , rank "takeRight 50 100"
+            (\takeRight -> takeRight 50 intList)
+            [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
+            , ( "reverse", List.Extra.TakeRight.takeRightReverse )
+            , ( "length", List.Extra.TakeRight.takeRightLength )
+            ]
+         , rank "dropRight 500 1000"
+            (\dropRight -> dropRight 500 longList)
+            [ ( "foldr", List.Extra.DropRight.dropRightFoldr )
+            , ( "reverse", List.Extra.DropRight.dropRightReverse )
+            , ( "length", List.Extra.DropRight.dropRightLength )
+            ]
+         , rank "takeRight 500 1000"
+            (\takeRight -> takeRight 500 longList)
+            [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
+            , ( "reverse", List.Extra.TakeRight.takeRightReverse )
+            , ( "length", List.Extra.TakeRight.takeRightLength )
             ]
          ]
             ++ List.concatMap toComparisonsGroupsOfWithStep (List.range 1 4)
