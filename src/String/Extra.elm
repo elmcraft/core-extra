@@ -69,8 +69,6 @@ Functions borrowed from the Rails Inflector class
 
 import Array
 import Char exposing (toLower, toUpper)
-import List
-import Maybe exposing (Maybe(..))
 import Regex exposing (Regex)
 import String exposing (cons, uncons)
 import String.Diacritics as Diacritics
@@ -565,7 +563,7 @@ unindent multilineSting =
 -}
 countOccurrences : String -> String -> Int
 countOccurrences needle haystack =
-    if String.length needle == 0 || String.length haystack == 0 then
+    if String.isEmpty needle || String.isEmpty haystack then
         0
 
     else

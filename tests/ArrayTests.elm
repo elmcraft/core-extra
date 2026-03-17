@@ -303,14 +303,14 @@ suite =
         , Test.describe "sliceFrom"
             [ test "index positive valid"
                 (\() ->
-                    Array.fromList (List.range 0 6)
+                    Array.initialize 7 identity
                         |> Array.sliceFrom 3
                         |> expectEqualArrays
                             (Array.fromList [ 3, 4, 5, 6 ])
                 )
             , test "index negative valid"
                 (\() ->
-                    Array.fromList (List.range 0 6)
+                    Array.initialize 7 identity
                         |> Array.sliceFrom -3
                         |> expectEqualArrays
                             (Array.fromList [ 4, 5, 6 ])
@@ -345,14 +345,14 @@ suite =
         , Test.describe "sliceUntil"
             [ test "index positive valid"
                 (\() ->
-                    Array.fromList (List.range 0 6)
+                    Array.initialize 7 identity
                         |> Array.sliceUntil 3
                         |> expectEqualArrays
                             (Array.fromList [ 0, 1, 2 ])
                 )
             , test "index negative valid"
                 (\() ->
-                    Array.fromList (List.range 0 6)
+                    Array.initialize 7 identity
                         |> Array.sliceUntil -3
                         |> expectEqualArrays
                             (Array.fromList [ 0, 1, 2, 3 ])

@@ -1,4 +1,4 @@
-module OrderTests exposing (Card, Point, Suite(..), Value(..), all)
+module OrderTests exposing (Card, Point, Suite, Value, all)
 
 import Dict
 import Expect

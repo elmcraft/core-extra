@@ -1,10 +1,8 @@
 module String.HumanizeTest exposing (humanizeTest)
 
-import Char
 import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
-import String
 import String.Extra exposing (humanize)
 import String.TestData as TestData
 import Test exposing (Test, describe, fuzz, test)
