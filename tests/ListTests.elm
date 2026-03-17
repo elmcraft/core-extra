@@ -536,7 +536,9 @@ all =
             [ test "keeps the correct items" <|
                 \() ->
                     Expect.equal (List.Extra.takeWhileRight (\x -> 5 < x) (List.range 1 10)) [ 6, 7, 8, 9, 10 ]
-            , test "drops the correct items" <|
+            ]
+        , describe "dropWhileRight" <|
+            [ test "drops the correct items" <|
                 \() ->
                     Expect.equal (List.Extra.dropWhileRight (\x -> 5 < x) (List.range 1 10)) [ 1, 2, 3, 4, 5 ]
             ]
