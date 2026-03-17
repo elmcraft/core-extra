@@ -1596,7 +1596,7 @@ splitWhen predicate list =
 
 {-| Take the last _n_ members of a list.
 
-    take 2 [ 1, 2, 3, 4, 5 ] == [ 1, 2 ]
+    takeRight 2 [ 1, 2, 3, 4, 5 ] == [ 4, 5 ]
 
 -}
 takeRight : Int -> List a -> List a
