@@ -2,7 +2,6 @@ module String.UnindentTest exposing (unindentTest)
 
 import Expect
 import Fuzz exposing (Fuzzer)
-import String
 import String.Extra exposing (unindent)
 import Test exposing (Test, describe, fuzz)
 

@@ -68,7 +68,7 @@ decapitalizeTest =
             \string ->
                 let
                     result =
-                        (String.Extra.decapitalize >> tail) string
+                        tail <| String.Extra.decapitalize string
 
                     expected =
                         tail string
@@ -118,7 +118,7 @@ breakTest =
                     _ ->
                         String.Extra.break width string
                             |> List.length
-                            |> Expect.equal (ceiling <| (toFloat << String.length) string / toFloat width)
+                            |> Expect.equal (ceiling <| (toFloat <| String.length string) / toFloat width)
         , fuzz2 Fuzz.string (Fuzz.intRange 1 10) "Concatenating the result yields the original string" <|
             \string width ->
                 String.Extra.break width string
@@ -128,9 +128,8 @@ breakTest =
             \string width ->
                 String.Extra.break width string
                     |> List.map String.length
-                    |> List.filter (\x -> width < x)
-                    |> List.isEmpty
-                    |> Expect.equal True
+                    |> List.any (\x -> width < x)
+                    |> Expect.equal False
                     |> Expect.onFail "The list has some long elements"
         ]
 

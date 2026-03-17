@@ -2,7 +2,6 @@ module String.ReplaceSliceTest exposing (replaceSliceTest)
 
 import Expect
 import Fuzz exposing (Fuzzer)
-import String
 import String.Extra
 import Test exposing (Test, describe, fuzz)
 

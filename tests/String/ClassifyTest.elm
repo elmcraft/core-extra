@@ -1,6 +1,5 @@
 module String.ClassifyTest exposing (classifyTest)
 
-import Char
 import Expect
 import Fuzz exposing (Fuzzer)
 import Regex
