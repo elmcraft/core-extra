@@ -9,3 +9,11 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "elm"
+    directory: "/review"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "elm"
+    directory: "/benchmarks"
+    schedule:
+      interval: "weekly"
