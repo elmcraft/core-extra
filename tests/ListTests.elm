@@ -468,6 +468,70 @@ all =
                 \() ->
                     Expect.equal (List.Extra.splitWhen (\n -> n == 6) [ 1, 2, 3, 4, 5 ]) Nothing
             ]
+        , describe "takeRight" <|
+            [ test "keeps the correct items" <|
+                \() ->
+                    List.Extra.takeRight 3 (List.range 1 5)
+                        |> Expect.equal [ 3, 4, 5 ]
+            , fuzz2 (Fuzz.int |> Fuzz.map (\n -> -(abs n))) (Fuzz.list Fuzz.int) "non-positive number of items" <|
+                \negativeN list ->
+                    List.Extra.takeRight negativeN list
+                        |> Expect.equalLists []
+            , fuzz2 (Fuzz.intRange 0 10) (Fuzz.list Fuzz.int) "taking more than there is" <|
+                \add list ->
+                    List.Extra.takeRight (List.length list + add) list
+                        |> Expect.equalLists list
+            , fuzz (Fuzz.listOfLengthBetween 1 5 Fuzz.int) "taking last item" <|
+                \list ->
+                    case List.Extra.last list of
+                        Nothing ->
+                            Debug.todo "fuzzer bug?"
+
+                        Just last ->
+                            List.Extra.takeRight 1 list
+                                |> Expect.equalLists [ last ]
+            , fuzz (Fuzz.listOfLengthBetween 1 5 Fuzz.int) "taking all but first item" <|
+                \list ->
+                    case List.tail list of
+                        Nothing ->
+                            Debug.todo "fuzzer bug?"
+
+                        Just butFirst ->
+                            List.Extra.takeRight (List.length list - 1) list
+                                |> Expect.equalLists butFirst
+            ]
+        , describe "dropRight" <|
+            [ test "drops the correct items" <|
+                \() ->
+                    List.Extra.dropRight 3 (List.range 1 5)
+                        |> Expect.equal [ 1, 2 ]
+            , fuzz2 (Fuzz.int |> Fuzz.map (\n -> -(abs n))) (Fuzz.list Fuzz.int) "non-positive number of items" <|
+                \negativeN list ->
+                    List.Extra.dropRight negativeN list
+                        |> Expect.equalLists list
+            , fuzz2 (Fuzz.intRange 0 10) (Fuzz.list Fuzz.int) "dropping more than there is" <|
+                \add list ->
+                    List.Extra.dropRight (List.length list + add) list
+                        |> Expect.equalLists []
+            , fuzz (Fuzz.listOfLengthBetween 1 5 Fuzz.int) "dropping last item" <|
+                \list ->
+                    case List.Extra.init list of
+                        Nothing ->
+                            Debug.todo "fuzzer bug?"
+
+                        Just init ->
+                            List.Extra.dropRight 1 list
+                                |> Expect.equalLists init
+            , fuzz (Fuzz.listOfLengthBetween 1 5 Fuzz.int) "dropping all but first item" <|
+                \list ->
+                    case List.head list of
+                        Nothing ->
+                            Debug.todo "fuzzer bug?"
+
+                        Just first ->
+                            List.Extra.dropRight (List.length list - 1) list
+                                |> Expect.equalLists [ first ]
+            ]
         , describe "takeWhileRight" <|
             [ test "keeps the correct items" <|
                 \() ->

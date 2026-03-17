@@ -3,7 +3,7 @@ module List.Extra exposing
     , intercalate, transpose, subsequences, permutations, interweave, cartesianProduct, uniquePairs
     , foldl1, foldr1, indexedFoldl, indexedFoldr, Step(..), stoppableFoldl
     , scanl, scanl1, scanr, scanr1, mapAccuml, mapAccumr, unfoldr, iterate, initialize, cycle, reverseRange
-    , splitAt, splitWhen, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, conditional, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
+    , splitAt, splitWhen, takeRight, dropRight, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, conditional, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
     , isPrefixOf, isSuffixOf, isInfixOf, isSubsequenceOf, isPermutationOf
     , notMember, find, elemIndex, elemIndices, findIndex, findIndices, findMap, count
     , zip, zip3
@@ -37,7 +37,7 @@ module List.Extra exposing
 
 # Sublists
 
-@docs splitAt, splitWhen, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, conditional, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
+@docs splitAt, splitWhen, takeRight, dropRight, takeWhileRight, dropWhileRight, span, break, stripPrefix, group, groupWhile, inits, tails, conditional, select, selectSplit, gatherEquals, gatherEqualsBy, gatherWith, subsequencesNonEmpty, frequencies
 
 
 # Predicates
@@ -1590,6 +1590,32 @@ splitWhen : (a -> Bool) -> List a -> Maybe ( List a, List a )
 splitWhen predicate list =
     findIndex predicate list
         |> Maybe.map (\i -> splitAt i list)
+
+
+{-| Take the last _n_ members of a list.
+
+    take 2 [ 1, 2, 3, 4, 5 ] == [ 1, 2 ]
+
+-}
+takeRight : Int -> List a -> List a
+takeRight n lst =
+    lst
+        |> List.reverse
+        |> List.take n
+        |> List.reverse
+
+
+{-| Drop the last _n_ members of a list.
+
+    dropRight 2 [ 1, 2, 3, 4, 5 ] == [ 1, 2, 3 ]
+
+-}
+dropRight : Int -> List a -> List a
+dropRight n lst =
+    lst
+        |> List.reverse
+        |> List.drop n
+        |> List.reverse
 
 
 {-| Take elements from the right, while predicate still holds.
