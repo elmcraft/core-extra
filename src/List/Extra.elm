@@ -1232,12 +1232,17 @@ In this example, everybody shakes hands with three other people.
 -}
 uniquePairs : List a -> List ( a, a )
 uniquePairs xs =
-    case xs of
-        [] ->
-            []
+    let
+        go : List a -> List ( a, a ) -> List ( a, a )
+        go queue acc =
+            case queue of
+                [] ->
+                    List.reverse acc
 
-        x :: xs_ ->
-            List.map (\y -> ( x, y )) xs_ ++ uniquePairs xs_
+                h :: t ->
+                    go t (List.foldl (\o a -> ( h, o ) :: a) acc t)
+    in
+    go xs []
 
 
 reverseAppend : List a -> List a -> List a
@@ -1355,17 +1360,13 @@ stoppableFoldl func acc list =
 scanl : (a -> b -> b) -> b -> List a -> List b
 scanl f b xs =
     let
-        scan1 x accAcc =
-            case accAcc of
-                acc :: _ ->
-                    f x acc :: accAcc
+        scan1 x ( accHead, accTail ) =
+            ( f x accHead, accHead :: accTail )
 
-                [] ->
-                    []
-
-        -- impossible
+        ( h, t ) =
+            List.foldl scan1 ( b, [] ) xs
     in
-    List.reverse (List.foldl scan1 [ b ] xs)
+    List.reverse (h :: t)
 
 
 {-| `scanl1` is a variant of `scanl` that has no starting value argument.
@@ -1409,18 +1410,15 @@ Examples:
 
 -}
 scanr : (a -> b -> b) -> b -> List a -> List b
-scanr f acc xs_ =
-    case xs_ of
-        [] ->
-            [ acc ]
+scanr f b xs_ =
+    let
+        scan1 x ( accHead, accTail ) =
+            ( f x accHead, accHead :: accTail )
 
-        x :: xs ->
-            case scanr f acc xs of
-                (q :: _) as qs ->
-                    f x q :: qs
-
-                [] ->
-                    []
+        ( h, t ) =
+            List.foldr scan1 ( b, [] ) xs_
+    in
+    h :: t
 
 
 {-| `scanr1` is a variant of `scanr` that has no starting value argument.
@@ -1434,20 +1432,19 @@ scanr f acc xs_ =
 -}
 scanr1 : (a -> a -> a) -> List a -> List a
 scanr1 f xs_ =
-    case xs_ of
+    case List.reverse xs_ of
         [] ->
             []
 
-        [ x ] ->
-            [ x ]
+        b :: xs ->
+            let
+                scan1 x ( accHead, accTail ) =
+                    ( f x accHead, accHead :: accTail )
 
-        x :: xs ->
-            case scanr1 f xs of
-                (q :: _) as qs ->
-                    f x q :: qs
-
-                [] ->
-                    []
+                ( h, t ) =
+                    List.foldl scan1 ( b, [] ) xs
+            in
+            h :: t
 
 
 {-| The mapAccuml function behaves like a combination of map and foldl; it applies a
@@ -1543,12 +1540,17 @@ mapAccumr f acc0 list =
 -}
 unfoldr : (b -> Maybe ( a, b )) -> b -> List a
 unfoldr f seed =
-    case f seed of
-        Nothing ->
-            []
+    let
+        go : b -> List a -> List a
+        go x acc =
+            case f x of
+                Nothing ->
+                    List.reverse acc
 
-        Just ( a, b ) ->
-            a :: unfoldr f b
+                Just ( a, b ) ->
+                    go b (a :: acc)
+    in
+    go seed []
 
 
 {-| Take a number and a list, return a tuple of lists, where first part is prefix of the list of length equal the number, and second part is the remainder of the list. `splitAt n xs` is equivalent to `(take n xs, drop n xs)`.
