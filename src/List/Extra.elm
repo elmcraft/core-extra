@@ -1416,7 +1416,7 @@ scanr f b xs_ =
             ( f x accHead, accHead :: accTail )
 
         ( h, t ) =
-            List.foldl scan1 ( b, [] ) (List.reverse xs_)
+            List.foldr scan1 ( b, [] ) xs_
     in
     h :: t
 
