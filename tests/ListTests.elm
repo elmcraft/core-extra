@@ -1,7 +1,7 @@
 module ListTests exposing (all)
 
 import Expect
-import Fuzz
+import Fuzz exposing (Fuzzer)
 import List.Extra exposing (Step(..))
 import Test exposing (Test, describe, fuzz, fuzz2, fuzz3, test)
 
@@ -1001,6 +1001,36 @@ all =
                     Expect.equal (List.Extra.minimumBy (\x -> x.val) [ { id = 1, val = 2 }, { id = 2, val = 1 }, { id = 3, val = 1 } ])
                         (Just { id = 2, val = 1 })
             ]
+        , describe "insertAt"
+            [ fuzz3
+                negativeIntFuzzer
+                Fuzz.int
+                (Fuzz.list Fuzz.int)
+                "negative index returns original list"
+              <|
+                \negativeIndex value list ->
+                    List.Extra.insertAt negativeIndex value list
+                        |> Expect.equalLists list
+            , fuzz2
+                (Fuzz.intRange 0 4)
+                (Fuzz.listOfLengthBetween 4 10 (Fuzz.intRange 0 10))
+                "index in bounds (0 <= index <= length) inserts in the right place in the list"
+              <|
+                \goodIndex list ->
+                    -- -1 is guaranteed to not be in the fuzzed input list
+                    List.Extra.insertAt goodIndex -1 list
+                        |> List.Extra.elemIndex -1
+                        |> Expect.equal (Just goodIndex)
+            , fuzz3
+                (Fuzz.intRange 5 10)
+                Fuzz.int
+                (Fuzz.listOfLengthBetween 0 4 Fuzz.int)
+                "index out of bounds returns original list"
+              <|
+                \badPositiveIndex value list ->
+                    List.Extra.insertAt badPositiveIndex value list
+                        |> Expect.equalLists list
+            ]
         , describe "setIf"
             [ test "empty list" <|
                 \() ->
@@ -1204,3 +1234,16 @@ all =
                         |> Expect.equal 50
             ]
         ]
+
+
+negativeIntFuzzer : Fuzzer Int
+negativeIntFuzzer =
+    Fuzz.int
+        |> Fuzz.map
+            (\n ->
+                if n == 0 then
+                    -1
+
+                else
+                    -(abs n)
+            )
