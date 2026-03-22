@@ -937,11 +937,13 @@ known ligatures, thus changing the string glyph length.
 All non latin characters are untouched.
 
     removeDiacritics "La liberté commence où l'ignorance finit."
-
     --> "La liberte commence ou l'ignorance finit."
-    removeDiacritics "é()/& abc" --> "e()/& abc"
 
-    removeDiacritics "こんにちは" --> "こんにちは"
+    removeDiacritics "é()/& abc"
+    --> "e()/& abc"
+
+    removeDiacritics "こんにちは"
+    --> "こんにちは"
 
 -}
 removeDiacritics : String -> String
