@@ -144,7 +144,7 @@ list and the iteration will continue with `f y`.
                     3 * n + 1
 
     iterate collatz 13
-    --> [13,40,20,10,5,16,8,4,2,1]
+    --> [ 13, 40, 20, 10, 5, 16, 8, 4, 2, 1 ]
 
 -}
 iterate : (a -> Maybe a) -> a -> List a
@@ -230,11 +230,11 @@ cycleHelp acc n list =
 You give the highest and lowest number that should be in the list.
 More efficient than calling `List.reverse (List.range lo hi)`
 
-    reverseRange 6 3 == [ 6, 5, 4, 3 ]
+    reverseRange 6 3 --> [ 6, 5, 4, 3 ]
 
-    reverseRange 3 3 == [ 3 ]
+    reverseRange 3 3 --> [ 3 ]
 
-    reverseRange 3 6 == []
+    reverseRange 3 6 --> []
 
 -}
 reverseRange : Int -> Int -> List Int
@@ -253,8 +253,8 @@ reverseRange =
 
 {-| Adds the first element of the tuple to the head of the list.
 
-    cons (1, [2, 3])
-    --> [1, 2, 3]
+    cons ( 1, [ 2, 3 ] )
+    --> [ 1, 2, 3 ]
 
 Useful for dealing with non-empty lists such as produced by `group` and `groupWhile`.
 
@@ -266,8 +266,8 @@ cons ( x, xs ) =
 
 {-| Decompose a list into its head and tail. If the list is empty, return `Nothing`. Otherwise, return `Just (x, xs)`, where `x` is head and `xs` is tail.
 
-    uncons [1,2,3]
-    --> Just (1, [2,3])
+    uncons [ 1, 2, 3 ]
+    --> Just ( 1, [ 2,3 ] )
 
     uncons []
     --> Nothing
@@ -285,8 +285,8 @@ uncons list =
 
 {-| Decompose a list into its body and last element. If the list is empty, return `Nothing`. Otherwise, return `Just (x, xs)`, where `x` is the last element and `xs` is the body.
 
-    unconsLast [1,2,3]
-    --> Just (3, [1,2])
+    unconsLast [ 1, 2, 3 ]
+    --> Just ( 3, [ 1, 2 ] )
 
     unconsLast []
     --> Nothing
@@ -378,7 +378,7 @@ maximumBy f ls =
 
     maximumWith
       (\x y -> compare x.val y.val)
-      [{id=1, val=1}, {id=2, val=2}, {id=3,val=2}]
+      [ { id = 1, val = 1 }, { id = 2, val = 2 }, { id = 3, val = 2 } ]
     --> Just { id = 2, val = 2 }
 
 -}
@@ -429,9 +429,10 @@ minimumBy f ls =
 
     minimumWith compare []
     --> Nothing
+
     minimumWith
       (\x y -> compare x.val y.val)
-      [{id=1, val=2}, {id=2, val=1}, {id=3,val=1}]
+      [ { id = 1, val = 2 }, { id = 2, val = 1 }, { id = 3, val = 1 } ]
     --> Just { id = 2, val = 1 }
 
 -}
@@ -574,7 +575,7 @@ andMap l fl =
     List.map2 (<|) fl l
 
 
-{-| Equivalent to `concatMap`. For example, suppose you want to have a cartesian product of [1,2] and [3,4]:
+{-| Equivalent to `concatMap`. For example, suppose you want to have a cartesian product of [ 1, 2 ] and [ 3, 4 ]:
 
     [ 1, 2 ]
         |> andThen
@@ -760,7 +761,7 @@ findIndices predicate =
         else
             Nothing
 
-    findMap mapOverFive [2, 4, 6, 8]
+    findMap mapOverFive [ 2, 4, 6, 8 ]
     --> Just 12
 
 This is particularly useful in cases where you have a complex type in a list, and you need to pick out the the first one
@@ -1096,43 +1097,43 @@ subsequences xs =
 
 {-| Return the list of all subsequences of the argument, except for the empty list.
 
-    subsequencesNonEmpty [ 1, 2, 3 ]
+    subsequencesHelp [ 1, 2, 3 ]
         == [ [ 1 ], [ 2 ], [ 1, 2 ], [ 3 ], [ 1, 3 ], [ 2, 3 ], [ 1, 2, 3 ] ]
 
 -}
 subsequencesHelp : List a -> List (List a)
 subsequencesHelp list =
-    case list of
-        [] ->
-            []
-
-        first :: rest ->
+    List.foldr
+        (\x restSubsequences ->
             let
-                f ys r =
-                    ys :: (first :: ys) :: r
+                f ys rest =
+                    ys :: (x :: ys) :: rest
             in
-            [ first ] :: List.foldr f [] (subsequencesHelp rest)
+            [ x ] :: List.foldr f [] restSubsequences
+        )
+        []
+        list
 
 
 {-| Return the list of all subsequences of the argument, except for the empty list.
 
     subsequencesNonEmpty [ 1, 2, 3 ]
-        == [ [ 1 ], [ 2 ], [ 1, 2 ], [ 3 ], [ 1, 3 ], [ 2, 3 ], [ 1, 2, 3 ] ]
+    --> [ ( 1, [] ), ( 2, [] ), ( 1, [ 2 ] ), ( 3, [] ), ( 1, [ 3 ] ), ( 2, [ 3 ] ), ( 1, [ 2, 3 ] ) ]
 
 -}
 subsequencesNonEmpty : List a -> List ( a, List a )
 subsequencesNonEmpty list =
-    case list of
-        [] ->
-            []
-
-        first :: rest ->
+    List.foldr
+        (\x restSubsequences ->
             let
                 f : ( a, List a ) -> List ( a, List a ) -> List ( a, List a )
-                f ( yf, ys ) r =
-                    ( yf, ys ) :: ( first, yf :: ys ) :: r
+                f (( yf, ys ) as y) rest =
+                    y :: ( x, yf :: ys ) :: rest
             in
-            ( first, [] ) :: List.foldr f [] (subsequencesNonEmpty rest)
+            ( x, [] ) :: List.foldr f [] restSubsequences
+        )
+        []
+        list
 
 
 {-| Return the list of of all permutations of a list. The result is in lexicographic order.
@@ -1208,19 +1209,19 @@ If the list of lists is empty, the result is an empty singleton.
 -}
 cartesianProduct : List (List a) -> List (List a)
 cartesianProduct ll =
-    case ll of
-        [] ->
-            [ [] ]
-
-        xs :: xss ->
-            lift2 (::) xs (cartesianProduct xss)
+    List.foldr
+        (\xs xss ->
+            lift2 (::) xs xss
+        )
+        [ [] ]
+        ll
 
 
 {-| Return all ways to pair the elements of the list.
 (Essentially, enumerate the possible "handshakes.")
 
-The order of the pair elements doesn't matter, so if `(1,2)` is a returned pair,
-we don't return `(2,1)`.
+The order of the pair elements doesn't matter, so if `( 1, 2 )` is a returned pair,
+we don't return `( 2, 1 )`.
 
 In more mathematical terms these are 2-combinations without repetition.
 
@@ -1462,12 +1463,12 @@ and returning a final value of this accumulator together with the new list.
 Add a running total to a list of numbers:
 
     mapAccuml (\a x -> ( a + x, ( x, a + x ) )) 0 [ 2, 4, 8 ]
-        --> ( 14, [ ( 2, 2 ), ( 4, 6 ), ( 8, 14 ) ] )
+    --> ( 14, [ ( 2, 2 ), ( 4, 6 ), ( 8, 14 ) ] )
 
 Map number by multiplying with accumulated sum:
 
     mapAccuml (\a x -> ( a + x, a * x )) 5 [ 2, 4, 8 ]
-        --> ( 19, [ 10, 28, 88 ] )
+    --> ( 19, [ 10, 28, 88 ] )
 
 -}
 mapAccuml : (a -> b -> ( a, c )) -> a -> List b -> ( a, List c )
@@ -1733,7 +1734,7 @@ stripPrefix prefix xs =
 {-| Group similar elements together. `group` is equivalent to `groupWhile (==)`.
 
     group [ 1, 2, 2, 3, 3, 3, 2, 2, 1 ]
-    --> [ (1, []), (2, [ 2 ]), (3, [ 3, 3 ]), (2, [ 2 ]), ( 1,  []) ]
+    --> [ ( 1, [] ), ( 2, [ 2 ] ), ( 3, [ 3, 3 ] ), ( 2, [ 2 ] ), ( 1, [] ) ]
 
 -}
 group : List a -> List ( a, List a )
@@ -1868,12 +1869,15 @@ conditional list =
 -}
 select : List a -> List ( a, List a )
 select list =
-    case list of
-        [] ->
-            []
-
-        x :: xs ->
-            ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) (select xs)
+    List.foldr
+        (\x ( xs, xsSelect ) ->
+            ( x :: xs
+            , ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) xsSelect
+            )
+        )
+        ( [], [] )
+        list
+        |> Tuple.second
 
 
 {-| Return all combinations in the form of (elements before, element, elements after).
@@ -1884,12 +1888,16 @@ select list =
 -}
 selectSplit : List a -> List ( List a, a, List a )
 selectSplit list =
-    case list of
-        [] ->
-            []
-
-        x :: xs ->
-            ( [], x, xs ) :: List.map (\( lys, y, rys ) -> ( x :: lys, y, rys )) (selectSplit xs)
+    List.foldr
+        (\x ( xs, xsSelectSplit ) ->
+            ( x :: xs
+            , ( [], x, xs )
+                :: List.map (\( lys, y, rys ) -> ( x :: lys, y, rys )) xsSelectSplit
+            )
+        )
+        ( [], [] )
+        list
+        |> Tuple.second
 
 
 {-| Take two lists and return `True`, if the first list is the prefix of the second list.
@@ -2064,8 +2072,8 @@ triple a b c =
 {-| Map functions taking multiple arguments over multiple lists, regardless of list length.
 All possible combinations will be explored.
 
-    lift2 (+) [1,2,3][4,5]
-    --> [5,6,6,7,7,8]
+    lift2 (+) [ 1, 2, 3 ] [ 4, 5 ]
+    --> [ 5, 6, 6, 7, 7, 8 ]
 
 -}
 lift2 : (a -> b -> c) -> List a -> List b -> List c
@@ -2273,8 +2281,8 @@ will contain _all_ equal elements of the original list. Elements will be grouped
 in the same order as they appear in the original list. The same applies to elements
 within each group.
 
-    gatherEquals [1,2,1,3,2]
-    --> [(1,[1]),(2,[2]),(3,[])]
+    gatherEquals [ 1, 2, 1, 3, 2 ]
+    --> [ ( 1, [ 1 ] ), ( 2, [ 2 ] ), ( 3, [] ) ]
 
 -}
 gatherEquals : List a -> List ( a, List a )
@@ -2287,8 +2295,8 @@ and then the equality check is performed against the results of that function ev
 Elements will be grouped in the same order as they appear in the original list. The
 same applies to elements within each group.
 
-    gatherEqualsBy .age [{age=25},{age=23},{age=25}]
-    --> [({age=25},[{age=25}]),({age=23},[])]
+    gatherEqualsBy .age [ { age = 25 }, { age = 23 }, { age = 25 } ]
+    --> [ ( { age = 25 }, [ { age = 25 } ] ), ( { age = 23 }, [] ) ]
 
 **See also:** [`Dict.Extra.groupBy`](./Dict-Extra#groupBy).
 
@@ -2302,8 +2310,8 @@ gatherEqualsBy extract list =
 grouped in the same order as they appear in the original list. The same applies to
 elements within each group.
 
-    gatherWith (==) [1,2,1,3,2]
-    --> [(1,[1]),(2,[2]),(3,[])]
+    gatherWith (==) [ 1, 2, 1, 3, 2 ]
+    --> [ ( 1, [ 1 ] ), ( 2, [ 2 ] ), ( 3, [] ) ]
 
 -}
 gatherWith : (a -> a -> Bool) -> List a -> List ( a, List a )
@@ -2325,12 +2333,12 @@ gatherWith testFn list =
     helper list []
 
 
-{-| Calculate the number of occurences for each element in a list. Elements
+{-| Calculate the number of occurrences for each element in a list. Elements
 will be ordered ascendingly, then grouped in a tuple with the number of
-occurences.
+occurrences.
 
-    frequencies [2,1,3,2,3,3]
-    --> [(1,1),(2,2),(3,3)]
+    frequencies [ 2, 1, 3, 2, 3, 3 ]
+    --> [ ( 1, 1 ), ( 2, 2 ), ( 3, 3 ) ]
 
 -}
 frequencies : List comparable -> List ( comparable, Int )
