@@ -91,6 +91,9 @@ apply f ( a, b ) =
 
 
 {-| Flip the two values contained in a tuple.
+
+    flip ( 2, 'a' ) --> ( 'a', 2 )
+
 -}
 flip : ( a, b ) -> ( b, a )
 flip ( a, b ) =
