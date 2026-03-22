@@ -1,5 +1,6 @@
 module List.Extra.InsertAt exposing
     ( insertAtRecursion
+    , insertAtRecursion2
     , insertAtSplitAt
     , insertAtTakeDrop
     )
@@ -29,6 +30,30 @@ insertAtRecursion index value list =
                             go (i + 1) newRest (head :: acc)
         in
         go 0 list []
+
+
+insertAtRecursion2Help : Int -> a -> List a -> Int -> List a -> List a -> List a
+insertAtRecursion2Help index value list i rest acc =
+    if i == index then
+        List.foldl (::) (value :: rest) acc
+
+    else
+        case rest of
+            [] ->
+                -- index > length list
+                list
+
+            head :: newRest ->
+                insertAtRecursion2Help index value list (i + 1) newRest (head :: acc)
+
+
+insertAtRecursion2 : Int -> a -> List a -> List a
+insertAtRecursion2 index value list =
+    if index <= -1 then
+        list
+
+    else
+        insertAtRecursion2Help index value list 0 list []
 
 
 insertAtTakeDrop : Int -> a -> List a -> List a

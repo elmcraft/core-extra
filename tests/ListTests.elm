@@ -1019,8 +1019,8 @@ all =
                 \goodIndex list ->
                     -- -1 is guaranteed to not be in the fuzzed input list
                     List.Extra.insertAt goodIndex -1 list
-                        |> List.Extra.elemIndex -1
-                        |> Expect.equal (Just goodIndex)
+                        |> List.Extra.removeAt goodIndex
+                        |> Expect.equalLists list
             , fuzz3
                 (Fuzz.intRange 5 10)
                 Fuzz.int

@@ -850,15 +850,22 @@ insertAt index value list =
         list
 
     else
-        let
-            ( before, after ) =
-                splitAt index list
-        in
-        if List.isEmpty after && List.length before < index then
-            list
+        insertAtHelp index value list 0 list []
 
-        else
-            before ++ (value :: after)
+
+insertAtHelp : Int -> a -> List a -> Int -> List a -> List a -> List a
+insertAtHelp index value list i rest acc =
+    if i == index then
+        List.foldl (::) (value :: rest) acc
+
+    else
+        case rest of
+            [] ->
+                -- index > length list
+                list
+
+            head :: newRest ->
+                insertAtHelp index value list (i + 1) newRest (head :: acc)
 
 
 {-| Replace all values that satisfy a predicate with a replacement value.

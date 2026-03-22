@@ -277,22 +277,25 @@ listExtra =
             , ( "length", List.Extra.TakeRight.takeRightLength )
             ]
          , rank "insertAt negative index"
-            (\insertAt -> insertAt -3 'X' [ 'a', 'b', 'c', 'd', 'e' ])
+            (\insertAt -> insertAt -3 999 intList)
             [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
             , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
             , ( "splitAt", List.Extra.InsertAt.insertAtSplitAt )
+            , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
             ]
          , rank "insertAt good positive index"
-            (\insertAt -> insertAt 3 'X' [ 'a', 'b', 'c', 'd', 'e' ])
+            (\insertAt -> insertAt 50 999 intList)
             [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
             , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
             , ( "splitAt", List.Extra.InsertAt.insertAtSplitAt )
+            , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
             ]
          , rank "insertAt bad positive index"
-            (\insertAt -> insertAt 7 'X' [ 'a', 'b', 'c', 'd', 'e' ])
+            (\insertAt -> insertAt 150 999 intList)
             [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
             , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
             , ( "splitAt", List.Extra.InsertAt.insertAtSplitAt )
+            , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
             ]
          ]
             ++ List.concatMap toComparisonsGroupsOfWithStep (List.range 1 4)
