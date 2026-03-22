@@ -1103,16 +1103,16 @@ subsequences xs =
 -}
 subsequencesHelp : List a -> List (List a)
 subsequencesHelp list =
-    case list of
-        [] ->
-            []
-
-        first :: rest ->
+    List.foldr
+        (\x restSubsequences ->
             let
-                f ys r =
-                    ys :: (first :: ys) :: r
+                f ys rest =
+                    ys :: (x :: ys) :: rest
             in
-            [ first ] :: List.foldr f [] (subsequencesHelp rest)
+            [ x ] :: List.foldr f [] restSubsequences
+        )
+        []
+        list
 
 
 {-| Return the list of all subsequences of the argument, except for the empty list.
@@ -1123,17 +1123,17 @@ subsequencesHelp list =
 -}
 subsequencesNonEmpty : List a -> List ( a, List a )
 subsequencesNonEmpty list =
-    case list of
-        [] ->
-            []
-
-        first :: rest ->
+    List.foldr
+        (\x restSubsequences ->
             let
                 f : ( a, List a ) -> List ( a, List a ) -> List ( a, List a )
-                f ( yf, ys ) r =
-                    ( yf, ys ) :: ( first, yf :: ys ) :: r
+                f (( yf, ys ) as y) rest =
+                    y :: ( x, yf :: ys ) :: rest
             in
-            ( first, [] ) :: List.foldr f [] (subsequencesNonEmpty rest)
+            ( x, [] ) :: List.foldr f [] restSubsequences
+        )
+        []
+        list
 
 
 {-| Return the list of of all permutations of a list. The result is in lexicographic order.
@@ -1209,12 +1209,12 @@ If the list of lists is empty, the result is an empty singleton.
 -}
 cartesianProduct : List (List a) -> List (List a)
 cartesianProduct ll =
-    case ll of
-        [] ->
-            [ [] ]
-
-        xs :: xss ->
-            lift2 (::) xs (cartesianProduct xss)
+    List.foldr
+        (\xs xss ->
+            lift2 (::) xs xss
+        )
+        [ [] ]
+        ll
 
 
 {-| Return all ways to pair the elements of the list.
@@ -1869,12 +1869,15 @@ conditional list =
 -}
 select : List a -> List ( a, List a )
 select list =
-    case list of
-        [] ->
-            []
-
-        x :: xs ->
-            ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) (select xs)
+    List.foldr
+        (\x ( xs, xsSelect ) ->
+            ( x :: xs
+            , ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) xsSelect
+            )
+        )
+        ( [], [] )
+        list
+        |> Tuple.second
 
 
 {-| Return all combinations in the form of (elements before, element, elements after).
@@ -1885,12 +1888,16 @@ select list =
 -}
 selectSplit : List a -> List ( List a, a, List a )
 selectSplit list =
-    case list of
-        [] ->
-            []
-
-        x :: xs ->
-            ( [], x, xs ) :: List.map (\( lys, y, rys ) -> ( x :: lys, y, rys )) (selectSplit xs)
+    List.foldr
+        (\x ( xs, xsSelectSplit ) ->
+            ( x :: xs
+            , ( [], x, xs )
+                :: List.map (\( lys, y, rys ) -> ( x :: lys, y, rys )) xsSelectSplit
+            )
+        )
+        ( [], [] )
+        list
+        |> Tuple.second
 
 
 {-| Take two lists and return `True`, if the first list is the prefix of the second list.
