@@ -91,6 +91,9 @@ apply f ( a, b ) =
 
 
 {-| Flip the two values contained in a tuple.
+
+    flip ( 2, 'a' ) --> ( 'a', 2 )
+
 -}
 flip : ( a, b ) -> ( b, a )
 flip ( a, b ) =
@@ -129,8 +132,8 @@ numbers contained in a tuple.
 
 -}
 sum : ( number, number ) -> number
-sum t =
-    apply (+) t
+sum ( l, r ) =
+    l + r
 
 
 {-| Similar to List.sum but for tuples instead of lists. Multiplies together two
@@ -141,8 +144,8 @@ numbers contained in a tuple
 
 -}
 product : ( number, number ) -> number
-product t =
-    apply (*) t
+product ( l, r ) =
+    l * r
 
 
 {-| Similar to List.sort but for tuples instead of lists. Sort values contained
