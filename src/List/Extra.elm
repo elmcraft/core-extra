@@ -850,12 +850,12 @@ insertAt index value list =
         list
 
     else
-        insertAtHelp index value list 0 list []
+        insertAtHelp value list index list []
 
 
-insertAtHelp : Int -> a -> List a -> Int -> List a -> List a -> List a
-insertAtHelp index value list i rest acc =
-    if i == index then
+insertAtHelp : a -> List a -> Int -> List a -> List a -> List a
+insertAtHelp value list i rest acc =
+    if i == 0 then
         List.foldl (::) (value :: rest) acc
 
     else
@@ -865,7 +865,7 @@ insertAtHelp index value list i rest acc =
                 list
 
             head :: newRest ->
-                insertAtHelp index value list (i + 1) newRest (head :: acc)
+                insertAtHelp value list (i - 1) newRest (head :: acc)
 
 
 {-| Replace all values that satisfy a predicate with a replacement value.
