@@ -1,5 +1,5 @@
 module List.Extra exposing
-    ( last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+    ( last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, insertAt, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
     , intercalate, transpose, subsequences, permutations, interweave, cartesianProduct, uniquePairs
     , foldl1, foldr1, indexedFoldl, indexedFoldr, Step(..), stoppableFoldl
     , scanl, scanl1, scanr, scanr1, mapAccuml, mapAccumr, unfoldr, iterate, initialize, cycle, reverseRange
@@ -17,7 +17,7 @@ module List.Extra exposing
 
 # Basics
 
-@docs last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+@docs last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, insertAt, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
 
 
 # List transformations
@@ -831,6 +831,43 @@ count predicate =
         0
 
 
+{-| Insert an element at a given index.
+If the index is out of bounds, nothing is changed.
+
+    [ 'a', 'c' ] |> insertAt 1 'b'
+    --> [ 'a', 'b', 'c' ]
+
+    [ 'a', 'c' ] |> insertAt -1 'b'
+    --> [ 'a', 'c' ]
+
+    [ 'a', 'c' ] |>  insertAt 100 'b'
+    --> [ 'a', 'c' ]
+
+-}
+insertAt : Int -> a -> List a -> List a
+insertAt index value list =
+    if index <= -1 then
+        list
+
+    else
+        insertAtHelp value list index list []
+
+
+insertAtHelp : a -> List a -> Int -> List a -> List a -> List a
+insertAtHelp value list i rest acc =
+    if i == 0 then
+        List.foldl (::) (value :: rest) acc
+
+    else
+        case rest of
+            [] ->
+                -- index > length list
+                list
+
+            head :: newRest ->
+                insertAtHelp value list (i - 1) newRest (head :: acc)
+
+
 {-| Replace all values that satisfy a predicate with a replacement value.
 -}
 setIf : (a -> Bool) -> a -> List a -> List a
@@ -1596,7 +1633,8 @@ splitWhen predicate list =
 
 {-| Take the last _n_ members of a list.
 
-    takeRight 2 [ 1, 2, 3, 4, 5 ] == [ 4, 5 ]
+    takeRight 2 [ 1, 2, 3, 4, 5 ]
+    --> [ 4, 5 ]
 
 -}
 takeRight : Int -> List a -> List a
@@ -1609,7 +1647,8 @@ takeRight n lst =
 
 {-| Drop the last _n_ members of a list.
 
-    dropRight 2 [ 1, 2, 3, 4, 5 ] == [ 1, 2, 3 ]
+    dropRight 2 [ 1, 2, 3, 4, 5 ]
+    --> [ 1, 2, 3 ]
 
 -}
 dropRight : Int -> List a -> List a

@@ -20,6 +20,7 @@ import Benchmark.Runner.Alternative as BenchmarkRunner
 import List.Extra
 import List.Extra.DropRight
 import List.Extra.GroupsOf
+import List.Extra.InsertAt
 import List.Extra.Lift
 import List.Extra.NotMember
 import List.Extra.TakeRight
@@ -274,6 +275,30 @@ listExtra =
             [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
             , ( "reverse", List.Extra.TakeRight.takeRightReverse )
             , ( "length", List.Extra.TakeRight.takeRightLength )
+            ]
+         , rank "insertAt negative index"
+            (\insertAt -> insertAt -3 999 intList)
+            [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
+            , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
+            , ( "splitAt", List.Extra.InsertAt.insertAtSplitAt )
+            , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
+            , ( "recursion3", List.Extra.InsertAt.insertAtRecursion3 )
+            ]
+         , rank "insertAt good positive index"
+            (\insertAt -> insertAt 50 999 intList)
+            [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
+            , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
+            , ( "splitAt", List.Extra.InsertAt.insertAtSplitAt )
+            , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
+            , ( "recursion3", List.Extra.InsertAt.insertAtRecursion3 )
+            ]
+         , rank "insertAt bad positive index"
+            (\insertAt -> insertAt 150 999 intList)
+            [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
+            , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
+            , ( "splitAt", List.Extra.InsertAt.insertAtSplitAt )
+            , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
+            , ( "recursion3", List.Extra.InsertAt.insertAtRecursion3 )
             ]
          ]
             ++ List.concatMap toComparisonsGroupsOfWithStep (List.range 1 4)
