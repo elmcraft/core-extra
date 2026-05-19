@@ -36,7 +36,7 @@ andMapInlinedNestedCaseOf ra rb =
                     Err x
 
         Err x ->
-           case rb of
+            case rb of
                 Ok _ ->
                     Err x
 

@@ -1,7 +1,6 @@
 module List.Extra.GroupsOf exposing (coreTailGreedyGroupsOfWithStep, coreTailGroupsOfWithStep, tailRecGreedyGroupsOfWithStep, tailRecGroupsOfWithStep)
 
 
-
 coreTailGroupsOfWithStep : Int -> Int -> List a -> List (List a)
 coreTailGroupsOfWithStep size step list =
     if size <= 0 || step <= 0 then
