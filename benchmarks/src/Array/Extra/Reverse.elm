@@ -12,7 +12,7 @@ withCons =
 withPush : Array a -> Array a
 withPush =
     \array ->
-        array |> Array.foldl Array.push Array.empty
+        array |> Array.foldr Array.push Array.empty
 
 
 withListReverse : Array a -> Array a

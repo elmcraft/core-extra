@@ -7,7 +7,7 @@ import Array.Extra
 withPush : a -> Array a -> Array a
 withPush separator =
     \array ->
-        case array |> Array.get ((array |> Array.length) - 1) of
+        case Array.get (Array.length array - 1) array of
             Nothing ->
                 Array.empty
 
@@ -22,7 +22,7 @@ withPush separator =
                     beforeLastInterspersed =
                         array
                             |> Array.Extra.pop
-                            |> Array.foldr step Array.empty
+                            |> Array.foldl step Array.empty
                 in
                 beforeLastInterspersed |> Array.push last
 

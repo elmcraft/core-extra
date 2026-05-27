@@ -1,4 +1,4 @@
-module Benchmarks exposing (main)
+module Benchmarks exposing (suite)
 
 import Application.NegAbs
 import Application.Sum
@@ -14,9 +14,7 @@ import Array.Extra.MapToList
 import Array.Extra.Member
 import Array.Extra.Reverse
 import Array.Extra.Unzip
-import Benchmark exposing (Benchmark, describe)
-import Benchmark.Alternative exposing (rank)
-import Benchmark.Runner.Alternative as BenchmarkRunner
+import Bench exposing (Benchmark)
 import List.Extra
 import List.Extra.DropRight
 import List.Extra.GroupsOf
@@ -36,9 +34,9 @@ import String.Extra.IsBlank
 import String.Extra.RightOfLeftOf
 
 
-main : BenchmarkRunner.Program
-main =
-    describe "for core-extra"
+suite : Benchmark
+suite =
+    Bench.describe "core-extra"
         [ application
         , array
         , arrayExtra
@@ -49,13 +47,12 @@ main =
         , maybeExtra
         , resultExtra
         ]
-        |> BenchmarkRunner.program
 
 
 application : Benchmark
 application =
-    describe "application"
-        [ rank "curry"
+    Bench.describe "application"
+        [ Bench.rank "curry"
             (\sum -> ints1To100 |> sum)
             [ ( "name only", Application.Sum.nameOnlyCurried )
             , ( "partially curried/applied", Application.Sum.partiallyCurried )
@@ -63,7 +60,7 @@ application =
             , ( "lambda, fully applied", Application.Sum.lambdaFullyAppliedCurried )
             , ( "lambda nested, fully applied", Application.Sum.lambdaNestedFullyAppliedCurried )
             ]
-        , rank "chain"
+        , Bench.rank "chain"
             (\negAbs -> ints1To100 |> Array.map negAbs)
             [ ( "declaration argument, |> |>", Application.NegAbs.declarationArgumentPipeline )
             , ( "lambda, |> |>", Application.NegAbs.lambdaPipeline )
@@ -75,8 +72,8 @@ application =
 
 array : Benchmark
 array =
-    describe "Array"
-        [ rank "Array.fold"
+    Bench.describe "Array"
+        [ Bench.rank "Array.fold"
             (\fold -> ints1To100 |> fold (+) 0)
             [ ( "foldl", Array.foldl )
             , ( "foldr", Array.foldr )
@@ -86,13 +83,13 @@ array =
 
 arrayExtra : Benchmark
 arrayExtra =
-    describe "Array.Extra"
-        [ rank "mapToList"
+    Bench.describe "Array.Extra"
+        [ Bench.rank "mapToList"
             (\mapToList -> ints1To100 |> mapToList negate)
             [ ( "with foldr", Array.Extra.MapToList.withFoldr )
             , ( "with Array.toIndexedList", Array.Extra.MapToList.withListMap )
             ]
-        , rank "indexedMapToList"
+        , Bench.rank "indexedMapToList"
             (\indexedMapToList ->
                 ints1To100 |> indexedMapToList Tuple.pair
             )
@@ -107,7 +104,7 @@ arrayExtra =
               , Array.Extra.IndexedMapToList.withListIndexedMap
               )
             ]
-        , rank "reverse"
+        , Bench.rank "reverse"
             (\reverse -> reverse ints1To100)
             [ ( "with cons", Array.Extra.Reverse.withCons )
             , ( "with List.reverse", Array.Extra.Reverse.withListReverse )
@@ -117,14 +114,14 @@ arrayExtra =
             zipped =
                 Array.zip ints1To100 ints1To100
           in
-          rank "unzip"
+          Bench.rank "unzip"
             (\unzip -> zipped |> unzip)
             [ ( "with maps", Array.Extra.Unzip.withMaps )
             , ( "with List.unzip", Array.Extra.Unzip.withListUnzip )
             , ( "with push", Array.Extra.Unzip.wthPush )
             , ( "with cons", Array.Extra.Unzip.wthCons )
             ]
-        , rank "map2"
+        , Bench.rank "map2"
             (\map2 ->
                 map2 Tuple.pair ints1To100 ints1To100
             )
@@ -143,7 +140,7 @@ arrayExtra =
                             Just x
                     )
           in
-          rank "filterMap"
+          Bench.rank "filterMap"
             (\filterMap -> maybeInts |> filterMap identity)
             [ ( "with List.filterMap", Array.Extra.FilterMap.withListFilterMap )
             , ( "with push", Array.Extra.FilterMap.withPush )
@@ -153,7 +150,7 @@ arrayExtra =
             allTrue =
                 Array.repeat 100 True
           in
-          rank "all"
+          Bench.rank "all"
             (\all -> allTrue |> all identity)
             [ ( "recursive last", Array.Extra.All.recursiveLast )
             , ( "recursive get", Array.Extra.All.recursiveGet )
@@ -164,20 +161,20 @@ arrayExtra =
             allFalse =
                 Array.repeat 100 False
           in
-          rank "any"
+          Bench.rank "any"
             (\any -> allFalse |> any identity)
             [ ( "recursive last", Array.Extra.Any.recursiveLast )
             , ( "recursive get", Array.Extra.Any.recursiveGet )
             , ( "with List.any", Array.Extra.Any.withList )
             , ( "with fold", Array.Extra.Any.withFold )
             ]
-        , rank "intersperse"
+        , Bench.rank "intersperse"
             (\intersperse -> ints1To100 |> intersperse 0)
             [ ( "with push", Array.Extra.Intersperse.withPush )
             , ( "with cons", Array.Extra.Intersperse.withCons )
             , ( "with List.intersperse", Array.Extra.Intersperse.withListIntersperse )
             ]
-        , rank "member"
+        , Bench.rank "member"
             (\member -> member 50 ints1To100)
             [ ( "with fold", Array.Extra.Member.withFold )
             , ( "recursive", Array.Extra.Member.recursive )
@@ -199,84 +196,87 @@ listExtra =
         longList =
             List.range 1 1000
     in
-    describe "List.Extra"
-        ([ rank "uniquePairs"
+    Bench.describe "List.Extra"
+        ([ Bench.rank "uniquePairs"
             (\uniquePairs -> uniquePairs intList)
             [ ( "original (++)", List.Extra.UniquePairs.originalConcat )
             , ( "tail-recursive", List.Extra.UniquePairs.tailRecursive )
             ]
-         , rank "unfoldr"
+            -- These return pairs in different order, but this function isn't particularly order sensitive.
+            -- Nonetheless, changing the implementation would be a major change.
+            |> Bench.skipEqualityCheck
+         , Bench.rank "unfoldr"
             (\unfoldr -> unfoldr subtractOneUntilZero 100)
             [ ( "original", List.Extra.Unfoldr.nonTailRecursive )
             , ( "tail-recursive", List.Extra.Unfoldr.tailRecursive )
             ]
-         , rank "lift2"
+         , Bench.rank "lift2"
             (\lift2 -> lift2 (\a b -> a + b) shortList shortList)
             [ ( "original", List.Extra.Lift.liftAndThen2 )
             , ( "foldl", List.Extra.Lift.liftFold2 )
             ]
-         , rank "lift3"
+         , Bench.rank "lift3"
             (\lift3 -> lift3 (\a b c -> a + b + c) shortList shortList shortList)
             [ ( "original", List.Extra.Lift.liftAndThen3 )
             , ( "foldl", List.Extra.Lift.liftFold3 )
             ]
-         , rank "lift4"
+         , Bench.rank "lift4"
             (\lift4 -> lift4 (\a b c d -> a + b + c + d) shortList shortList shortList shortList)
             [ ( "original", List.Extra.Lift.liftAndThen4 )
             , ( "foldl", List.Extra.Lift.liftFold4 )
             ]
-         , rank "notMember 1"
+         , Bench.rank "notMember 1"
             (\notMember -> notMember 1 intList)
             [ ( "Original", List.Extra.NotMember.notMemberOriginal )
             , ( "Simplified", List.Extra.NotMember.notMemberSimple )
             ]
-         , rank "notMember 99"
+         , Bench.rank "notMember 99"
             (\notMember -> notMember 99 intList)
             [ ( "Original", List.Extra.NotMember.notMemberOriginal )
             , ( "Simplified", List.Extra.NotMember.notMemberSimple )
             ]
-         , rank "notMember 101"
+         , Bench.rank "notMember 101"
             (\notMember -> notMember 101 intList)
             [ ( "Original", List.Extra.NotMember.notMemberOriginal )
             , ( "Simplified", List.Extra.NotMember.notMemberSimple )
             ]
-         , rank "dropRight 5 10"
+         , Bench.rank "dropRight 5 10"
             (\dropRight -> dropRight 5 shortList)
             [ ( "foldr", List.Extra.DropRight.dropRightFoldr )
             , ( "reverse", List.Extra.DropRight.dropRightReverse )
             , ( "length", List.Extra.DropRight.dropRightLength )
             ]
-         , rank "takeRight 5 10"
+         , Bench.rank "takeRight 5 10"
             (\takeRight -> takeRight 5 shortList)
             [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
             , ( "reverse", List.Extra.TakeRight.takeRightReverse )
             , ( "length", List.Extra.TakeRight.takeRightLength )
             ]
-         , rank "dropRight 50 100"
+         , Bench.rank "dropRight 50 100"
             (\dropRight -> dropRight 50 intList)
             [ ( "foldr", List.Extra.DropRight.dropRightFoldr )
             , ( "reverse", List.Extra.DropRight.dropRightReverse )
             , ( "length", List.Extra.DropRight.dropRightLength )
             ]
-         , rank "takeRight 50 100"
+         , Bench.rank "takeRight 50 100"
             (\takeRight -> takeRight 50 intList)
             [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
             , ( "reverse", List.Extra.TakeRight.takeRightReverse )
             , ( "length", List.Extra.TakeRight.takeRightLength )
             ]
-         , rank "dropRight 500 1000"
+         , Bench.rank "dropRight 500 1000"
             (\dropRight -> dropRight 500 longList)
             [ ( "foldr", List.Extra.DropRight.dropRightFoldr )
             , ( "reverse", List.Extra.DropRight.dropRightReverse )
             , ( "length", List.Extra.DropRight.dropRightLength )
             ]
-         , rank "takeRight 500 1000"
+         , Bench.rank "takeRight 500 1000"
             (\takeRight -> takeRight 500 longList)
             [ ( "foldr", List.Extra.TakeRight.takeRightFoldr )
             , ( "reverse", List.Extra.TakeRight.takeRightReverse )
             , ( "length", List.Extra.TakeRight.takeRightLength )
             ]
-         , rank "insertAt negative index"
+         , Bench.rank "insertAt negative index"
             (\insertAt -> insertAt -3 999 intList)
             [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
             , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
@@ -284,7 +284,7 @@ listExtra =
             , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
             , ( "recursion3", List.Extra.InsertAt.insertAtRecursion3 )
             ]
-         , rank "insertAt good positive index"
+         , Bench.rank "insertAt good positive index"
             (\insertAt -> insertAt 50 999 intList)
             [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
             , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
@@ -292,7 +292,7 @@ listExtra =
             , ( "recursion2", List.Extra.InsertAt.insertAtRecursion2 )
             , ( "recursion3", List.Extra.InsertAt.insertAtRecursion3 )
             ]
-         , rank "insertAt bad positive index"
+         , Bench.rank "insertAt bad positive index"
             (\insertAt -> insertAt 150 999 intList)
             [ ( "recursion", List.Extra.InsertAt.insertAtRecursion )
             , ( "takeDrop", List.Extra.InsertAt.insertAtTakeDrop )
@@ -314,12 +314,12 @@ toComparisonsGroupsOfWithStep exponent =
         range =
             List.range 1 listSize
     in
-    [ rank ("groupsOfWithStep 3 2 [1.." ++ String.fromInt listSize ++ "]")
+    [ Bench.rank ("groupsOfWithStep 3 2 [1.." ++ String.fromInt listSize ++ "]")
         (\impl -> impl 3 2 range)
         [ ( "using elm-core's List.tail", List.Extra.GroupsOf.coreTailGroupsOfWithStep )
         , ( "using fully tail-recursive List.tail", List.Extra.GroupsOf.tailRecGroupsOfWithStep )
         ]
-    , rank ("greedyGroupsOfWithStep 3 2 [1.." ++ String.fromInt listSize ++ "]")
+    , Bench.rank ("greedyGroupsOfWithStep 3 2 [1.." ++ String.fromInt listSize ++ "]")
         (\impl -> impl 3 2 range)
         [ ( "using elm-core's List.tail", List.Extra.GroupsOf.coreTailGreedyGroupsOfWithStep )
         , ( "using fully tail-recursive List.tail", List.Extra.GroupsOf.tailRecGreedyGroupsOfWithStep )
@@ -329,36 +329,39 @@ toComparisonsGroupsOfWithStep exponent =
 
 tupleExtra : Benchmark
 tupleExtra =
-    describe "Tuple.Extra"
-        [ Benchmark.compare "construction" "literal" (\() -> ( 1, "a" )) "function" (\() -> Tuple.pair 1 "a")
+    Bench.describe "Tuple.Extra"
+        [ Bench.compare "construction"
+            ( "literal", \_ -> ( 1, "a" ) )
+            ( "function", \_ -> Tuple.pair 1 "a" )
         ]
 
 
 stringExtra : Benchmark
 stringExtra =
-    describe "String.Extra"
+    Bench.describe "String.Extra"
         [ stringExtraIsBlank
-        , describe "String.Extra.{rightOf,leftOf}"
-            [ describe "1 match" (rightLeft 1)
-            , describe "10 matches" (rightLeft 10)
-            , describe "100 matches" (rightLeft 100)
-            , describe "1000 matches" (rightLeft 1000)
+        , Bench.describe "String.Extra.{rightOf,leftOf}"
+            [ Bench.describe "1 match" (rightLeft 1)
+            , Bench.describe "10 matches" (rightLeft 10)
+            , Bench.describe "100 matches" (rightLeft 100)
+            , Bench.describe "1000 matches" (rightLeft 1000)
             ]
         ]
 
 
+rightLeft : Int -> List Benchmark
 rightLeft matches =
     let
         a =
             List.Extra.initialize matches String.fromInt
                 |> String.join "___"
     in
-    [ rank "rightOf"
+    [ Bench.rank "rightOf"
         (\rightOf -> rightOf "___" a)
         [ ( "regex", String.Extra.RightOfLeftOf.rightOfRegex )
         , ( "String.indexes", String.Extra.RightOfLeftOf.rightOfIndexes )
         ]
-    , rank "leftOf"
+    , Bench.rank "leftOf"
         (\leftOf -> leftOf "___" a)
         [ ( "regex", String.Extra.RightOfLeftOf.leftOfRegex )
         , ( "String.indexes", String.Extra.RightOfLeftOf.leftOfIndexes )
@@ -368,8 +371,8 @@ rightLeft matches =
 
 maybeExtra : Benchmark
 maybeExtra =
-    describe "Maybe.Extra"
-        [ rank "andMap - Just × Just"
+    Bench.describe "Maybe.Extra"
+        [ Bench.rank "andMap - Just × Just"
             (\andMap -> Just negate |> andMap (Just 0))
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
@@ -377,7 +380,7 @@ maybeExtra =
             , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
             , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
             ]
-        , rank "andMap - Nothing × Just"
+        , Bench.rank "andMap - Nothing × Just"
             (\andMap -> Nothing |> andMap (Just 0))
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
@@ -385,7 +388,7 @@ maybeExtra =
             , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
             , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
             ]
-        , rank "andMap - Just × Nothing"
+        , Bench.rank "andMap - Just × Nothing"
             (\andMap -> Just negate |> andMap Nothing)
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
@@ -393,7 +396,7 @@ maybeExtra =
             , ( "nested case-of", Maybe.Extra.AndMap.andMapNestedCaseOf )
             , ( "nested case-of ignoring Nothing", Maybe.Extra.AndMap.andMapNestedCaseOfIgnoringNothing )
             ]
-        , rank "andMap - Nothing × Nothing"
+        , Bench.rank "andMap - Nothing × Nothing"
             (\andMap -> Nothing |> andMap Nothing)
             [ ( "original", Maybe.Extra.AndMap.andMapOriginal )
             , ( "inlined", Maybe.Extra.AndMap.andMapInlined )
@@ -424,42 +427,42 @@ resultExtra =
             else
                 Ok (a + sum)
     in
-    describe "Result.Extra"
-        [ rank "andMap - Ok × Ok"
+    Bench.describe "Result.Extra"
+        [ Bench.rank "andMap - Ok × Ok"
             (\andMap -> Ok negate |> andMap (Ok 0))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
             , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
-        , rank "andMap - Err × Ok"
+        , Bench.rank "andMap - Err × Ok"
             (\andMap -> Err "e" |> andMap (Ok 0))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
             , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
-        , rank "andMap - Ok × Err"
+        , Bench.rank "andMap - Ok × Err"
             (\andMap -> Ok negate |> andMap (Err "e"))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
             , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
-        , rank "andMap - Err × Err"
+        , Bench.rank "andMap - Err × Err"
             (\andMap -> Err "b" |> andMap (Err "e"))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
             , ( "inlined, nested case-of", Result.Extra.AndMap.andMapInlinedNestedCaseOf )
             ]
-        , rank "andMap - Err × Err"
+        , Bench.rank "andMap - Err × Err (2)"
             (\andMap -> Err "l" |> andMap (Err "e"))
             [ ( "original", Result.Extra.AndMap.andMapOriginal )
             , ( "inlined", Result.Extra.AndMap.andMapInlined )
             ]
-        , rank "foldlWhileOk - Err at the first element"
+        , Bench.rank "foldlWhileOk - Err at the first element"
             (\foldlWhileOk -> foldlWhileOk foldFnFirstError 0 integers)
             [ ( "Using List.foldl", \f initial list -> List.foldl (\n acc -> Result.andThen (f n) acc) (Ok initial) list )
             , ( "foldlWhileOk", \f initial list -> Result.Extra.foldlWhileOk f initial list )
             ]
-        , rank "foldlWhileOk - all Ok"
+        , Bench.rank "foldlWhileOk - all Ok"
             (\foldlWhileOk -> foldlWhileOk foldFnAllOk 0 integers)
             [ ( "Using List.foldl", \f initial list -> List.foldl (\n acc -> Result.andThen (f n) acc) (Ok initial) list )
             , ( "foldlWhileOk", \f initial list -> Result.Extra.foldlWhileOk f initial list )
@@ -471,7 +474,7 @@ stringExtraIsBlank : Benchmark
 stringExtraIsBlank =
     let
         bench label string =
-            rank label
+            Bench.rank label
                 (\isBlank -> isBlank string)
                 [ ( "regex based", String.Extra.IsBlank.regexBased )
                 , ( "regex based (with top-level regex)", String.Extra.IsBlank.regexBasedWithTopLevelRegex )
@@ -487,7 +490,7 @@ stringExtraIsBlank =
         fullString =
             String.repeat 10 "Hello World"
     in
-    Benchmark.describe "isBlank"
+    Bench.describe "isBlank"
         [ bench "empty string" emptyString
         , bench "whitespace string" wsString
         , bench "full string" fullString
@@ -506,20 +509,6 @@ subtractOneUntilZero i =
 ints1To100 : Array Int
 ints1To100 =
     Array.fromList (List.range 1 100)
-
-
-
--- Note for benchmarking:
--- Since sets are ordered internally, you can get seriously distorted numbers
--- if the sets happen to intersect and start/end, or are disjoint with no overlap
--- in their ranges.
---
--- Hence the following sample data is carefully chosen such that even disjoint
--- sets are for instance even/odd numbers.
---
--- That said, in my experience specific benchmark results can be highly dependant
--- on exact choice of example data, so if you are getting particularly interesting
--- results, play around with different data distributions.
 
 
 evenNumberSet : Set Int
@@ -552,30 +541,30 @@ divisibleBy3and5Set =
 
 setExtra : Benchmark
 setExtra =
-    describe "Set.Extra"
-        [ rank "areDisjoint == True"
+    Bench.describe "Set.Extra"
+        [ Bench.rank "areDisjoint == True"
             (\areDisjoint -> areDisjoint evenNumberSet oddNumberSet)
             [ ( "intersection", Set.Extra.AreDisjoint.intersection )
             , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
             , ( "foldr", Set.Extra.AreDisjoint.foldr )
             , ( "foldl", Set.Extra.AreDisjoint.foldl )
             ]
-        , rank "areDisjoint == False (and small)"
+        , Bench.rank "areDisjoint == False (and small)"
             (\areDisjoint -> areDisjoint evenNumberSet oddNumberSetPlus500)
             [ ( "intersection", Set.Extra.AreDisjoint.intersection )
             , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
             , ( "foldr", Set.Extra.AreDisjoint.foldr )
             , ( "foldl", Set.Extra.AreDisjoint.foldl )
             ]
-        , rank "areDisjoint == False (and large)"
+        , Bench.rank "areDisjoint == False (and large)"
             (\areDisjoint -> areDisjoint evenNumberSet lowNumsAndDivisibleBy4Set)
             [ ( "intersection", Set.Extra.AreDisjoint.intersection )
             , ( "listRecursion", Set.Extra.AreDisjoint.listRecursion )
             , ( "foldr", Set.Extra.AreDisjoint.foldr )
             , ( "foldl", Set.Extra.AreDisjoint.foldl )
             ]
-        , rank "symmetricDifference"
-            (\areDisjoint -> areDisjoint evenNumberSet divisibleBy3and5Set)
+        , Bench.rank "symmetricDifference"
+            (\symDiff -> symDiff evenNumberSet divisibleBy3and5Set)
             [ ( "naive", Set.Extra.SymmetricDifference.naive )
             , ( "orderExploiting", Set.Extra.SymmetricDifference.orderExploiting )
             ]

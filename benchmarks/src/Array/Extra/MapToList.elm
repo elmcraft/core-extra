@@ -9,7 +9,8 @@ withFoldr alter =
         array
             |> Array.foldr
                 (\element soFar ->
-                    soFar |> (::) (element |> alter)
+                    soFar
+                        |> (::) (element |> alter)
                 )
                 []
 

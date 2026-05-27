@@ -1,8 +1,5 @@
 module List.Extra.GroupsOf exposing (coreTailGreedyGroupsOfWithStep, coreTailGroupsOfWithStep, tailRecGreedyGroupsOfWithStep, tailRecGroupsOfWithStep)
 
-import Benchmark
-import Benchmark.Runner.Alternative as BenchmarkRunner
-
 
 coreTailGroupsOfWithStep : Int -> Int -> List a -> List (List a)
 coreTailGroupsOfWithStep size step list =
