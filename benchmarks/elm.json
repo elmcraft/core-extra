@@ -13,7 +13,7 @@
             "elm/random": "1.0.0",
             "elm/regex": "1.0.0",
             "elm-explorations/test": "2.2.1",
-            "gampleman/elm-bench": "1.1.0"
+            "gampleman/elm-bench": "1.1.1"
         },
         "indirect": {
             "BrianHicks/elm-trend": "2.1.3",
