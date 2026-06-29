@@ -1,5 +1,5 @@
 module List.Extra exposing
-    ( last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, insertAt, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+    ( last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, insertAt, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith, nonEmpty
     , intercalate, transpose, subsequences, permutations, interweave, cartesianProduct, uniquePairs
     , foldl1, foldr1, indexedFoldl, indexedFoldr, Step(..), stoppableFoldl
     , scanl, scanl1, scanr, scanr1, mapAccuml, mapAccumr, unfoldr, iterate, initialize, cycle, reverseRange
@@ -17,7 +17,7 @@ module List.Extra exposing
 
 # Basics
 
-@docs last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, insertAt, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith
+@docs last, init, getAt, cons, uncons, unconsLast, push, appendTo, prependTo, maximumBy, maximumWith, minimumBy, minimumWith, andMap, andThen, reverseMap, takeWhile, dropWhile, unique, uniqueBy, allDifferent, allDifferentBy, insertAt, setIf, setAt, remove, updateIf, updateAt, updateIfIndex, removeAt, removeIfIndex, removeWhen, swapAt, stableSortWith, nonEmpty
 
 
 # List transformations
@@ -993,6 +993,25 @@ stableSortWith pred list =
                     result
     in
     List.sortWith predWithIndex listWithIndex |> List.map Tuple.first
+
+
+{-| Convert a list to a Nothing when empty.
+
+    nonEmpty []
+    --> Nothing
+
+    nonEmpty [1, 2, 3]
+    --> Just [1, 2, 3]
+
+-}
+nonEmpty : List a -> Maybe (List a)
+nonEmpty list =
+    case list of
+        [] ->
+            Nothing
+
+        xs ->
+            Just xs
 
 
 {-| Swap two values in a list by index. Return the original list if the index is out of range.

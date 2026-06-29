@@ -1233,6 +1233,12 @@ all =
                         (List.range 1 1000)
                         |> Expect.equal 50
             ]
+        , describe "nonEmpty"
+            [ test "empty list returns Nothing" <|
+                \() -> List.Extra.nonEmpty [] |> Expect.equal Nothing
+            , test "non-empty list returns Just with the list" <|
+                \() -> List.Extra.nonEmpty [ 1, 2, 3 ] |> Expect.equal (Just [ 1, 2, 3 ])
+            ]
         ]
 
 
