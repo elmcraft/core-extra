@@ -1003,15 +1003,32 @@ stableSortWith pred list =
     nonEmpty [1, 2, 3]
     --> Just [1, 2, 3]
 
+Useful to guard against empty lists, when you want to keep working with the List type and not switch to a custom NonEmptyList type. For example:
+
+    type Item
+        = Item
+
+    type Parcel
+        = Parcel (List Item)
+
+    items : List Item
+    items =
+        [ Item, Item ]
+
+    nonEmptyParcel : Maybe Parcel
+    nonEmptyParcel =
+        items
+            |> List.nonEmpty
+            |> Maybe.map Parcel
+
 -}
 nonEmpty : List a -> Maybe (List a)
-nonEmpty list =
-    case list of
-        [] ->
-            Nothing
+nonEmpty xs =
+    if List.isEmpty xs then
+        Nothing
 
-        xs ->
-            Just xs
+    else
+        Just xs
 
 
 {-| Swap two values in a list by index. Return the original list if the index is out of range.
