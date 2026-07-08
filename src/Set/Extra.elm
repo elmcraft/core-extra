@@ -59,8 +59,8 @@ import Set exposing (Set)
 
 -}
 concatMap : (comparable -> Set comparable2) -> Set comparable -> Set comparable2
-concatMap f s =
-    Set.foldl (\x acc -> Set.union (f x) acc) Set.empty s
+concatMap f set =
+    Set.foldl (\x acc -> Set.union (f x) acc) Set.empty set
 
 
 {-| A set is a subset of another set if all the elements in the first set appear in the second set.
@@ -126,18 +126,18 @@ toggle elem set =
 
 -}
 filterMap : (comparable -> Maybe comparable2) -> Set comparable -> Set comparable2
-filterMap f xs =
-    Set.foldr (maybeInsert f) Set.empty xs
+filterMap f set =
+    Set.foldr (maybeInsert f) Set.empty set
 
 
 maybeInsert : (a -> Maybe comparable) -> a -> Set comparable -> Set comparable
-maybeInsert f mx xs =
+maybeInsert f mx set =
     case f mx of
         Just x ->
-            Set.insert x xs
+            Set.insert x set
 
         Nothing ->
-            xs
+            set
 
 
 {-| A set is disjoint from another set if they have no elements in common.
