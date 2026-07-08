@@ -312,8 +312,8 @@ unconsLast list =
 
 -}
 push : a -> List a -> List a
-push x xs =
-    xs ++ [ x ]
+push x list =
+    list ++ [ x ]
 
 
 {-| Append with arguments optimised for pipelines.
@@ -941,8 +941,8 @@ updateIfIndex predicate update list =
 {-| Remove the first occurrence of a value from a list.
 -}
 remove : a -> List a -> List a
-remove x xs =
-    removeHelp xs x xs []
+remove x list =
+    removeHelp list x list []
 
 
 removeHelp : List a -> a -> List a -> List a -> List a
@@ -1280,8 +1280,8 @@ If the list of lists is empty, the result is an empty singleton.
 
 -}
 cartesianProduct : List (List a) -> List (List a)
-cartesianProduct ll =
-    case ll of
+cartesianProduct listOfLists =
+    case listOfLists of
         [] ->
             [ [] ]
 
@@ -1648,8 +1648,8 @@ unfoldr f seed =
 
 -}
 splitAt : Int -> List a -> ( List a, List a )
-splitAt n xs =
-    ( List.take n xs, List.drop n xs )
+splitAt n list =
+    ( List.take n list, List.drop n list )
 
 
 {-| Attempts to split the list at the first element where the given predicate is true. If the predicate is not true for any elements in the list, return nothing. Otherwise, return the split list.
