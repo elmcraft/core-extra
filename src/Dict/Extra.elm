@@ -142,11 +142,11 @@ If the function does not return unique keys, earlier values are discarded.
 
 -}
 fromListBy : (a -> comparable) -> List a -> Dict comparable a
-fromListBy keyfn xs =
+fromListBy keyfn list =
     List.foldl
         (\x acc -> Dict.insert (keyfn x) x acc)
         Dict.empty
-        xs
+        list
 
 
 {-| Like `Dict.fromList`, but you provide a way to deal with
@@ -163,11 +163,11 @@ paired with the same key.
 
 -}
 fromListCombining : (a -> a -> a) -> List ( comparable, a ) -> Dict comparable a
-fromListCombining combine xs =
+fromListCombining combine list =
     List.foldl
         (\( key, value ) acc -> insertCombining combine key value acc)
         Dict.empty
-        xs
+        list
 
 
 {-| `fromListBy` and `fromListCombining` rolled into one.
@@ -179,11 +179,11 @@ fromListCombining combine xs =
 
 -}
 fromListByCombining : (a -> a -> a) -> (a -> comparable) -> List a -> Dict comparable a
-fromListByCombining combine keyfn xs =
+fromListByCombining combine keyfn list =
     List.foldl
         (\x acc -> insertCombining combine (keyfn x) x acc)
         Dict.empty
-        xs
+        list
 
 
 {-| Count the number of occurrences for each of the elements in the list.
