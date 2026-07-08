@@ -82,8 +82,8 @@ module List.Extra exposing
 
 -}
 last : List a -> Maybe a
-last items =
-    case items of
+last list =
+    case list of
         [] ->
             Nothing
 
@@ -104,8 +104,8 @@ last items =
 
 -}
 init : List a -> Maybe (List a)
-init items =
-    case items of
+init list =
+    case list of
         [] ->
             Nothing
 
@@ -120,12 +120,12 @@ init items =
 or `Nothing` if the index is out of range.
 -}
 getAt : Int -> List a -> Maybe a
-getAt idx xs =
+getAt idx list =
     if idx < 0 then
         Nothing
 
     else
-        List.head <| List.drop idx xs
+        List.head <| List.drop idx list
 
 
 {-| Returns a list of repeated applications of `f`. If `f` returns `Nothing`
@@ -312,8 +312,8 @@ unconsLast list =
 
 -}
 push : a -> List a -> List a
-push x xs =
-    xs ++ [ x ]
+push x list =
+    list ++ [ x ]
 
 
 {-| Append with arguments optimised for pipelines.
@@ -345,7 +345,7 @@ prependTo =
 {-| Find the first maximum element in a list using a comparable transformation
 -}
 maximumBy : (a -> comparable) -> List a -> Maybe a
-maximumBy f ls =
+maximumBy f list =
     let
         maxBy : a -> ( a, comparable ) -> ( a, comparable )
         maxBy x (( _, fy ) as max) =
@@ -360,7 +360,7 @@ maximumBy f ls =
             else
                 max
     in
-    case ls of
+    case list of
         [ l_ ] ->
             Just l_
 
@@ -399,7 +399,7 @@ maximumWith comparator list =
 {-| Find the first minimum element in a list using a comparable transformation
 -}
 minimumBy : (a -> comparable) -> List a -> Maybe a
-minimumBy f ls =
+minimumBy f list =
     let
         minBy : a -> ( a, comparable ) -> ( a, comparable )
         minBy x (( _, fy ) as min) =
@@ -414,7 +414,7 @@ minimumBy f ls =
             else
                 min
     in
-    case ls of
+    case list of
         [ l_ ] ->
             Just l_
 
@@ -570,8 +570,8 @@ allDifferentBy f list =
 
 -}
 andMap : List a -> List (a -> b) -> List b
-andMap l fl =
-    List.map2 (<|) fl l
+andMap list fl =
+    List.map2 (<|) fl list
 
 
 {-| Equivalent to `concatMap`. For example, suppose you want to have a cartesian product of [1,2] and [3,4]:
@@ -614,8 +614,8 @@ but is tail-recursive and slightly more efficient.
 
 -}
 reverseMap : (a -> b) -> List a -> List b
-reverseMap f xs =
-    List.foldl (\x acc -> f x :: acc) [] xs
+reverseMap f list =
+    List.foldl (\x acc -> f x :: acc) [] list
 
 
 {-| Negation of `member`.
@@ -941,8 +941,8 @@ updateIfIndex predicate update list =
 {-| Remove the first occurrence of a value from a list.
 -}
 remove : a -> List a -> List a
-remove x xs =
-    removeHelp xs x xs []
+remove x list =
+    removeHelp list x list []
 
 
 removeHelp : List a -> a -> List a -> List a -> List a
@@ -1023,12 +1023,12 @@ Useful to guard against empty lists, when you want to keep working with the List
 
 -}
 nonEmpty : List a -> Maybe (List a)
-nonEmpty xs =
-    if List.isEmpty xs then
+nonEmpty list =
+    if List.isEmpty list then
         Nothing
 
     else
-        Just xs
+        Just list
 
 
 {-| Swap two values in a list by index. Return the original list if the index is out of range.
@@ -1039,17 +1039,17 @@ If the same index is supplied twice the operation has no effect.
 
 -}
 swapAt : Int -> Int -> List a -> List a
-swapAt index1 index2 l =
+swapAt index1 index2 list =
     if index1 == index2 || index1 < 0 then
-        l
+        list
 
     else if index1 > index2 then
-        swapAt index2 index1 l
+        swapAt index2 index1 list
 
     else
         let
             ( part1, tail1 ) =
-                splitAt index1 l
+                splitAt index1 list
 
             ( head2, tail2 ) =
                 splitAt (index2 - index1) tail1
@@ -1059,7 +1059,7 @@ swapAt index1 index2 l =
                 List.concat [ part1, value2 :: part2, value1 :: part3 ]
 
             _ ->
-                l
+                list
 
 
 {-| Remove the element at an index from a list. Return the original list if the index is out of range.
@@ -1071,17 +1071,17 @@ See also `removeIfIndex`.
 
 -}
 removeAt : Int -> List a -> List a
-removeAt index l =
+removeAt index list =
     if index < 0 then
-        l
+        list
 
     else
-        case List.drop index l of
+        case List.drop index list of
             [] ->
-                l
+                list
 
             _ :: rest ->
-                List.take index l ++ rest
+                List.take index list ++ rest
 
 
 {-| Remove an element at an index that satisfies a predicate.
@@ -1163,8 +1163,8 @@ rowsLength listOfLists =
 
 -}
 subsequences : List a -> List (List a)
-subsequences xs =
-    [] :: subsequencesHelp xs
+subsequences list =
+    [] :: subsequencesHelp list
 
 
 {-| Return the list of all subsequences of the argument, except for the empty list.
@@ -1215,8 +1215,8 @@ subsequencesNonEmpty list =
 
 -}
 permutations : List a -> List (List a)
-permutations xs_ =
-    case xs_ of
+permutations list =
+    case list of
         [] ->
             [ [] ]
 
@@ -1280,8 +1280,8 @@ If the list of lists is empty, the result is an empty singleton.
 
 -}
 cartesianProduct : List (List a) -> List (List a)
-cartesianProduct ll =
-    case ll of
+cartesianProduct listOfLists =
+    case listOfLists of
         [] ->
             [ [] ]
 
@@ -1304,7 +1304,7 @@ In this example, everybody shakes hands with three other people.
 
 -}
 uniquePairs : List a -> List ( a, a )
-uniquePairs xs =
+uniquePairs list =
     let
         go : List a -> List ( a, a ) -> List ( a, a )
         go queue acc =
@@ -1315,7 +1315,7 @@ uniquePairs xs =
                 h :: t ->
                     go t (List.foldl (\o a -> ( h, o ) :: a) acc t)
     in
-    go xs []
+    go list []
 
 
 reverseAppend : List a -> List a -> List a
@@ -1431,13 +1431,13 @@ stoppableFoldl func acc list =
 
 -}
 scanl : (a -> b -> b) -> b -> List a -> List b
-scanl f b xs =
+scanl f b list =
     let
         scan1 x ( accHead, accTail ) =
             ( f x accHead, accHead :: accTail )
 
         ( h, t ) =
-            List.foldl scan1 ( b, [] ) xs
+            List.foldl scan1 ( b, [] ) list
     in
     List.reverse (h :: t)
 
@@ -1460,8 +1460,8 @@ Compare:
 
 -}
 scanl1 : (a -> a -> a) -> List a -> List a
-scanl1 f xs_ =
-    case xs_ of
+scanl1 f list =
+    case list of
         [] ->
             []
 
@@ -1483,13 +1483,13 @@ Examples:
 
 -}
 scanr : (a -> b -> b) -> b -> List a -> List b
-scanr f b xs_ =
+scanr f b list =
     let
         scan1 x ( accHead, accTail ) =
             ( f x accHead, accHead :: accTail )
 
         ( h, t ) =
-            List.foldr scan1 ( b, [] ) xs_
+            List.foldr scan1 ( b, [] ) list
     in
     h :: t
 
@@ -1504,8 +1504,8 @@ scanr f b xs_ =
 
 -}
 scanr1 : (a -> a -> a) -> List a -> List a
-scanr1 f xs_ =
-    case List.reverse xs_ of
+scanr1 f list =
+    case List.reverse list of
         [] ->
             []
 
@@ -1648,8 +1648,8 @@ unfoldr f seed =
 
 -}
 splitAt : Int -> List a -> ( List a, List a )
-splitAt n xs =
-    ( List.take n xs, List.drop n xs )
+splitAt n list =
+    ( List.take n list, List.drop n list )
 
 
 {-| Attempts to split the list at the first element where the given predicate is true. If the predicate is not true for any elements in the list, return nothing. Otherwise, return the split list.
@@ -1674,8 +1674,8 @@ splitWhen predicate list =
 
 -}
 takeRight : Int -> List a -> List a
-takeRight n lst =
-    lst
+takeRight n list =
+    list
         |> List.reverse
         |> List.take n
         |> List.reverse
@@ -1688,8 +1688,8 @@ takeRight n lst =
 
 -}
 dropRight : Int -> List a -> List a
-dropRight n lst =
-    lst
+dropRight n list =
+    list
         |> List.reverse
         |> List.drop n
         |> List.reverse
@@ -1702,7 +1702,7 @@ dropRight n lst =
 
 -}
 takeWhileRight : (a -> Bool) -> List a -> List a
-takeWhileRight p ls =
+takeWhileRight p list =
     let
         step x ( xs, free ) =
             if p x && free then
@@ -1711,7 +1711,7 @@ takeWhileRight p ls =
             else
                 ( xs, False )
     in
-    Tuple.first (List.foldr step ( [], True ) ls)
+    Tuple.first (List.foldr step ( [], True ) list)
 
 
 {-| Drop elements from the right, while predicate still holds.
@@ -1721,7 +1721,7 @@ takeWhileRight p ls =
 
 -}
 dropWhileRight : (a -> Bool) -> List a -> List a
-dropWhileRight p ls =
+dropWhileRight p list =
     List.foldr
         (\x xs ->
             if p x && List.isEmpty xs then
@@ -1731,7 +1731,7 @@ dropWhileRight p ls =
                 x :: xs
         )
         []
-        ls
+        list
 
 
 {-| Take a predicate and a list, return a tuple. The first part of the tuple is the longest prefix of that list, for each element of which the predicate holds. The second part of the tuple is the remainder of the list. `span p xs` is equivalent to `(takeWhile p xs, dropWhile p xs)`.
@@ -1747,8 +1747,8 @@ dropWhileRight p ls =
 
 -}
 span : (a -> Bool) -> List a -> ( List a, List a )
-span p xs =
-    ( takeWhile p xs, dropWhile p xs )
+span p list =
+    ( takeWhile p list, dropWhile p list )
 
 
 {-| Take a predicate and a list, return a tuple. The first part of the tuple is the longest prefix of that list, for each element of which the predicate _does not_ hold. The second part of the tuple is the remainder of the list. `break p xs` is equivalent to `(takeWhile (not p) xs, dropWhile (not p) xs)`.
@@ -1764,8 +1764,8 @@ span p xs =
 
 -}
 break : (a -> Bool) -> List a -> ( List a, List a )
-break p ls =
-    span (\x -> not (p x)) ls
+break p list =
+    span (\x -> not (p x)) list
 
 
 {-| Drop the given prefix from the list. If the list doesn't start with that prefix, return `Nothing`.
@@ -1787,13 +1787,13 @@ break p ls =
 
 -}
 stripPrefix : List a -> List a -> Maybe (List a)
-stripPrefix prefix xs =
+stripPrefix prefix list =
     case prefix of
         [] ->
-            Just xs
+            Just list
 
         prefixHead :: prefixTail ->
-            case xs of
+            case list of
                 [] ->
                     Nothing
 
@@ -1840,7 +1840,7 @@ The behavior of this function has changed between major versions 7 and 8. In ver
 
 -}
 groupWhile : (a -> a -> Bool) -> List a -> List ( a, List a )
-groupWhile isSameGroup items =
+groupWhile isSameGroup list =
     List.foldr
         (\x acc ->
             case acc of
@@ -1855,7 +1855,7 @@ groupWhile isSameGroup items =
                         ( x, [] ) :: acc
         )
         []
-        items
+        list
 
 
 {-| Return all initial segments of a list, from shortest to longest, empty list first, the list itself last.
@@ -1989,8 +1989,8 @@ isPrefixOf prefix list =
 {-| Take two lists and return `True`, if the first list is the suffix of the second list.
 -}
 isSuffixOf : List a -> List a -> Bool
-isSuffixOf suffix xs =
-    isPrefixOf (List.reverse suffix) (List.reverse xs)
+isSuffixOf suffix list =
+    isPrefixOf (List.reverse suffix) (List.reverse list)
 
 
 {-| Return True if all the elements of the first list occur in-order and
@@ -2081,8 +2081,8 @@ In other words: Do the 2 `List`s contain the same elements but in a different or
 
 -}
 isPermutationOf : List a -> List a -> Bool
-isPermutationOf permut xs =
-    case xs of
+isPermutationOf permut list =
+    case list of
         [] ->
             List.isEmpty permut
 
@@ -2099,8 +2099,8 @@ isPermutationOf permut xs =
 
 
 removeOneMember : a -> List a -> { foundAny : Bool, without : List a }
-removeOneMember culprit l =
-    removeOneMemberHelp culprit [] l
+removeOneMember culprit list =
+    removeOneMemberHelp culprit [] list
 
 
 removeOneMemberHelp : a -> List a -> List a -> { foundAny : Bool, without : List a }
@@ -2174,8 +2174,8 @@ to calling `groupsOfWithStep` with the same `size` and `step`.
 
 -}
 groupsOf : Int -> List a -> List (List a)
-groupsOf size xs =
-    groupsOfWithStep size size xs
+groupsOf size list =
+    groupsOfWithStep size size list
 
 
 {-| Split list into groups of length `size` at offsets `step` apart. If there
@@ -2300,8 +2300,8 @@ the list to completely fill it. This is equivalent to calling
 
 -}
 greedyGroupsOf : Int -> List a -> List (List a)
-greedyGroupsOf size xs =
-    greedyGroupsOfWithStep size size xs
+greedyGroupsOf size list =
+    greedyGroupsOfWithStep size size list
 
 
 {-| Greedily split list into groups of length `size` at offsets `step` apart.

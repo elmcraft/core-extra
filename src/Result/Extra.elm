@@ -193,12 +193,12 @@ combineHelp list acc =
 and combine those into a single result (holding a list).
 Also known as `traverse` on lists.
 
-    combineMap f xs == combine (List.map f xs)
+    combineMap f list == combine (List.map f list)
 
 -}
 combineMap : (a -> Result x b) -> List a -> Result x (List b)
-combineMap f ls =
-    combineMapHelp f ls []
+combineMap f list =
+    combineMapHelp f list []
 
 
 combineMapHelp : (a -> Result x b) -> List a -> List b -> Result x (List b)
