@@ -3,7 +3,6 @@ module Benchmarks exposing (main)
 import Application.NegAbs
 import Application.Sum
 import Array exposing (Array)
-import Array.Extra.Singleton
 import Array.Extra as Array
 import Array.Extra.All
 import Array.Extra.Any
@@ -14,6 +13,7 @@ import Array.Extra.Map2
 import Array.Extra.MapToList
 import Array.Extra.Member
 import Array.Extra.Reverse
+import Array.Extra.Singleton
 import Array.Extra.Unzip
 import Benchmark exposing (Benchmark, describe)
 import Benchmark.Alternative exposing (rank)
@@ -185,7 +185,8 @@ arrayExtra =
             , ( "with any", Array.Extra.Member.withAny )
             ]
         , let
-            element = ( 2, 3 )
+            element =
+                ( 2, 3 )
           in
           rank "singleton"
             (\singleton -> singleton element)

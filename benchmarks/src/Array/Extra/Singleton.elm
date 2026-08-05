@@ -1,4 +1,4 @@
-module Array.Extra.Singleton exposing (repeat1, initialize1, pushEmpty, fromList, mapExistingSingleton)
+module Array.Extra.Singleton exposing (fromList, initialize1, mapExistingSingleton, pushEmpty, repeat1)
 
 import Array exposing (Array)
 
@@ -10,7 +10,7 @@ repeat1 element =
 
 initialize1 : a -> Array a
 initialize1 element =
-    Array.initialize 1 (\_-> element)
+    Array.initialize 1 (\_ -> element)
 
 
 pushEmpty : a -> Array a
