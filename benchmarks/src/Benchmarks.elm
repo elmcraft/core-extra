@@ -3,6 +3,7 @@ module Benchmarks exposing (main)
 import Application.NegAbs
 import Application.Sum
 import Array exposing (Array)
+import Array.Extra.Singleton
 import Array.Extra as Array
 import Array.Extra.All
 import Array.Extra.Any
@@ -182,6 +183,17 @@ arrayExtra =
             , ( "recursive", Array.Extra.Member.recursive )
             , ( "with List.member", Array.Extra.Member.withList )
             , ( "with any", Array.Extra.Member.withAny )
+            ]
+        , let
+            element = ( 2, 3 )
+          in
+          rank "singleton"
+            (\singleton -> singleton element)
+            [ ( "initialize 1 (\\_ -> _)", Array.Extra.Singleton.initialize1 )
+            , ( "repeat 1 _", Array.Extra.Singleton.repeat1 )
+            , ( "fromList [ _ ]", Array.Extra.Singleton.fromList )
+            , ( "push _ empty", Array.Extra.Singleton.pushEmpty )
+            , ( "map (\\() -> element) existingSingleton", Array.Extra.Singleton.mapExistingSingleton )
             ]
         ]
 

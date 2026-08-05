@@ -1,5 +1,6 @@
 module Array.Extra exposing
-    ( all, any, member
+    ( singleton
+    , all, any, member
     , reverse, intersperse, update, pop, removeAt, insertAt
     , removeWhen, filterMap
     , sliceFrom, sliceUntil, splitAt, unzip, last
@@ -9,6 +10,11 @@ module Array.Extra exposing
     )
 
 {-| Convenience functions for working with `Array`
+
+
+# Creation
+
+@docs singleton
 
 
 # Predicates
@@ -48,6 +54,19 @@ module Array.Extra exposing
 -}
 
 import Array exposing (Array, append, empty, initialize, length, repeat, slice)
+
+
+{-| Create an array containing only the one given element:
+
+    import Array exposing (fromList, length)
+
+    singleton 1234 --> fromList [ 1234 ]
+    length (singleton "hi") --> 1
+
+-}
+singleton : a -> Array a
+singleton element =
+    Array.push element Array.empty
 
 
 {-| Update the element at a given index based on its current value.
