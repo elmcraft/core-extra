@@ -13,6 +13,7 @@ import Array.Extra.Map2
 import Array.Extra.MapToList
 import Array.Extra.Member
 import Array.Extra.Reverse
+import Array.Extra.Singleton
 import Array.Extra.Unzip
 import Bench exposing (Benchmark)
 import List.Extra
@@ -180,6 +181,18 @@ arrayExtra =
             , ( "recursive", Array.Extra.Member.recursive )
             , ( "with List.member", Array.Extra.Member.withList )
             , ( "with any", Array.Extra.Member.withAny )
+            ]
+        , let
+            element =
+                ( 2, 3 )
+          in
+          rank "singleton"
+            (\singleton -> singleton element)
+            [ ( "initialize 1 (\\_ -> _)", Array.Extra.Singleton.initialize1 )
+            , ( "repeat 1 _", Array.Extra.Singleton.repeat1 )
+            , ( "fromList [ _ ]", Array.Extra.Singleton.fromList )
+            , ( "push _ empty", Array.Extra.Singleton.pushEmpty )
+            , ( "map (\\() -> element) existingSingleton", Array.Extra.Singleton.mapExistingSingleton )
             ]
         ]
 
