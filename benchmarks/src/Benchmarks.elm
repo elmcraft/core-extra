@@ -186,7 +186,7 @@ arrayExtra =
             element =
                 ( 2, 3 )
           in
-          rank "singleton"
+          Bench.rank "singleton"
             (\singleton -> singleton element)
             [ ( "initialize 1 (\\_ -> _)", Array.Extra.Singleton.initialize1 )
             , ( "repeat 1 _", Array.Extra.Singleton.repeat1 )
