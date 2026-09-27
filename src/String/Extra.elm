@@ -4,7 +4,7 @@ module String.Extra exposing
     , replaceSlice, insertAt, nonEmpty, nonBlank, removeDiacritics
     , break, softBreak
     , wrap, wrapWith, softWrap, softWrapWith, quote, surround
-    , isBlank, countOccurrences
+    , isBlank, countOccurrences, isCapitalized
     , clean, unquote, unsurround, unindent, ellipsis, softEllipsis, ellipsisWith, stripTags, pluralize
     , toSentence, toSentenceOxford
     , rightOf, leftOf, rightOfBack, leftOfBack
@@ -43,7 +43,7 @@ Functions borrowed from the Rails Inflector class
 
 ## Checks
 
-@docs isBlank, countOccurrences
+@docs isBlank, countOccurrences, isCapitalized
 
 
 ## Formatting
@@ -570,6 +570,28 @@ countOccurrences needle haystack =
         haystack
             |> String.indexes needle
             |> List.length
+
+
+{-| Whether the string starts with an uppercase ASCII char.
+
+    isCapitalized "Hello, World." --> True
+
+    isCapitalized "sign language" --> False
+
+    isCapitalized "Σ" --> False
+
+    isCapitalized "" -> False
+
+    isCapitalized "NO WAY!" --> True
+
+    isCapitalized "2012" --> False
+
+-}
+isCapitalized : String -> Bool
+isCapitalized string =
+    -- String.left may slice a surrogate pair in half.
+    -- That is fine though as Char.isUpper reliably rejects on these code units
+    String.any Char.isUpper (String.left 1 string)
 
 
 {-| Truncate the second string at the specified length if the string is

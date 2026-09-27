@@ -1,4 +1,4 @@
-module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, leftOfBackTest, leftOfTest, nonBlankTest, pluralizeTest, rightOfBackTest, rightOfTest, softBreakTest, stripTagsTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
+module String.Tests exposing (breakTest, cleanTest, countOccurrencesTest, dasherizeTest, decapitalizeTest, ellipsisTest, insertAtTest, isBlankTest, isCapitalizedTest, leftOfBackTest, leftOfTest, nonBlankTest, pluralizeTest, rightOfBackTest, rightOfTest, softBreakTest, stripTagsTest, surroundTest, toSentenceCaseTest, toTitleCaseTest, underscoredTest, unquoteTest, wrapTest)
 
 import Char.Extra
 import Expect
@@ -328,6 +328,23 @@ countOccurrencesTest =
                         String.length (replace needle "" haystack)
                 in
                 Expect.equal expected result
+        ]
+
+
+isCapitalizedTest : Test
+isCapitalizedTest =
+    describe "isCapitalized"
+        [ Test.fuzz Fuzz.string "like Char.isUpper on the head in String.toList" <|
+            \str ->
+                String.Extra.isCapitalized str
+                    |> Expect.equal
+                        (case String.toList str of
+                            firstChar :: _ ->
+                                Char.isUpper firstChar
+
+                            [] ->
+                                False
+                        )
         ]
 
 
